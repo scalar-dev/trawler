@@ -1,0 +1,17 @@
+version: "3.3"
+services:
+  postgres:
+    container_name: postgres
+    restart: always
+    image: timescale/timescaledb:latest-pg12
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "54321:5432"
+
+volumes:
+    pgdata:
+        driver: local
