@@ -12,7 +12,7 @@ class FieldType(Enum):
 class Field:
     name: str
     type: str
-    description: str
+    comment: Optional[str]
     nullable: bool
     is_primary_key: bool
 
@@ -28,8 +28,7 @@ class Object:
     name: str
     fields: List[Field]
     relations: List[Relation]
-    description: str
-    metadata: Dict[str, Any]
+    comment: Optional[str]
 
 
 @dataclass

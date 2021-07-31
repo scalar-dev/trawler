@@ -13,6 +13,7 @@ SQLAlchemy = "^1.4.17"
 psycopg2-binary = "^2.8.6"
 sqlparse = "^0.4.1"
 click = "^8.0.1"
+requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
