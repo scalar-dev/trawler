@@ -1,0 +1,13 @@
+{
+  "@context": {
+    "name": "http://schema.org/name",
+    "hasFields": {
+      "@id": "http://trawler.dev/schema/core/0.1/hasColumns",
+      "@type": "@id"
+    },
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "tr": "http://trawler.dev/schema/core/0.1#",
+    "description": "http://schema.org/description"
+  }
+}

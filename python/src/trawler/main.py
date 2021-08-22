@@ -4,6 +4,7 @@ import requests
 from datetime import datetime
 
 import sqlparse
+from urllib.parse import urlparse
 import click
 from sqlalchemy.inspection import inspect
 from sqlalchemy.engine import create_engine
@@ -27,45 +28,71 @@ def sql(uri: str):
     engine = create_engine(uri)
     inspector = inspect(engine)
 
-    out = {
-        "source": {
-            "url": engine.url.render_as_string(),
-            "dialect": engine.dialect.name
-        },
-        "objects": []
-    }
+    parsed_uri = urlparse(uri)
+    host = parsed_uri.netloc.split("@")[-1]
 
-    for table_name in inspector.get_table_names():
-        object = Object(table_name, [], [], inspector.get_table_comment(table_name)["text"])
-        primary_key_columns = set(inspector.get_pk_constraint(table_name)["constrained_columns"])
-        for column in inspector.get_columns(table_name):
-            object.fields.append(
-                Field(column["name"], column["type"].__visit_name__, column["comment"], column["nullable"], 
-                    column["name"] in primary_key_columns
+    out = []
+
+    for schema in inspector.get_schema_names():
+        for table_name in inspector.get_table_names(schema):
+            print(schema, table_name)
+            comments = inspector.get_table_comment(table_name, schema=schema)["text"]
+
+            object = Object(table_name, [], [], comments)
+            primary_key_columns = set(inspector.get_pk_constraint(table_name, schema=schema)["constrained_columns"])
+            for column in inspector.get_columns(table_name, schema=schema):
+                object.fields.append(
+                    Field(column["name"], column["type"].__visit_name__, column["comment"], column["nullable"], 
+                        column["name"] in primary_key_columns
+                    )
                 )
-            )
-        for fkey in inspector.get_foreign_keys(table_name):
-            object.relations.append(
-                Relation(fkey["name"], fkey["constrained_columns"], fkey["referred_table"], fkey["referred_columns"])
-            )
+            for fkey in inspector.get_foreign_keys(table_name, schema=schema):
+                object.relations.append(
+                    Relation(fkey["name"], fkey["constrained_columns"], fkey["referred_table"], fkey["referred_columns"])
+                )
 
-        out["objects"].append(object) 
+            table = {
+                "@context": "http://trawler.dev/schema/core/0.1",
+                "@id": f"urn:tr:table:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}",
+                "@type": "tr:Table",
+                "name": table_name,
+                "tr:hasFields": [
+                    {
+                        "@id": f"urn:tr:field:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{field.name}",
+                        "@type": "tr:Field",
+                        "name": field.name,
+                        "tr:type": field.type,
+                        "tr:isNullable": field.nullable,
+                        "tr:comment": field.comment,
+                        "tr:foreignKeyConstraints": [
+                            f"urn:tr:constraint:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{relation.name}"
+                            for relation in object.relations
+                            if field.name in relation.source_fields
+                        ]
+                    }
+                    for field in object.fields
+                ],
+            }
+            out.append(table)
 
-    data = json.dumps({
-        "locator": "/foo",
-        "timestamp": datetime.utcnow().isoformat()[:-3]+'Z',
-        "schemas": [out]
-    }, cls=EnhancedJSONEncoder, indent=1)
+            for relation in object.relations:
+                out.append({
+                    "@id": f"urn:tr:constraint:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{relation.name}",
+                    "@type": "tr:Constraint",
+                    "tr:hasFields": [
+                            {
+                                "@id": f"urn:tr:column:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{relation.target_object}/{field}",
+                            }
+                            for field in relation.target_fields
+                    ]
+                })
 
-
-    r = requests.post(
-        "http://localhost:9090/api/collect/v1/290cdbd9-d428-4a1a-9d72-0a34ca035d90", data,
-        headers={
-            "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzZTQwY2U5MC1kN2M4LTQ5YzQtOTI3ZS05OWU3MGNhNmY3YmMiLCJpYXQiOjE2MjI5OTYxNjl9.DODGqPd8pj3OiTTm7VV2XhxGC5gyV7qV97HRVEUiOEY"
-        }
-    )
+    r = requests.post("http://localhost:9090/api/collect/63255f7a-e383-457a-9c30-4c7f95308749", json=out,
+    headers={"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzZTQwY2U5MC1kN2M4LTQ5YzQtOTI3ZS05OWU3MGNhNmY3YmMiLCJpYXQiOjE2MjI5OTYxNjl9.DODGqPd8pj3OiTTm7VV2XhxGC5gyV7qV97HRVEUiOEY"})
     r.raise_for_status()
     print(r.json())
+
+    json.dump(out, open("test.json", "w"), indent=1)
 
 
 

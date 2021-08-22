@@ -1,0 +1,26 @@
+
+entity_types:
+- uri: http://www.w3.org/ns/dcat#Dataset
+  name: Dataset
+- uri: http://trawler.dev/schema/core/0.1#Field
+  name: Field
+
+facet_types:
+- uri: http://schema.org/name
+  name: Name
+  meta: STRING
+- uri: http://trawler.dev/schema/core/0.1#hasField
+  name: Has Field
+  meta: RELATIONSHIP
+- uri: http://www.w3.org/ns/prov#wasDerivedFrom
+  name: Was Derived From
+  meta: RELATIONSHIP
+- uri: http://trawler.dev/schema/core/0.1#isNullable
+  name: Is Nullable
+  meta: BOOLEAN
+- uri: http://trawler.dev/schema/metrics/0.1#nullCount
+  name: Null Count
+  meta: NUMERIC
+- uri: http://mystartup.com/schema#fooBar
+  name: Foo bar
+  meta: NUMERIC

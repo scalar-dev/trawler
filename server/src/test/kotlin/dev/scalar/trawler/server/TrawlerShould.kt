@@ -1,7 +1,5 @@
 package dev.scalar.trawler.server
 
-import dev.scalar.yak.RecordRequest
-import dev.scalar.yak.TrawlerGrpcKt
 import io.grpc.ManagedChannel
 import io.vertx.core.Vertx
 import io.vertx.grpc.VertxChannelBuilder
@@ -25,8 +23,8 @@ class TrawlerShould {
             .forAddress(vertx, "localhost", 9090)
             .usePlaintext()
             .build()
-        val stub = TrawlerGrpcKt.TrawlerCoroutineStub(channel)
-
-        val response = stub.record(RecordRequest.getDefaultInstance())
+//        val stub = TrawlerGrpcKt.TrawlerCoroutineStub(channel)
+//
+//        val response = stub.record(RecordRequest.getDefaultInstance())
     }
 }

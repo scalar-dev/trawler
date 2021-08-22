@@ -4,13 +4,8 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.grpc.VertxServer
 import io.vertx.grpc.VertxServerBuilder
 import org.apache.logging.log4j.LogManager
-import org.jetbrains.exposed.dao.id.UUIDTable
 
-object Project: UUIDTable("project") {
-    val name = text("name")
-}
-
-class CollectApi : AbstractVerticle() {
+class CollectGrpcApi : AbstractVerticle() {
     val log = LogManager.getLogger()
 
     override fun start() {
