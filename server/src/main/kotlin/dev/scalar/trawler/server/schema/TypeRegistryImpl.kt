@@ -49,15 +49,4 @@ class TypeRegistryImpl : TypeRegistry {
         }
     }
 
-    override suspend fun entityTypeByUrn(urn: String): EntityType? {
-        val type = urn.split(":")[2]
-
-        if (type == "table") {
-            return entityTypeByUri("http://trawler.dev/schema/core/0.1#Table")
-        } else if (type == "field") {
-            return entityTypeByUri("http://trawler.dev/schema/core/0.1#Field")
-        }
-
-        return null
-    }
 }

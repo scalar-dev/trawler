@@ -5,21 +5,6 @@ CREATE TABLE project(
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
-CREATE TABLE entity_type(
-    id UUID PRIMARY KEY,
-    uri TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    project_id UUID REFERENCES project
-);
-
-CREATE TABLE entity(
-    id UUID PRIMARY KEY,
-    type_id UUID REFERENCES entity_type NOT NULL,
-    urn TEXT UNIQUE NOT NULL,
-    project_id UUID REFERENCES project NOT NULL,
-    UNIQUE(urn, project_id)
-);
-
 CREATE TABLE facet_type(
     id UUID PRIMARY KEY,
     uri TEXT UNIQUE NOT NULL,
@@ -29,13 +14,31 @@ CREATE TABLE facet_type(
 );
 
 CREATE TABLE facet_log(
+    id UUID PRIMARY KEY,
     project_id UUID REFERENCES project NOT NULL,
-    entity_id UUID REFERENCES entity NOT NULL,
+    entity_urn TEXT NOT NULL,
     type_id UUID REFERENCES facet_type NOT NULL,
-    index SMALLINT NOT NULL,
     version BIGINT NOT NULL,
     timestamp TIMESTAMP,
     value JSONB,
-    target_entity_id UUID REFERENCES entity,
-    UNIQUE(entity_id, type_id, version, index)
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    UNIQUE(entity_urn, type_id, version)
+);
+
+CREATE TABLE entity_type(
+    id UUID PRIMARY KEY,
+    uri TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    project_id UUID REFERENCES project
+);
+
+CREATE TABLE entity(
+    id UUID PRIMARY KEY,
+    type_id UUID REFERENCES entity_type,
+    urn TEXT UNIQUE NOT NULL,
+    project_id UUID REFERENCES project NOT NULL,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    UNIQUE(urn, project_id)
 );

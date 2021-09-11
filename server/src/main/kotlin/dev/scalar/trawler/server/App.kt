@@ -55,6 +55,12 @@ class App : CoroutineVerticle() {
             }
 
             FacetType.insertIgnore {
+                it[FacetType.uri] = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                it[FacetType.name] = "Type"
+                it[FacetType.metaType] = "string"
+            }
+
+            FacetType.insertIgnore {
                 it[FacetType.uri] = "http://schema.org/name"
                 it[FacetType.metaType] = "string"
                 it[FacetType.name] = "Name"

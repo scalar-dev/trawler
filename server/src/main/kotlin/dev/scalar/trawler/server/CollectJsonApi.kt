@@ -20,7 +20,10 @@ import io.vertx.ext.web.handler.JWTAuthHandler
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.dispatcher
 import jakarta.json.JsonStructure
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.LogManager
 import java.io.FileInputStream
 import java.util.*
@@ -60,6 +63,7 @@ class CollectJsonApi : CoroutineVerticle() {
                 throw Exception()
             }
         }
+
         router
             .errorHandler(400) { rc ->
                 rc.json(
@@ -70,7 +74,7 @@ class CollectJsonApi : CoroutineVerticle() {
             .route(HttpMethod.POST, "/api/collect/:projectId")
             .handler(JWTAuthHandler.create(provider))
             .handler { rc ->
-                launch(rc.vertx().dispatcher()) {
+                GlobalScope.launch(rc.vertx().dispatcher()) {
                     try {
                         val projectId = UUID.fromString(rc.pathParam("projectId"))
                         val user = rc.user()
@@ -81,7 +85,10 @@ class CollectJsonApi : CoroutineVerticle() {
                             val flat = JsonLd.flatten(doc).loader(loader).get()
 
                             val request = DatabindCodec.mapper().convertValue<CollectRequest>(flat)
-                            facetStore.ingest(projectId, request)
+
+                            withContext(Dispatchers.IO) {
+                                facetStore.ingest(projectId, request)
+                            }
 
                             rc.response().send(DatabindCodec.mapper().writeValueAsString("cool"))
                         } catch (e: IllegalArgumentException) {
