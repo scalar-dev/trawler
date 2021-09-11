@@ -13,3 +13,21 @@ open class SelectForUpdateQuery(set: FieldSet, where: Op<Boolean>?) : Query(set,
         return "$sql for update"
     }
 }
+
+fun customDistinctOn(vararg expressions: Expression<*>): CustomFunction<Boolean?> = CustomBooleanFunction(
+    functionName = "DISTINCT ON",
+    postfix = " TRUE",
+    params = *expressions
+)
+
+fun CustomBooleanFunction(
+    functionName: String, postfix: String = "", vararg params: Expression<*>
+): CustomFunction<Boolean?> =
+    object : CustomFunction<Boolean?>(functionName, BooleanColumnType(), *params) {
+        override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+            super.toQueryBuilder(queryBuilder)
+            if (postfix.isNotEmpty()) {
+                queryBuilder.append(postfix)
+            }
+        }
+    }

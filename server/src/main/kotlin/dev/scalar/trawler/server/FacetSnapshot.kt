@@ -1,7 +1,6 @@
 package dev.scalar.trawler.server
 
-import java.util.UUID
-
+import dev.scalar.trawler.server.schema.FacetType
 
 sealed class FacetSnapshotValue {
     data class String(val value: kotlin.String): FacetSnapshotValue()
@@ -9,7 +8,7 @@ sealed class FacetSnapshotValue {
 }
 
 data class FacetSnapshot(
-    val entityId: UUID,
-    val facetTypeId: UUID,
+    val entityUrn: String,
+    val facetType: FacetType,
     val values: List<FacetSnapshotValue>
 )

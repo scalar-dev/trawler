@@ -7,7 +7,9 @@ CREATE TABLE project(
 
 CREATE TABLE entity_type(
     id UUID PRIMARY KEY,
-    uri TEXT UNIQUE NOT NULL
+    uri TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    project_id UUID REFERENCES project
 );
 
 CREATE TABLE entity(
@@ -21,42 +23,19 @@ CREATE TABLE entity(
 CREATE TABLE facet_type(
     id UUID PRIMARY KEY,
     uri TEXT UNIQUE NOT NULL,
-    meta_type TEXT NOT NULL
-);
-
-CREATE TABLE facet(
-    id UUID PRIMARY KEY,
-    entity_id UUID REFERENCES entity NOT NULL,
-    type_id UUID REFERENCES facet_type NOT NULL,
-    latest_version BIGINT NOT NULL,
-    UNIQUE(entity_id, type_id)
+    name TEXT NOT NULL,
+    meta_type TEXT NOT NULL,
+    project_id UUID REFERENCES project
 );
 
 CREATE TABLE facet_log(
-    id UUID PRIMARY KEY,
-    facet_id UUID REFERENCES facet NOT NULL,
-    index BIGINT NOT NULL,
+    project_id UUID REFERENCES project NOT NULL,
+    entity_id UUID REFERENCES entity NOT NULL,
+    type_id UUID REFERENCES facet_type NOT NULL,
+    index SMALLINT NOT NULL,
     version BIGINT NOT NULL,
     timestamp TIMESTAMP,
-    value_string TEXT,
-    value_double DOUBLE PRECISION,
-    value_long BIGINT,
-    value_entity_id UUID REFERENCES entity NOT NULL,
-    value_target_entity_id UUID REFERENCES entity,
-    UNIQUE(facet_id, version, index)
-);
-
-
-CREATE TABLE facet_index(
-    id UUID PRIMARY KEY,
-    facet_id UUID REFERENCES facet NOT NULL,
-    version BIGINT NOT NULL,
-    index BIGINT NOT NULL,
-    timestamp TIMESTAMP,
-    value_string TEXT,
-    value_double DOUBLE PRECISION,
-    value_long BIGINT,
-    value_entity_id UUID REFERENCES entity NOT NULL,
-    value_target_entity_id UUID REFERENCES entity,
-    UNIQUE(facet_id, index)
+    value JSONB,
+    target_entity_id UUID REFERENCES entity,
+    UNIQUE(entity_id, type_id, version, index)
 );

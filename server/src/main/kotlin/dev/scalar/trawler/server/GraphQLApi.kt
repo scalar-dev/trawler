@@ -1,6 +1,7 @@
 package dev.scalar.trawler.server
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
+import dev.scalar.trawler.server.graphql.schema
 import graphql.GraphQL
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.PubSecKeyOptions
@@ -50,7 +51,15 @@ class GraphQLApi : CoroutineVerticle() {
             router.route("/graphiql/*").handler(GraphiQLHandler.create(options))
         }
 
-        router.route("/graphql")
+        router
+            .errorHandler(500) { rc ->
+                rc.failure().printStackTrace()
+                rc.json(
+                    mapOf("message" to rc.failure().message)
+                )
+                rc.fail(403)
+            }
+            .route()
             .handler(JWTAuthHandler.create(provider))
             .handler(
                 GraphQLHandler.create(GraphQL.newGraphQL(schema).build())
