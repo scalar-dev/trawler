@@ -56,7 +56,7 @@ def sql(uri: str):
                 "@id": f"urn:tr:table:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}",
                 "@type": "tr:Table",
                 "name": table_name,
-                "tr:hasFields": [
+                "tr:has": [
                     {
                         "@id": f"urn:tr:field:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{field.name}",
                         "@type": "tr:Field",
@@ -89,7 +89,7 @@ def sql(uri: str):
 
     out = [{
         "@context": "http://trawler.dev/schema/core/0.1",
-        "@id": f"urn:tr:Database:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}",
+        "@id": f"urn:tr:database:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}",
         "@type": "tr:Database",
         "name": parsed_uri.path.strip('/'),
         "tr:has": tables + constraints
