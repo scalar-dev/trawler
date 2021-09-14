@@ -72,12 +72,6 @@ class App : CoroutineVerticle() {
             }
 
             FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/core/0.1#hasFields"
-                it[FacetType.metaType] = "relationship"
-                it[FacetType.name] = "Has Fields"
-            }
-
-            FacetType.insertIgnore {
                 it[FacetType.uri] = "http://trawler.dev/schema/core/0.1#has"
                 it[FacetType.metaType] = "relationship"
                 it[FacetType.name] = "Has"
