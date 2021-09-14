@@ -31,7 +31,8 @@ def sql(uri: str):
     parsed_uri = urlparse(uri)
     host = parsed_uri.netloc.split("@")[-1]
 
-    out = []
+    tables = []
+    constraints = []
 
     for schema in inspector.get_schema_names():
         for table_name in inspector.get_table_names(schema):
@@ -52,7 +53,6 @@ def sql(uri: str):
                 )
 
             table = {
-                "@context": "http://trawler.dev/schema/core/0.1",
                 "@id": f"urn:tr:table:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}",
                 "@type": "tr:Table",
                 "name": table_name,
@@ -73,10 +73,10 @@ def sql(uri: str):
                     for field in object.fields
                 ],
             }
-            out.append(table)
+            tables.append(table)
 
             for relation in object.relations:
-                out.append({
+                constraints.append({
                     "@id": f"urn:tr:constraint:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{relation.name}",
                     "@type": "tr:Constraint",
                     "tr:hasFields": [
@@ -87,14 +87,19 @@ def sql(uri: str):
                     ]
                 })
 
+    out = [{
+        "@context": "http://trawler.dev/schema/core/0.1",
+        "@id": f"urn:tr:Database:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}",
+        "@type": "tr:Database",
+        "name": parsed_uri.path.strip('/'),
+        "tr:has": tables + constraints
+    }]
+
     r = requests.post("http://localhost:9090/api/collect/63255f7a-e383-457a-9c30-4c7f95308749", json=out,
     headers={"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzZTQwY2U5MC1kN2M4LTQ5YzQtOTI3ZS05OWU3MGNhNmY3YmMiLCJpYXQiOjE2MjI5OTYxNjl9.DODGqPd8pj3OiTTm7VV2XhxGC5gyV7qV97HRVEUiOEY"})
     r.raise_for_status()
+
     print(r.json())
-
-    json.dump(out, open("test.json", "w"), indent=1)
-
-
 
 @main.command()
 @click.argument("path")

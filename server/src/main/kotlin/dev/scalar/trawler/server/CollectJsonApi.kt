@@ -27,6 +27,9 @@ import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.LogManager
 import java.io.FileInputStream
 import java.util.*
+import kotlin.system.measureTimeMillis
+
+data class CollectResponse(val transactionId: UUID, val unrecognisedFacetTypes: Set<String>, val unrecognisedEntityTypes: Set<String>)
 
 class CollectJsonApi : CoroutineVerticle() {
     val log = LogManager.getLogger()
@@ -86,11 +89,22 @@ class CollectJsonApi : CoroutineVerticle() {
 
                             val request = DatabindCodec.mapper().convertValue<CollectRequest>(flat)
 
-                            withContext(Dispatchers.IO) {
-                                facetStore.ingest(projectId, request)
-                            }
+                            val time = measureTimeMillis {
+                                val storeResult = withContext(Dispatchers.IO) {
+                                    val result = facetStore.ingest(projectId, request)
+                                    result.ids.forEach { vertx.eventBus().send("indexer.queue", it.toString()) }
+                                    result
+                                }
 
-                            rc.response().send(DatabindCodec.mapper().writeValueAsString("cool"))
+                                rc.response().send(DatabindCodec.mapper().writeValueAsString(
+                                    CollectResponse(
+                                        storeResult.txId,
+                                        storeResult.unrecognisedFacetTypes,
+                                        storeResult.unrecognisedEntityTypes
+                                    )
+                                ))
+                            }
+                            log.info("took ${time}ms")
                         } catch (e: IllegalArgumentException) {
                             log.error("Exception processing collect", e)
                             rc.fail(400, e)

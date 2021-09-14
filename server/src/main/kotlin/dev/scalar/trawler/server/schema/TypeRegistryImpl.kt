@@ -7,6 +7,7 @@ import java.util.*
 class TypeRegistryImpl : TypeRegistry {
     val entityTypes = mutableMapOf<String, EntityType?>()
     val facetTypes = mutableMapOf<String, FacetType?>()
+    val facetTypesById = mutableMapOf<UUID, FacetType?>()
 
     override suspend fun entityTypeByUri(uri: String): EntityType? = entityTypes.getOrPut(uri) {
         newSuspendedTransaction {
@@ -46,6 +47,25 @@ class TypeRegistryImpl : TypeRegistry {
                     dev.scalar.trawler.server.db.FacetType.MetaType::value.find(facetTypeDb[dev.scalar.trawler.server.db.FacetType.metaType])!!,
                 )
             }
+        }
+    }
+
+    override suspend fun facetTypeById(id: UUID): FacetType? = facetTypesById.getOrPut(id) {
+        newSuspendedTransaction {
+            val facetTypeDb = dev.scalar.trawler.server.db.FacetType
+                .select { dev.scalar.trawler.server.db.FacetType.id eq id }
+                .firstOrNull()
+
+            if (facetTypeDb == null) {
+                null
+            } else {
+                FacetType(
+                    facetTypeDb[dev.scalar.trawler.server.db.FacetType.uri],
+                    facetTypeDb[dev.scalar.trawler.server.db.FacetType.id].value,
+                    dev.scalar.trawler.server.db.FacetType.MetaType::value.find(facetTypeDb[dev.scalar.trawler.server.db.FacetType.metaType])!!,
+                )
+            }
+
         }
     }
 

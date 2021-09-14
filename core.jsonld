@@ -2,7 +2,7 @@
   "@context": {
     "name": "http://schema.org/name",
     "hasFields": {
-      "@id": "http://trawler.dev/schema/core/0.1/hasColumns",
+      "@id": "http://trawler.dev/schema/core/0.1/hasFields",
       "@type": "@id"
     },
     "dcat": "http://www.w3.org/ns/dcat#",

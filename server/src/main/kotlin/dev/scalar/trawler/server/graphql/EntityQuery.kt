@@ -1,14 +1,5 @@
 package dev.scalar.trawler.server.graphql
 
-import dev.scalar.trawler.server.db.EntityType
-import dev.scalar.trawler.server.db.FacetLog
-import dev.scalar.trawler.server.db.FacetType
-import dev.scalar.trawler.server.db.customDistinctOn
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.*
-
 class EntityQuery {
     suspend fun hello(): String {
         return "hello"

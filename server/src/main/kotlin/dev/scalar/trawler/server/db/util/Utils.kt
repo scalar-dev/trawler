@@ -1,4 +1,4 @@
-package dev.scalar.trawler.server.db
+package dev.scalar.trawler.server.db.util
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement

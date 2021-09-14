@@ -17,6 +17,6 @@ object FacetType : UUIDTable("facet_type") {
         DOUBLE("double"),
         JSON("json"),
         RELATIONSHIP("relationship"),
-        RELATIONSHIP_OWNED("relationship_owned")
+        TYPE_REFERENCE("type_reference")
     }
 }

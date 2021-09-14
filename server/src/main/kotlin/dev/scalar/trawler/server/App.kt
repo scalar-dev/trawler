@@ -45,6 +45,11 @@ class App : CoroutineVerticle() {
 
         newSuspendedTransaction {
             EntityType.insertIgnore {
+                it[EntityType.uri] = "http://trawler.dev/schema/core/0.1#Database"
+                it[EntityType.name] = "Database"
+            }
+
+            EntityType.insertIgnore {
                 it[EntityType.uri] = "http://trawler.dev/schema/core/0.1#Table"
                 it[EntityType.name] = "Table"
             }
@@ -56,8 +61,8 @@ class App : CoroutineVerticle() {
 
             FacetType.insertIgnore {
                 it[FacetType.uri] = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                it[FacetType.metaType] = "type_reference"
                 it[FacetType.name] = "Type"
-                it[FacetType.metaType] = "string"
             }
 
             FacetType.insertIgnore {
@@ -68,8 +73,14 @@ class App : CoroutineVerticle() {
 
             FacetType.insertIgnore {
                 it[FacetType.uri] = "http://trawler.dev/schema/core/0.1#hasFields"
-                it[FacetType.metaType] = "relationship_owned"
+                it[FacetType.metaType] = "relationship"
                 it[FacetType.name] = "Has Fields"
+            }
+
+            FacetType.insertIgnore {
+                it[FacetType.uri] = "http://trawler.dev/schema/core/0.1#has"
+                it[FacetType.metaType] = "relationship"
+                it[FacetType.name] = "Has"
             }
 
             FacetType.insertIgnore {
@@ -87,6 +98,9 @@ class App : CoroutineVerticle() {
 
         vertx.deployVerticle(CollectJsonApi::class.java, DeploymentOptions().setWorker(true))
             .onFailure { log.error("Failed to deploy collect API", it) }
+
+        vertx.deployVerticle(Indexer::class.java, DeploymentOptions().setWorker(true))
+            .onFailure { log.error("Failed to deploy indexer API", it) }
 
         vertx.deployVerticle(GraphQLApi::class.java, DeploymentOptions())
             .onFailure { log.error("Failed to deploy graphql API", it) }

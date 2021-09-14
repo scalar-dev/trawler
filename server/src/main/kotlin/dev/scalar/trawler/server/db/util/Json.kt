@@ -1,4 +1,4 @@
-package dev.scalar.trawler.server.db
+package dev.scalar.trawler.server.db.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.jetbrains.exposed.sql.Column
