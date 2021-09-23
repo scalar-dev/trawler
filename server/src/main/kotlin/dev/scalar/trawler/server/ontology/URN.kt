@@ -1,6 +1,5 @@
 package dev.scalar.trawler.server.ontology
 
-
 data class URNScheme(
     val template: String,
     val facetMapping: Map<String, Any>

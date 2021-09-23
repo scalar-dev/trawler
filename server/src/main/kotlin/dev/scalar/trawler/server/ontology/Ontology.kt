@@ -1,7 +1,5 @@
 package dev.scalar.trawler.server.ontology
 
-import dev.scalar.trawler.server.ontology.EntityType
-import dev.scalar.trawler.server.ontology.FacetType
 import java.util.*
 
 interface Ontology {
