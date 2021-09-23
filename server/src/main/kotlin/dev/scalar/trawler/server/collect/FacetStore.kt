@@ -2,8 +2,7 @@ package dev.scalar.trawler.server.collect
 
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.FacetType
-import dev.scalar.trawler.server.schema.TypeRegistry
-import dev.scalar.trawler.server.schema.TypeRegistryImpl
+import dev.scalar.trawler.server.ontology.Ontology
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
@@ -12,8 +11,7 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.*
 
-class FacetStore {
-    val typeRegistry = TypeRegistryImpl()
+class FacetStore(val ontology: Ontology) {
     val log = LogManager.getLogger()
 
     data class StoreReult(
@@ -67,7 +65,7 @@ class FacetStore {
         // Collect all facets
         val ingestOps = request.nodes
             .flatMap { node ->
-                val entityType = typeRegistry.entityTypeByUri(node.type[0])
+                val entityType = ontology.entityTypeByUri(node.type[0])
 
                 if (entityType == null) {
                     unrecognisedEntityTypes.add(node.type[0])
@@ -78,11 +76,11 @@ class FacetStore {
                             projectId,
                             txId,
                             node.id,
-                            typeRegistry.facetTypeByUri(TypeRegistry.ENTITY_TYPE)!!,
+                            ontology.facetTypeByUri(Ontology.ENTITY_TYPE)!!,
                             node.type.map { FacetSnapshotValue.String(entityType.id.toString()) }
                         )
                     ) + node.facets().map { keyValue ->
-                        val facetType = typeRegistry.facetTypeByUri(keyValue.key)
+                        val facetType = ontology.facetTypeByUri(keyValue.key)
 
                         if (facetType == null) {
                             unrecognisedFacetTypes.add(keyValue.key)

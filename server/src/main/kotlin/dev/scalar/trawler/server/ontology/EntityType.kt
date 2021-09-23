@@ -1,4 +1,4 @@
-package dev.scalar.trawler.server.schema
+package dev.scalar.trawler.server.ontology
 
 import java.util.*
 

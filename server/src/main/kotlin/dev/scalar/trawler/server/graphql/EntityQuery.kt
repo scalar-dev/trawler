@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class EntityQuery {
-    private fun fetchEntities(ids: List<UUID>): List<dev.scalar.trawler.server.graphql.Entity> =
+    private fun fetchEntities(ids: List<UUID>): List<Entity> =
         transaction {
             FacetValue
                 .join(FacetType, JoinType.INNER, FacetType.id, FacetValue.typeId)
@@ -23,8 +23,6 @@ class EntityQuery {
                     val type = it.value.map { it[dev.scalar.trawler.server.db.EntityType.uri] }
                         .filterNotNull()
                         .first()
-
-                    val facetsByUri = it.value.groupBy { it[FacetType.uri] }
 
                     val relationships =
                         it.value
@@ -71,7 +69,9 @@ class EntityQuery {
                 }
         }
 
-    fun entityById(id: UUID, d: Int): List<dev.scalar.trawler.server.graphql.Entity> {
+    fun entity(id: UUID) = fetchEntities(listOf(id)).firstOrNull()
+
+    fun entityGraph(id: UUID, d: Int): List<Entity> {
         var currentEntities = fetchEntities(listOf(id))
         val output = currentEntities.toMutableList()
 

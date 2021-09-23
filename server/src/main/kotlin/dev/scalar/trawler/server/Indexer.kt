@@ -5,8 +5,8 @@ import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.selectForUpdate
-import dev.scalar.trawler.server.schema.TypeRegistry
-import dev.scalar.trawler.server.schema.TypeRegistryImpl
+import dev.scalar.trawler.server.ontology.Ontology
+import dev.scalar.trawler.server.ontology.OntologyCache
 import io.vertx.core.eventbus.Message
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.receiveChannelHandler
@@ -16,7 +16,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import java.time.Instant
 import java.util.*
 
-class Indexer(val typeRegistry: TypeRegistry = TypeRegistryImpl()) : CoroutineVerticle() {
+class Indexer: CoroutineVerticle() {
     val log = LogManager.getLogger()
 
     private suspend fun indexEntities(projectId: UUID, urns: List<String>): Map<String, UUID> {
@@ -48,7 +48,8 @@ class Indexer(val typeRegistry: TypeRegistry = TypeRegistryImpl()) : CoroutineVe
                     .selectForUpdate { FacetLog.id.eq(id) }
                     .first()
 
-                val facetType = typeRegistry.facetTypeById(facetLog[FacetLog.typeId].value)!!
+                val facetType = OntologyCache.CACHE[facetLog[FacetLog.projectId].value]
+                    .facetTypeById(facetLog[FacetLog.typeId].value)!!
 
                 // Create any entities
                 val urns = if (facetType.metaType == FacetType.MetaType.RELATIONSHIP) {

@@ -25,6 +25,8 @@ dependencies {
   implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
 
+  implementation("com.google.guava:guava:30.1.1-jre")
+
   implementation("org.flywaydb:flyway-core:7.9.1")
   implementation("io.agroal:agroal-pool:1.11")
   implementation("org.postgresql:postgresql:42.2.20")

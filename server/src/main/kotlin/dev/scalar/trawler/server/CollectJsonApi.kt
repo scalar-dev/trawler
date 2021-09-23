@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.FacetStore
+import dev.scalar.trawler.server.ontology.OntologyCache
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.json.JsonObject
 import io.vertx.core.json.jackson.DatabindCodec
@@ -31,9 +32,9 @@ import kotlin.system.measureTimeMillis
 
 data class CollectResponse(val transactionId: UUID, val unrecognisedFacetTypes: Set<String>, val unrecognisedEntityTypes: Set<String>)
 
+
 class CollectJsonApi : CoroutineVerticle() {
     val log = LogManager.getLogger()
-    val facetStore = FacetStore()
 
     override suspend fun start() {
         val router = Router.router(vertx)
@@ -67,6 +68,7 @@ class CollectJsonApi : CoroutineVerticle() {
             }
         }
 
+
         router
             .errorHandler(400) { rc ->
                 rc.json(
@@ -91,6 +93,7 @@ class CollectJsonApi : CoroutineVerticle() {
 
                             val time = measureTimeMillis {
                                 val storeResult = withContext(Dispatchers.IO) {
+                                    val facetStore = FacetStore(OntologyCache.CACHE[projectId])
                                     val result = facetStore.ingest(projectId, request)
                                     result.ids.forEach { vertx.eventBus().send("indexer.queue", it.toString()) }
                                     result
