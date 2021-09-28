@@ -45,18 +45,18 @@ class App : CoroutineVerticle() {
 
         newSuspendedTransaction {
             EntityType.insertIgnore {
-                it[EntityType.uri] = "http://trawler.dev/schema/core/0.1#Database"
-                it[EntityType.name] = "Database"
+                it[EntityType.uri] = "http://trawler.dev/schema/core#SqlDatabase"
+                it[EntityType.name] = "SqlDatabase"
             }
 
             EntityType.insertIgnore {
-                it[EntityType.uri] = "http://trawler.dev/schema/core/0.1#Table"
-                it[EntityType.name] = "Table"
+                it[EntityType.uri] = "http://trawler.dev/schema/core#SqlTable"
+                it[EntityType.name] = "SqlTable"
             }
 
             EntityType.insertIgnore {
-                it[EntityType.uri] = "http://trawler.dev/schema/core/0.1#Field"
-                it[EntityType.name] = "Field"
+                it[EntityType.uri] = "http://trawler.dev/schema/core#SqlColumn"
+                it[EntityType.name] = "SqlColumn"
             }
 
             FacetType.insertIgnore {
@@ -72,19 +72,43 @@ class App : CoroutineVerticle() {
             }
 
             FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/core/0.1#has"
+                it[FacetType.uri] = "http://trawler.dev/schema/core#has"
                 it[FacetType.metaType] = "relationship"
                 it[FacetType.name] = "Has"
             }
 
             FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/core/0.1#type"
+                it[FacetType.uri] = "http://trawler.dev/schema/metrics#nullRatio"
+                it[FacetType.metaType] = "double"
+                it[FacetType.name] = "Null Ratio"
+            }
+
+            FacetType.insertIgnore {
+                it[FacetType.uri] = "http://trawler.dev/schema/metrics#count"
+                it[FacetType.metaType] = "double"
+                it[FacetType.name] = "Count"
+            }
+
+            FacetType.insertIgnore {
+                it[FacetType.uri] = "http://trawler.dev/schema/metrics#max"
+                it[FacetType.metaType] = "double"
+                it[FacetType.name] = "Max"
+            }
+
+            FacetType.insertIgnore {
+                it[FacetType.uri] = "http://trawler.dev/schema/metrics#min"
+                it[FacetType.metaType] = "double"
+                it[FacetType.name] = "Min"
+            }
+
+            FacetType.insertIgnore {
+                it[FacetType.uri] = "http://trawler.dev/schema/core#type"
                 it[FacetType.metaType] = "string"
                 it[FacetType.name] = "Type"
             }
 
             FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/core/0.1#isNullable"
+                it[FacetType.uri] = "http://trawler.dev/schema/core#isNullable"
                 it[FacetType.metaType] = "boolean"
                 it[FacetType.name] = "Is Nullable"
             }

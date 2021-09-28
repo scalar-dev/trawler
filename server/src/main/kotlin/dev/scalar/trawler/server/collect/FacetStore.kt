@@ -45,7 +45,7 @@ class FacetStore(val ontology: Ontology) {
                             )
                             value.value
                         }
-                        is FacetSnapshotValue.String -> {
+                        is FacetSnapshotValue.Value -> {
                             value.value
                         }
                         else -> {
@@ -77,7 +77,7 @@ class FacetStore(val ontology: Ontology) {
                             txId,
                             node.id,
                             ontology.facetTypeByUri(Ontology.ENTITY_TYPE)!!,
-                            node.type.map { FacetSnapshotValue.String(entityType.id.toString()) }
+                            node.type.map { FacetSnapshotValue.Value(entityType.id.toString()) }
                         )
                     ) + node.facets().map { keyValue ->
                         val facetType = ontology.facetTypeByUri(keyValue.key)
@@ -94,7 +94,7 @@ class FacetStore(val ontology: Ontology) {
                                 keyValue.value.map { value ->
                                     when {
                                         value.value != null -> {
-                                            FacetSnapshotValue.String(value.value)
+                                            FacetSnapshotValue.Value(value.value)
                                         }
                                         value.id != null -> {
                                             FacetSnapshotValue.Id(value.id)

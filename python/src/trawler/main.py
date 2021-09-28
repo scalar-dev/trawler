@@ -10,6 +10,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.engine import create_engine
 
 from trawler.schema import Object, Field, Relation
+from trawler.graph import Graph, Context
 
 class EnhancedJSONEncoder(json.JSONEncoder):
         def default(self, o):
@@ -20,6 +21,54 @@ class EnhancedJSONEncoder(json.JSONEncoder):
 @click.group()
 def main():
     pass
+
+def sql_query(conn, sql):
+    try:
+        val = next(conn.execute(sql))[0]
+        if isinstance(val, datetime):
+            return str(val)
+        if isinstance(val, date):
+            return str(val)
+        else:
+            return val
+    except:
+        return None
+
+
+def get_column_metrics(engine, table_name, column_name):
+    with engine.connect() as conn:
+        return {
+            "metrics__nullRatio": sql_query(conn,
+                f"""
+                SELECT
+                CAST(SUM(CASE WHEN {column_name} IS NULL THEN 1 ELSE 0 END) as DOUBLE PRECISION) / COUNT(*)
+                FROM {table_name};
+                """),
+            "metrics__max": sql_query(conn,
+                f"""
+                SELECT
+                MAX({column_name})
+                FROM {table_name};
+                """),
+            "metrics__min": sql_query(conn,
+                f"""
+                SELECT
+                MIN({column_name})
+                FROM {table_name};
+                """)
+        }
+
+def get_table_metrics(engine, table_name):
+    with engine.connect() as conn:
+        return {
+            "metrics__count": next(conn.execute(
+                f"""
+                SELECT COUNT(*)
+                FROM {table_name};
+                """))[0]
+        }
+
+
 
 @main.command()
 @click.argument("uri")
@@ -33,6 +82,7 @@ def sql(uri: str):
 
     tables = []
     constraints = []
+    ctx = Context()
 
     for schema in inspector.get_schema_names():
         for table_name in inspector.get_table_names(schema):
@@ -52,49 +102,55 @@ def sql(uri: str):
                     Relation(fkey["name"], fkey["constrained_columns"], fkey["referred_table"], fkey["referred_columns"])
                 )
 
-            table = {
-                "@id": f"urn:tr:table:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}",
-                "@type": "tr:Table",
-                "name": table_name,
-                "tr:has": [
-                    {
-                        "@id": f"urn:tr:field:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{field.name}",
-                        "@type": "tr:Field",
-                        "name": field.name,
-                        "tr:type": field.type,
-                        "tr:isNullable": field.nullable,
-                        "tr:comment": field.comment,
-                        "tr:foreignKeyConstraints": [
+            table = ctx.SqlTable(
+                f"urn:tr:table:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}",
+                name = table_name,
+                tr__has = [
+                    ctx.SqlColumn(
+                        f"urn:tr:sql-table::{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{field.name}",
+                        name = field.name,
+                        tr__type = field.type,
+                        tr__isNullable = field.nullable,
+                        tr__comment = field.comment,
+                        tr__foreignKeyConstraints = [
                             f"urn:tr:constraint:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{relation.name}"
                             for relation in object.relations
                             if field.name in relation.source_fields
-                        ]
-                    }
+                        ],
+                        **get_column_metrics(engine, 
+                            f"{schema}.\"{table_name}\"",
+                            f"\"{field.name}\""
+                        )
+                    )
                     for field in object.fields
                 ],
-            }
+                **get_table_metrics(engine, f"{schema}.\"{table_name}\"")
+            )
             tables.append(table)
 
             for relation in object.relations:
-                constraints.append({
-                    "@id": f"urn:tr:constraint:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{relation.name}",
-                    "@type": "tr:Constraint",
-                    "tr:hasFields": [
+                constraints.append(
+                    ctx.SqlConstraint(
+                        f"urn:tr:sql-constraint::{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{table_name}/{relation.name}",
+                        tr__has = [
                             {
-                                "@id": f"urn:tr:column:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{relation.target_object}/{field}",
+                                "@id": f"urn:tr:sql-column::{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}/{schema}/{relation.target_object}/{field}",
                             }
                             for field in relation.target_fields
-                    ]
-                })
+                        ]
+                    )
+                )
 
-    out = [{
-        "@context": "http://trawler.dev/schema/core/0.1",
-        "@id": f"urn:tr:database:{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}",
-        "@type": "tr:Database",
-        "name": parsed_uri.path.strip('/'),
-        "tr:has": tables + constraints
-    }]
+    db = ctx.SqlDatabase(
+        f"urn:tr:sql-database::{parsed_uri.scheme}/{host}/{parsed_uri.path.strip('/')}",
+        name = parsed_uri.path.strip('/'),
+        tr__has = tables + constraints
+    )
 
+    g = Graph()
+    g.add(db)
+    out = g.json()
+    print(json.dumps(out, indent=1))
     r = requests.post("http://localhost:9090/api/collect/63255f7a-e383-457a-9c30-4c7f95308749", json=out,
     headers={"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzZTQwY2U5MC1kN2M4LTQ5YzQtOTI3ZS05OWU3MGNhNmY3YmMiLCJpYXQiOjE2MjI5OTYxNjl9.DODGqPd8pj3OiTTm7VV2XhxGC5gyV7qV97HRVEUiOEY"})
     r.raise_for_status()

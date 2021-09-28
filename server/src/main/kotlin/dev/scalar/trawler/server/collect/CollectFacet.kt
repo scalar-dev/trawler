@@ -7,5 +7,5 @@ data class CollectFacet(
     val id: String?,
 
     @JsonProperty("@value")
-    val value: String?
+    val value: Any?
 )
