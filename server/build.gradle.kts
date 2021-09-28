@@ -1,6 +1,7 @@
 
 plugins {
   id("io.vertx.vertx-plugin") version "1.3.0"
+  id("com.google.cloud.tools.jib") version "3.1.2"
 }
 
 repositories {
@@ -58,4 +59,19 @@ vertx {
 
 tasks.test {
   useJUnitPlatform()
+}
+
+jib {
+  from {
+    image = "gcr.io/distroless/java:11"
+  }
+
+  to {
+    image = "scalardev/trawler"
+  }
+
+  container {
+    mainClass = "io.vertx.core.Launcher"
+    args = listOf("run", "dev.scalar.trawler.server.App")
+  }
 }
