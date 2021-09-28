@@ -1,0 +1,17 @@
+---
+facets:
+- name: Has Field
+  uri: http://trawler.dev/schema/core/0.1#hasField
+  kind: relationship
+  relationship:
+    allowedTypes:
+    -  http://trawler.dev/schema/core/0.1#Field
+
+- name: Row Count
+  uri: http://trawler.dev/schema/metrics/0.1#rowCount
+  kind: integer
+  timeSeries: {}
+  
+types:
+- name: Table
+  uri: http://trawler.dev/schema/core/0.1#Table
