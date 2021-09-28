@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "retype watch"
+    "start": "retype watch"
   },
   "dependencies": {
     "retypeapp": "^1.9.0"
