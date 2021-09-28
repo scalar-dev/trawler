@@ -1,10 +1,13 @@
 package dev.scalar.trawler.server.graphql
 
+import dev.scalar.trawler.server.QueryContext
 import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.FacetValue
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.select
+import dev.scalar.trawler.server.db.util.ilike
+import dev.scalar.trawler.server.ontology.Ontology
+import dev.scalar.trawler.server.ontology.OntologyCache
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -68,6 +71,22 @@ class EntityQuery {
                     )
                 }
         }
+
+    fun search(context: QueryContext, name: String): List<Entity> {
+        val ontology = OntologyCache.CACHE[context.projectId]
+
+        val ids = transaction {
+            FacetValue
+                .slice(FacetValue.entityId)
+                .select {
+                    FacetValue.typeId.eq(ontology.facetTypeByUri(Ontology.NAME_TYPE)!!.id) and
+                            FacetValue.value.castTo<String>(TextColumnType()).ilike("%$name%")
+                }
+                .map { row -> row[FacetValue.entityId] }
+        }
+
+        return fetchEntities(ids)
+    }
 
     fun entity(id: UUID) = fetchEntities(listOf(id)).firstOrNull()
 

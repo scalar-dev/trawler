@@ -51,9 +51,9 @@ class OntologyImpl(
         )
     }
 
-    override suspend fun entityTypeByUri(uri: String): EntityType? = entityTypesByUri[uri]
+    override fun entityTypeByUri(uri: String): EntityType? = entityTypesByUri[uri]
 
-    override suspend fun facetTypeByUri(uri: String): FacetType? = facetTypesByUri[uri]
+    override fun facetTypeByUri(uri: String): FacetType? = facetTypesByUri[uri]
 
-    override suspend fun facetTypeById(id: UUID): FacetType? = facetTypesById[id]
+    override fun facetTypeById(id: UUID): FacetType? = facetTypesById[id]
 }
