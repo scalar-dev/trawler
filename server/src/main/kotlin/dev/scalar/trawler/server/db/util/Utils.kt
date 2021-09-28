@@ -119,3 +119,7 @@ private class InsertOrUpdate<Key : Any>(
         return "$originalStatement ON CONFLICT (${keys.joinToString(",") { transaction.identity(it) }}) DO UPDATE SET $updateStm"
     }
 }
+
+// https://stackoverflow.com/a/52977812
+class ILikeOp(expr1: Expression<*>, expr2: Expression<*>) : ComparisonOp(expr1, expr2, "ILIKE")
+infix fun<T:String?> ExpressionWithColumnType<T>.ilike(pattern: String): Op<Boolean> = ILikeOp(this, QueryParameter(pattern, columnType))
