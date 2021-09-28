@@ -16,7 +16,6 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import java.util.*
 
 class App : CoroutineVerticle() {
     private val log: Logger = LogManager.getLogger()

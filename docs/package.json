@@ -1,0 +1,12 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "retype watch"
+  },
+  "dependencies": {
+    "retypeapp": "^1.9.0"
+  }
+}
