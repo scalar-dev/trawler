@@ -1,20 +1,38 @@
 import { useParams } from "react-router-dom";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
+import { EntityQuery } from "../types";
 
-const FacetValue = ({ facet }: { facet: any }) => {
+type Facet = {
+    uri: string;
+    name: string;
+    value?: any[];
+    metaType: string;
+}
+
+const FacetValue: React.FC<{ facet: Facet }> = ({ facet }) => {
   if (facet.metaType === "relationship") {
-    return facet.value.map((val: any) => (
-      <div>
-        <a href={`/entity/${val}`}>{val}</a>
-      </div>
-    ));
+    return (
+      <>
+        {facet.value?.map((val: any) => (
+          <div>
+            <a href={`/entity/${val}`}>{val}</a>
+          </div>
+        ))}
+      </>
+    );
   } else {
-    return facet.value.map((value: any) => <div>{value}</div>);
+    return (
+      <>
+        {facet.value?.map((value: any) => (
+          <div>{value}</div>
+        ))}
+      </>
+    );
   }
 };
 
-const Table = ({ facets }: { facets: any[] }) => {
+const FacetTable = ({ facets }: { facets: Facet[] }) => {
   return (
     <div className="flex flex-col">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -62,7 +80,7 @@ const Table = ({ facets }: { facets: any[] }) => {
 
 export const Entity = () => {
   const { entity } = useParams<{ entity: string }>();
-  const [data] = useQuery({
+  const [data] = useQuery<EntityQuery>({
     query: gql`
       query Entity($id: UUID!) {
         entityGraph(id: $id, d: 1) {
@@ -84,8 +102,6 @@ export const Entity = () => {
     },
   });
 
-  console.log(data);
-
   return (
     <>
       <Header>
@@ -95,7 +111,7 @@ export const Entity = () => {
         </pre>
       </Header>
       <Main>
-        <Table facets={data.data?.entityGraph[0].facets} />
+        <FacetTable facets={data.data?.entityGraph[0].facets || []} />
       </Main>
     </>
   );

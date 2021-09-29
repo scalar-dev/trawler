@@ -1,7 +1,8 @@
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
+import { SearchQuery } from "../types";
 
-const Table = ({datasets}: {datasets: any[]})=> {
+const Table = ({ datasets }: { datasets: any[] }) => {
   return (
     <div className="flex flex-col">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -87,9 +88,9 @@ const Table = ({datasets}: {datasets: any[]})=> {
 };
 
 export const Dashboard = () => {
-  const [data] = useQuery({
+  const [data] = useQuery<SearchQuery>({
     query: gql`
-      {
+      query Search {
         search(
           filters: [
             {
@@ -115,7 +116,7 @@ export const Dashboard = () => {
     <>
       <Header>Dashboard</Header>
       <Main>
-        <Table datasets={data?.data?.search} />
+        <Table datasets={data.data?.search || []} />
       </Main>
     </>
   );
