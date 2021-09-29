@@ -12,6 +12,9 @@ grab from Docker hub. All you need is a running postgres database.
 
 ```bash
 
-docker run --env PGHOST=<host> --env PGUSER=<user> --env PGPASSWORD=<password> --env PGDATABASE=<database> scalardev/trawler
-
+docker run --env PGHOST=<host> \
+    --env PGUSER=<user> \
+    --env PGPASSWORD=<password> \
+    --env PGDATABASE=<database> \
+    scalardev/trawler
 ```
