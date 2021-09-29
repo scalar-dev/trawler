@@ -6,6 +6,7 @@ import com.apicatalog.jsonld.loader.DocumentLoader
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
+import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
@@ -14,9 +15,6 @@ import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.json.JsonObject
 import io.vertx.core.json.jackson.DatabindCodec
-import io.vertx.ext.auth.PubSecKeyOptions
-import io.vertx.ext.auth.jwt.JWTAuth
-import io.vertx.ext.auth.jwt.JWTAuthOptions
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
@@ -37,17 +35,18 @@ class CollectJsonApi : CoroutineVerticle() {
 
     override suspend fun start() {
         val router = Router.router(vertx)
-        router.route().handler(BodyHandler.create())
+        val provider = jwtAuth(vertx)
 
-        val provider: JWTAuth = JWTAuth.create(
-            vertx,
-            JWTAuthOptions()
-                .addPubSecKey(
-                    PubSecKeyOptions()
-                        .setAlgorithm("HS256")
-                        .setBuffer("keyboard cat")
+        router
+            .errorHandler(400) { rc ->
+                rc.json(
+                    mapOf("message" to rc.failure().message)
                 )
-        )
+                rc.fail(403)
+            }
+            .route()
+            .handler(JWTAuthHandler.create(provider))
+            .handler(BodyHandler.create())
 
         if (WebEnvironment.development()) {
             val devToken = provider.generateToken(
@@ -60,7 +59,7 @@ class CollectJsonApi : CoroutineVerticle() {
             log.info("Development token: $devToken")
         }
 
-        val loader = DocumentLoader { url, options ->
+        val loader = DocumentLoader { url, _ ->
             if (url.toString() == "http://trawler.dev/schema/core") {
                 JsonDocument.of(App::class.java.getResourceAsStream("/core.jsonld"))
             } else {
@@ -69,14 +68,7 @@ class CollectJsonApi : CoroutineVerticle() {
         }
 
         router
-            .errorHandler(500) { rc ->
-                rc.json(
-                    mapOf("message" to rc.failure().message)
-                )
-                rc.fail(403)
-            }
             .route(HttpMethod.POST, "/api/ontology/:projectId")
-            .handler(JWTAuthHandler.create(provider))
             .handler { rc ->
                 GlobalScope.launch(rc.vertx().dispatcher()) {
                     val projectId = UUID.fromString(rc.pathParam("projectId"))
@@ -89,14 +81,7 @@ class CollectJsonApi : CoroutineVerticle() {
             }
 
         router
-            .errorHandler(400) { rc ->
-                rc.json(
-                    mapOf("message" to rc.failure().message)
-                )
-                rc.fail(403)
-            }
             .route(HttpMethod.POST, "/api/collect/:projectId")
-            .handler(JWTAuthHandler.create(provider))
             .handler { rc ->
                 GlobalScope.launch(rc.vertx().dispatcher()) {
                     try {

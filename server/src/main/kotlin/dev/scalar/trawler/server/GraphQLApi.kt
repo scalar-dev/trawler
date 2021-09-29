@@ -1,12 +1,11 @@
 package dev.scalar.trawler.server
 
+import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.schema
 import graphql.GraphQL
 import io.vertx.core.json.JsonObject
-import io.vertx.ext.auth.PubSecKeyOptions
 import io.vertx.ext.auth.jwt.JWTAuth
-import io.vertx.ext.auth.jwt.JWTAuthOptions
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
@@ -23,18 +22,19 @@ class GraphQLApi : CoroutineVerticle() {
 
     override suspend fun start() {
         val router = Router.router(vertx)
-        vertx.exceptionHandler { e -> println(e) }
-        router.route().handler(BodyHandler.create())
+        val provider: JWTAuth = jwtAuth(vertx)
 
-        val provider: JWTAuth = JWTAuth.create(
-            vertx,
-            JWTAuthOptions()
-                .addPubSecKey(
-                    PubSecKeyOptions()
-                        .setAlgorithm("HS256")
-                        .setBuffer("keyboard cat")
+        router
+            .errorHandler(500) { rc ->
+                rc.failure().printStackTrace()
+                rc.json(
+                    mapOf("message" to rc.failure().message)
                 )
-        )
+                rc.fail(403)
+            }
+            .route()
+            .handler(BodyHandler.create())
+            .handler(JWTAuthHandler.create(provider))
 
         if (WebEnvironment.development()) {
             val devToken = provider.generateToken(
@@ -52,15 +52,7 @@ class GraphQLApi : CoroutineVerticle() {
         }
 
         router
-            .errorHandler(500) { rc ->
-                rc.failure().printStackTrace()
-                rc.json(
-                    mapOf("message" to rc.failure().message)
-                )
-                rc.fail(403)
-            }
             .route()
-            .handler(JWTAuthHandler.create(provider))
             .handler(
                 GraphQLHandler.create(GraphQL.newGraphQL(schema).build())
                     .queryContext { rc ->
