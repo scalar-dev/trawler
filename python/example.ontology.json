@@ -1,25 +1,9 @@
 {
-    "@context": "http://trawler.dev/schema/core/0.1",
-    "@id": "urn:tr:dataset:postgres/production.database.com/my-db/public/my-table",
-    "@type": "tr:Table",
-    "name": "my-table",
-    "tr:hasFields": [
-        {
-            "@id": "urn:tr:column:postgres/production.database.com/my-db/public/my-table/foo",
-            "@type": "tr:Field",
-            "name": "foo",
-            "tr:sqlDataType": "INT",
-            "tr:sqlComment": "This is a good field",
-            "tr:isNullable": true
-        },
-        {
-            "@id": "urn:tr:column:postgres/production.database.com/my-db/public/my-table/bar",
-            "@type": "tr:Field",
-            "name": "bar",
-            "tr:sqlDataType": "String",
-            "tr:sqlComment": "This is a bad field",
-            "tr:isNullable": false
-        }
-    ],
-    "prov:wasDerivedFrom": "urn:tr:dataset:jdbc:production.database.com/my-db/public/origin-table"
+  "entityTypes": [
+    {
+      "name": "Test",
+      "uri": "http://example.com#Test"
+    }
+  ],
+  "facetTypes": []
 }

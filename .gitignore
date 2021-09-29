@@ -2,3 +2,4 @@
 .gradle
 build
 docs/node_modules/
+.vscode
