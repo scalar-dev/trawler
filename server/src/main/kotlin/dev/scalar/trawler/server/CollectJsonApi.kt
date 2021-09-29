@@ -63,7 +63,7 @@ class CollectJsonApi : CoroutineVerticle() {
 
         val loader = DocumentLoader { url, options ->
             if (url.toString() == "http://trawler.dev/schema/core") {
-                JsonDocument.of(FileInputStream("./core.jsonld"))
+                JsonDocument.of(App::class.java.getResourceAsStream("/core.jsonld"))
             } else {
                 throw Exception()
             }
