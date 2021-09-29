@@ -4,11 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.datatype.jsonp.JSONPModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
-import dev.scalar.trawler.server.db.EntityType
-import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.json.jackson.DatabindCodec
@@ -20,8 +17,6 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.insertIgnore
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class App : CoroutineVerticle() {
     private val log: Logger = LogManager.getLogger()

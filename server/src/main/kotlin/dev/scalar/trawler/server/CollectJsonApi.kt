@@ -70,16 +70,15 @@ class CollectJsonApi : CoroutineVerticle() {
         }
 
         router
-            .errorHandler(400) { rc ->
+            .errorHandler(500) { rc ->
                 rc.json(
                     mapOf("message" to rc.failure().message)
                 )
                 rc.fail(403)
             }
             .route(HttpMethod.POST, "/api/ontology/:projectId")
-//            .handler { JWTAuthHandler.create(provider) }
+            .handler(JWTAuthHandler.create(provider))
             .handler { rc ->
-                println("HELLO")
                 GlobalScope.launch(rc.vertx().dispatcher()) {
                     val projectId = UUID.fromString(rc.pathParam("projectId"))
                     val ontology = DatabindCodec.mapper().readValue<OntologyConfig>(rc.bodyAsString)
