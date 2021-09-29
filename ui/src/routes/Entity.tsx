@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
+import { EntityQuery } from "../types";
 
 const FacetValue = ({ facet }: { facet: any }) => {
   if (facet.metaType === "relationship") {
@@ -62,7 +63,7 @@ const Table = ({ facets }: { facets: any[] }) => {
 
 export const Entity = () => {
   const { entity } = useParams<{ entity: string }>();
-  const [data] = useQuery({
+  const [data] = useQuery<EntityQuery>({
     query: gql`
       query Entity($id: UUID!) {
         entityGraph(id: $id, d: 1) {
@@ -84,8 +85,6 @@ export const Entity = () => {
     },
   });
 
-  console.log(data);
-
   return (
     <>
       <Header>
@@ -95,7 +94,7 @@ export const Entity = () => {
         </pre>
       </Header>
       <Main>
-        <Table facets={data.data?.entityGraph[0].facets} />
+        <Table facets={data.data?.entityGraph[0].facets || []} />
       </Main>
     </>
   );
