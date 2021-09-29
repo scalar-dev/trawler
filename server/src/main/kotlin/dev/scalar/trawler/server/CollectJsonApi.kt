@@ -6,6 +6,7 @@ import com.apicatalog.jsonld.loader.DocumentLoader
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.server.collect.CollectRequest
+import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
 import dev.scalar.trawler.server.ontology.OntologyCache
 import io.vertx.core.http.HttpMethod
@@ -29,8 +30,6 @@ import org.apache.logging.log4j.LogManager
 import java.io.FileInputStream
 import java.util.*
 import kotlin.system.measureTimeMillis
-
-data class CollectResponse(val transactionId: UUID, val unrecognisedFacetTypes: Set<String>, val unrecognisedEntityTypes: Set<String>)
 
 
 class CollectJsonApi : CoroutineVerticle() {

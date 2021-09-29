@@ -1,7 +1,6 @@
 package dev.scalar.trawler.server.graphql
 
 import dev.scalar.trawler.ontology.FacetMetaType
-import dev.scalar.trawler.server.QueryContext
 import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.FacetValue
@@ -9,12 +8,13 @@ import dev.scalar.trawler.server.db.util.ilike
 import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.server.ontology.OntologyCache
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class EntityQuery {
-    private fun fetchEntities(ids: List<UUID>): List<Entity> =
-        transaction {
+    private suspend fun fetchEntities(ids: List<UUID>): List<Entity> =
+        newSuspendedTransaction {
             FacetValue
                 .join(FacetType, JoinType.INNER, FacetType.id, FacetValue.typeId)
                 .join(dev.scalar.trawler.server.db.Entity, JoinType.INNER, dev.scalar.trawler.server.db.Entity.id, FacetValue.entityId)
@@ -73,7 +73,7 @@ class EntityQuery {
                 }
         }
 
-    fun search(context: QueryContext, name: String): List<Entity> {
+    suspend fun search(context: QueryContext, name: String): List<Entity> {
         val ontology = OntologyCache.CACHE[context.projectId]
 
         val ids = transaction {
@@ -89,9 +89,9 @@ class EntityQuery {
         return fetchEntities(ids)
     }
 
-    fun entity(id: UUID) = fetchEntities(listOf(id)).firstOrNull()
+    suspend fun entity(id: UUID) = fetchEntities(listOf(id)).firstOrNull()
 
-    fun entityGraph(id: UUID, d: Int): List<Entity> {
+    suspend fun entityGraph(id: UUID, d: Int): List<Entity> {
         var currentEntities = fetchEntities(listOf(id))
         val output = currentEntities.toMutableList()
 

@@ -1,11 +1,10 @@
 package dev.scalar.trawler.server
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
+import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.schema
 import graphql.GraphQL
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.PubSecKeyOptions
-import io.vertx.ext.auth.User
 import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.auth.jwt.JWTAuthOptions
 import io.vertx.ext.web.Router
@@ -18,8 +17,6 @@ import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.apache.logging.log4j.LogManager
 import java.util.*
-
-data class QueryContext(val user: User, val projectId: UUID) : GraphQLContext
 
 class GraphQLApi : CoroutineVerticle() {
     val log = LogManager.getLogger()

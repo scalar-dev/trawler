@@ -1,7 +1,5 @@
 package dev.scalar.trawler.server.collect
 
-data class CollectResponse(
-    val facetsIngested: Int,
-    val entitiesIngested: Int,
-    val timeTakenMilis: Long
-)
+import java.util.*
+
+data class CollectResponse(val transactionId: UUID, val unrecognisedFacetTypes: Set<String>, val unrecognisedEntityTypes: Set<String>)
