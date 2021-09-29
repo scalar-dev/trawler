@@ -20,6 +20,7 @@ dependencies {
   implementation("io.vertx:vertx-web-graphql")
   implementation("io.vertx:vertx-auth-jwt")
   implementation("io.vertx:vertx-jdbc-client")
+  implementation("io.vertx:vertx-config")
 
   implementation("org.apache.logging.log4j:log4j-core:2.14.1")
   implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
