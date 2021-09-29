@@ -3,16 +3,16 @@ import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
 
 const FacetValue = ({ facet }: { facet: any }) => {
-    if (facet.metaType === "relationship") {
-         return facet.value.map((val: any) => (
-           <div>
-             <a href={`/entity/${val}`}>{val}</a>
-           </div>
-         ));
-    } else {
-        return facet.value.map((value: any) => <div>{value}</div>);
-    }
-}
+  if (facet.metaType === "relationship") {
+    return facet.value.map((val: any) => (
+      <div>
+        <a href={`/entity/${val}`}>{val}</a>
+      </div>
+    ));
+  } else {
+    return facet.value.map((value: any) => <div>{value}</div>);
+  }
+};
 
 const Table = ({ facets }: { facets: any[] }) => {
   return (
@@ -60,8 +60,6 @@ const Table = ({ facets }: { facets: any[] }) => {
   );
 };
 
-
-
 export const Entity = () => {
   const { entity } = useParams<{ entity: string }>();
   const [data] = useQuery({
@@ -92,7 +90,9 @@ export const Entity = () => {
     <>
       <Header>
         Entity: {data.data && <>{data.data.entityGraph[0].typeName}</>}
-        <pre className="text-gray-500 text-sm">{data.data && <>{data.data.entityGraph[0].urn}</>}</pre>
+        <pre className="text-gray-500 text-sm">
+          {data.data && <>{data.data.entityGraph[0].urn}</>}
+        </pre>
       </Header>
       <Main>
         <Table facets={data.data?.entityGraph[0].facets} />

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "trawler"
-version = "0.1.0"
-description = ""
+version = "0.1.1"
+description = "Trawler is an open source metadata platform for mapping and monitoring your data"
 authors = ["Alex Sparrow <alex@alexsparrow.dev>"]
 
 [tool.poetry.dependencies]
