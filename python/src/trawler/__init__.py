@@ -1,6 +1,6 @@
 from inspect import getframeinfo, stack
 
-from trawler.graph import Graph, Context
+from trawler.graph import Graph
 
 
 
