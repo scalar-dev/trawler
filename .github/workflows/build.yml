@@ -31,4 +31,4 @@ jobs:
         run: |
           cd ui
           docker build -t scalardev/trawler-ui:$GITHUB_SHA .
-          docker push
+          docker push scalardev/trawler-ui:$GITHUB_SHA 
