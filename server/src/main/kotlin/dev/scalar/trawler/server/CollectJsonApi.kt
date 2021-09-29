@@ -5,10 +5,12 @@ import com.apicatalog.jsonld.document.JsonDocument
 import com.apicatalog.jsonld.loader.DocumentLoader
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
+import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
 import dev.scalar.trawler.server.ontology.OntologyCache
+import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.json.JsonObject
 import io.vertx.core.json.jackson.DatabindCodec
@@ -67,6 +69,26 @@ class CollectJsonApi : CoroutineVerticle() {
             }
         }
 
+        router
+            .errorHandler(400) { rc ->
+                rc.json(
+                    mapOf("message" to rc.failure().message)
+                )
+                rc.fail(403)
+            }
+            .route(HttpMethod.POST, "/api/ontology/:projectId")
+//            .handler { JWTAuthHandler.create(provider) }
+            .handler { rc ->
+                println("HELLO")
+                GlobalScope.launch(rc.vertx().dispatcher()) {
+                    val projectId = UUID.fromString(rc.pathParam("projectId"))
+                    val ontology = DatabindCodec.mapper().readValue<OntologyConfig>(rc.bodyAsString)
+
+                    OntologyUpload().upload(projectId, ontology)
+
+                    rc.response().send()
+                }
+            }
 
         router
             .errorHandler(400) { rc ->

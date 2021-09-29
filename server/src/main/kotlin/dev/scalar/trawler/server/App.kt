@@ -1,9 +1,15 @@
 package dev.scalar.trawler.server
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.datatype.jsonp.JSONPModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.readValue
+import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
+import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.json.jackson.DatabindCodec
 import io.vertx.jdbcclient.JDBCConnectOptions
@@ -42,76 +48,11 @@ class App : CoroutineVerticle() {
         log.info("Connecting to database")
         Database.connect(dataSource)
 
-        newSuspendedTransaction {
-            EntityType.insertIgnore {
-                it[EntityType.uri] = "http://trawler.dev/schema/core#SqlDatabase"
-                it[EntityType.name] = "SqlDatabase"
-            }
-
-            EntityType.insertIgnore {
-                it[EntityType.uri] = "http://trawler.dev/schema/core#SqlTable"
-                it[EntityType.name] = "SqlTable"
-            }
-
-            EntityType.insertIgnore {
-                it[EntityType.uri] = "http://trawler.dev/schema/core#SqlColumn"
-                it[EntityType.name] = "SqlColumn"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-                it[FacetType.metaType] = "type_reference"
-                it[FacetType.name] = "Type"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://schema.org/name"
-                it[FacetType.metaType] = "string"
-                it[FacetType.name] = "Name"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/core#has"
-                it[FacetType.metaType] = "relationship"
-                it[FacetType.name] = "Has"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/metrics#nullRatio"
-                it[FacetType.metaType] = "double"
-                it[FacetType.name] = "Null Ratio"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/metrics#count"
-                it[FacetType.metaType] = "double"
-                it[FacetType.name] = "Count"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/metrics#max"
-                it[FacetType.metaType] = "double"
-                it[FacetType.name] = "Max"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/metrics#min"
-                it[FacetType.metaType] = "double"
-                it[FacetType.name] = "Min"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/core#type"
-                it[FacetType.metaType] = "string"
-                it[FacetType.name] = "Type"
-            }
-
-            FacetType.insertIgnore {
-                it[FacetType.uri] = "http://trawler.dev/schema/core#isNullable"
-                it[FacetType.metaType] = "boolean"
-                it[FacetType.name] = "Is Nullable"
-            }
-        }
+        // Update the core ontology
+        val coreOntology = ObjectMapper(YAMLFactory())
+            .registerModule(KotlinModule())
+            .readValue<OntologyConfig>(App::class.java.getResourceAsStream("/core.ontology.yml"))
+        OntologyUpload().upload(null, coreOntology)
 
         vertx.deployVerticle(CollectJsonApi::class.java, DeploymentOptions().setWorker(true))
             .onFailure { log.error("Failed to deploy collect API", it) }

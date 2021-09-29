@@ -17,6 +17,39 @@ inline fun <reified T : Enum<T>, V> ((T) -> V).find(value: V): T? {
     return enumValues<T>().firstOrNull { this(it) == value }
 }
 
+fun loadOntology(projectId: UUID?) =  transaction {
+    OntologyImpl(
+        EntityType
+            .select {
+                EntityType.projectId eq projectId or
+                        EntityType.projectId.isNull()
+            }
+            .map { entityTypeDb ->
+                dev.scalar.trawler.ontology.EntityType(
+                    entityTypeDb[EntityType.uri],
+                    entityTypeDb[EntityType.id].value,
+                    entityTypeDb[EntityType.name],
+                    emptySet()
+                )
+            }
+            .toSet(),
+        FacetType
+            .select {
+                FacetType.projectId eq projectId or
+                        FacetType.projectId.isNull()
+            }
+            .map { facetTypeDb ->
+                dev.scalar.trawler.ontology.FacetType(
+                    facetTypeDb[FacetType.uri],
+                    facetTypeDb[FacetType.id].value,
+                    FacetMetaType::value.find(facetTypeDb[FacetType.metaType])!!,
+                )
+            }
+            .toSet(),
+        emptySet()
+    )
+}
+
 object OntologyCache {
     val log = LogManager.getLogger()
     val CACHE = CacheBuilder.newBuilder()
@@ -25,38 +58,7 @@ object OntologyCache {
             object: CacheLoader<UUID, Ontology>(){
                 override fun load(key: UUID): Ontology {
                     log.info("loading ontology for project $key")
-                    return transaction {
-                        OntologyImpl(
-                            EntityType
-                                .select {
-                                    EntityType.projectId eq key or
-                                            EntityType.projectId.isNull()
-                                }
-                                .map { entityTypeDb ->
-                                    dev.scalar.trawler.ontology.EntityType(
-                                        entityTypeDb[EntityType.uri],
-                                        entityTypeDb[EntityType.id].value,
-                                        entityTypeDb[EntityType.name],
-                                        emptySet()
-                                    )
-                                }
-                                .toSet(),
-                            FacetType
-                                .select {
-                                    FacetType.projectId eq key or
-                                            FacetType.projectId.isNull()
-                                }
-                                .map { facetTypeDb ->
-                                    dev.scalar.trawler.ontology.FacetType(
-                                        facetTypeDb[FacetType.uri],
-                                        facetTypeDb[FacetType.id].value,
-                                        FacetMetaType::value.find(facetTypeDb[FacetType.metaType])!!,
-                                    )
-                                }
-                                .toSet(),
-                            emptySet()
-                        )
-                    }
+                    return loadOntology(key)
                 }
             }
         )

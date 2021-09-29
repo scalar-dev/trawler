@@ -56,4 +56,8 @@ class OntologyImpl(
     override fun facetTypeByUri(uri: String): FacetType? = facetTypesByUri[uri]
 
     override fun facetTypeById(id: UUID): FacetType? = facetTypesById[id]
+
+    override fun facetTypes(): List<FacetType> = facetTypesByUri.values.toList()
+
+    override fun entityTypes(): List<EntityType> = entityTypesByUri.values.toList()
 }

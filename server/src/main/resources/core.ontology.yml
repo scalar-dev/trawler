@@ -1,0 +1,35 @@
+entityTypes:
+  - name: "SqlDatabase"
+    uri: "http://trawler.dev/schema/core#SqlDatabase"
+  - name: "SqlTable"
+    uri: "http://trawler.dev/schema/core#SqlTable"
+  - name: "SqlColumn"
+    uri: "http://trawler.dev/schema/core#SqlColumn"
+facetTypes:
+  - name: "Type"
+    uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+    metaType: TYPE_REFERENCE
+  - name: "Name"
+    uri: "http://schema.org/name"
+    metaType: STRING
+  - name: "Has"
+    uri: "http://trawler.dev/schema/core#has"
+    metaType: RELATIONSHIP
+  - name: "Null Ratio"
+    uri: "http://trawler.dev/schema/metrics#nullRatio"
+    metaType: DOUBLE
+  - name: "Count"
+    uri: "http://trawler.dev/schema/metrics#count"
+    metaType: DOUBLE
+  - name: "Max"
+    uri: "http://trawler.dev/schema/metrics#max"
+    metaType: DOUBLE
+  - name: "Min"
+    uri: "http://trawler.dev/schema/metrics#min"
+    metaType: DOUBLE
+  - name: "Type"
+    uri: "http://trawler.dev/schema/core#type"
+    metaType: STRING
+  - name: "Is Nullable"
+    uri: "http://trawler.dev/schema/core#isNullable"
+    metaType: BOOLEAN

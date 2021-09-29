@@ -47,6 +47,7 @@ dependencies {
 
   implementation("com.github.jsonld-java:jsonld-java:0.13.3")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jakarta-jsonp:2.12.2")
+  implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.2")
 
   testImplementation("io.vertx:vertx-junit5")
   testImplementation("io.vertx:vertx-web-client")
