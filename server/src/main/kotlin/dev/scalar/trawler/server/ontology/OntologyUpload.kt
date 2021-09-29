@@ -19,17 +19,17 @@ class OntologyUpload {
         log.info("Uploading ontology $projectId")
 
         existingOntology.entityTypes().forEach { entityType ->
-           val match = config.entityTypes.find { it.uri == entityType.uri }
+            val match = config.entityTypes.find { it.uri == entityType.uri }
 
             if (match == null && entityType.projectId == projectId) {
-               log.warn("Entity type ${entityType.uri} is not present in ontology. Deprecating")
+                log.warn("Entity type ${entityType.uri} is not present in ontology. Deprecating")
                 EntityType.update({ EntityType.id.eq(entityType.id) }) {
                     it[EntityType.isDeprecated] = true
                 }
             }
         }
 
-        config.entityTypes.forEach {  entityType ->
+        config.entityTypes.forEach { entityType ->
             val existing = existingOntology.entityTypes()
                 .find { it.uri == entityType.uri }
 
@@ -42,7 +42,7 @@ class OntologyUpload {
                 }
             } else if (existing.projectId == projectId) {
                 log.info("Updating entity type: ${entityType.uri}")
-                dev.scalar.trawler.server.db.EntityType.update({ dev.scalar.trawler.server.db.EntityType.id.eq(existing.id)}) {
+                dev.scalar.trawler.server.db.EntityType.update({ dev.scalar.trawler.server.db.EntityType.id.eq(existing.id) }) {
                     it[dev.scalar.trawler.server.db.EntityType.name] = entityType.name
                     it[dev.scalar.trawler.server.db.EntityType.isDeprecated] = false
                 }
@@ -63,7 +63,7 @@ class OntologyUpload {
                 }
             }
 
-        config.facetTypes.forEach {  facetType ->
+        config.facetTypes.forEach { facetType ->
             val existing = existingOntology.facetTypes().find { it.uri == facetType.uri }
 
             if (existing == null) {
@@ -76,7 +76,7 @@ class OntologyUpload {
                 }
             } else if (existing.projectId == projectId) {
                 log.info("Updating facet type: ${facetType.uri}")
-                dev.scalar.trawler.server.db.FacetType.update({ dev.scalar.trawler.server.db.FacetType.id.eq(existing.id)}) {
+                dev.scalar.trawler.server.db.FacetType.update({ dev.scalar.trawler.server.db.FacetType.id.eq(existing.id) }) {
                     it[dev.scalar.trawler.server.db.FacetType.name] = facetType.name
                     it[dev.scalar.trawler.server.db.FacetType.isDeprecated] = false
                 }

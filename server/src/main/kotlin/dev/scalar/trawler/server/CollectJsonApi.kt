@@ -29,10 +29,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.LogManager
-import java.io.FileInputStream
 import java.util.*
 import kotlin.system.measureTimeMillis
-
 
 class CollectJsonApi : CoroutineVerticle() {
     val log = LogManager.getLogger()
@@ -42,7 +40,8 @@ class CollectJsonApi : CoroutineVerticle() {
         router.route().handler(BodyHandler.create())
 
         val provider: JWTAuth = JWTAuth.create(
-            vertx, JWTAuthOptions()
+            vertx,
+            JWTAuthOptions()
                 .addPubSecKey(
                     PubSecKeyOptions()
                         .setAlgorithm("HS256")
@@ -119,13 +118,15 @@ class CollectJsonApi : CoroutineVerticle() {
                                     result
                                 }
 
-                                rc.response().send(DatabindCodec.mapper().writeValueAsString(
-                                    CollectResponse(
-                                        storeResult.txId,
-                                        storeResult.unrecognisedFacetTypes,
-                                        storeResult.unrecognisedEntityTypes
+                                rc.response().send(
+                                    DatabindCodec.mapper().writeValueAsString(
+                                        CollectResponse(
+                                            storeResult.txId,
+                                            storeResult.unrecognisedFacetTypes,
+                                            storeResult.unrecognisedEntityTypes
+                                        )
                                     )
-                                ))
+                                )
                             }
                             log.info("took ${time}ms")
                         } catch (e: IllegalArgumentException) {

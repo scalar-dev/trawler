@@ -23,11 +23,12 @@ class GraphQLApi : CoroutineVerticle() {
 
     override suspend fun start() {
         val router = Router.router(vertx)
-        vertx.exceptionHandler { e -> println(e)}
+        vertx.exceptionHandler { e -> println(e) }
         router.route().handler(BodyHandler.create())
 
         val provider: JWTAuth = JWTAuth.create(
-            vertx, JWTAuthOptions()
+            vertx,
+            JWTAuthOptions()
                 .addPubSecKey(
                     PubSecKeyOptions()
                         .setAlgorithm("HS256")
@@ -62,9 +63,9 @@ class GraphQLApi : CoroutineVerticle() {
             .handler(JWTAuthHandler.create(provider))
             .handler(
                 GraphQLHandler.create(GraphQL.newGraphQL(schema).build())
-                .queryContext { rc ->
-                    QueryContext(rc.user(), UUID.fromString("63255f7a-e383-457a-9c30-4c7f95308749"))
-                }
+                    .queryContext { rc ->
+                        QueryContext(rc.user(), UUID.fromString("63255f7a-e383-457a-9c30-4c7f95308749"))
+                    }
             )
 
         log.info("Starting graphql API")

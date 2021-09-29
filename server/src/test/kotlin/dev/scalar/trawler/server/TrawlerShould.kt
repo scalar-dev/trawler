@@ -1,19 +1,9 @@
 package dev.scalar.trawler.server
 
-//import io.grpc.ManagedChannel
-import io.vertx.core.Vertx
-import io.vertx.junit5.VertxExtension
-import io.vertx.kotlin.coroutines.await
-import io.vertx.kotlin.coroutines.dispatcher
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Timeout
-import org.junit.jupiter.api.extension.ExtendWith
-import java.util.concurrent.TimeUnit
+// import io.grpc.ManagedChannel
 
-
-//@ExtendWith(VertxExtension::class)
-//class TrawlerShould {
+// @ExtendWith(VertxExtension::class)
+// class TrawlerShould {
 //    @Test
 //    @Timeout(5, unit = TimeUnit.SECONDS)
 //    fun respond(vertx: Vertx) = runBlocking(vertx.dispatcher()) {
@@ -22,8 +12,8 @@ import java.util.concurrent.TimeUnit
 //            .forAddress(vertx, "localhost", 9090)
 //            .usePlaintext()
 //            .build()
-////        val stub = TrawlerGrpcKt.TrawlerCoroutineStub(channel)
-////
-////        val response = stub.record(RecordRequest.getDefaultInstance())
+// //        val stub = TrawlerGrpcKt.TrawlerCoroutineStub(channel)
+// //
+// //        val response = stub.record(RecordRequest.getDefaultInstance())
 //    }
-//}
+// }

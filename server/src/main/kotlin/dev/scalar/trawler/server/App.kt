@@ -27,7 +27,7 @@ import org.jetbrains.exposed.sql.Database
 class App : CoroutineVerticle() {
     private val log: Logger = LogManager.getLogger()
 
-    private inline fun <reified T: Verticle> deployVerticle(config: JsonObject, worker: Boolean) = vertx
+    private inline fun <reified T : Verticle> deployVerticle(config: JsonObject, worker: Boolean) = vertx
         .deployVerticle(T::class.java, DeploymentOptions().setWorker(worker).setConfig(config))
         .onFailure { log.error("Failed to deploy ${T::class.qualifiedName}", it) }
 
@@ -39,7 +39,8 @@ class App : CoroutineVerticle() {
         OntologyUpload().upload(null, coreOntology)
     }
 
-    private fun configRetriever() = ConfigRetriever.create(vertx,
+    private fun configRetriever() = ConfigRetriever.create(
+        vertx,
         ConfigRetrieverOptions()
             .addStore(ConfigStoreOptions().setType("env"))
     )
@@ -52,9 +53,9 @@ class App : CoroutineVerticle() {
         val password = config.getString("PGPASSWORD", "postgres")
 
         val connectOptions = JDBCConnectOptions() // H2 connection string
-            .setJdbcUrl("jdbc:postgresql://${host}:${port}/${database}") // username
+            .setJdbcUrl("jdbc:postgresql://$host:$port/$database") // username
             .setUser(username) // password
-            .setPassword(password)  // configure the pool
+            .setPassword(password) // configure the pool
 
         val poolOptions = PoolOptions()
             .setMaxSize(16)
@@ -74,14 +75,13 @@ class App : CoroutineVerticle() {
             .registerModule(KotlinModule())
             .registerModule(JSONPModule())
 
-
         val config = awaitResult<JsonObject> { h -> configRetriever().getConfig(h) }
         configureDatabase(config)
 
         log.info("Updating root ontology")
         updateOntology()
 
-        deployVerticle<CollectJsonApi>(config,true)
+        deployVerticle<CollectJsonApi>(config, true)
         deployVerticle<Indexer>(config, true)
         deployVerticle<GraphQLApi>(config, false)
     }

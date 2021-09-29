@@ -1,11 +1,11 @@
 package dev.scalar.trawler.server.graphql
 
 import dev.scalar.trawler.ontology.FacetMetaType
+import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.ilike
-import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.server.ontology.OntologyCache
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -54,7 +54,7 @@ class EntityQuery {
                     val others = it.value
                         .filter {
                             it[FacetType.metaType] != FacetMetaType.RELATIONSHIP.value &&
-                                    it[EntityType.uri] == null
+                                it[EntityType.uri] == null
                         }
                         .groupBy { it[FacetType.uri] }
                         .map {
@@ -108,7 +108,7 @@ class EntityQuery {
         val ids = transaction {
 
             val aliases = filters.mapIndexed { index, filter ->
-                filter.uri to FacetValue.alias("filter_${index}")
+                filter.uri to FacetValue.alias("filter_$index")
             }.associate { it.first to it.second }
 
             val firstAlias = aliases[filters[0].uri]!!
@@ -152,7 +152,7 @@ class EntityQuery {
                 entity.facets.filter {
                     it.metaType == FacetMetaType.RELATIONSHIP.value
                 }
-                .flatMap { (it.value as List<UUID>) }
+                    .flatMap { (it.value as List<UUID>) }
             }
 
             val fromIds = transaction {

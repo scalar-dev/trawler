@@ -17,12 +17,12 @@ inline fun <reified T : Enum<T>, V> ((T) -> V).find(value: V): T? {
     return enumValues<T>().firstOrNull { this(it) == value }
 }
 
-fun loadOntology(projectId: UUID?) =  transaction {
+fun loadOntology(projectId: UUID?) = transaction {
     OntologyImpl(
         EntityType
             .select {
                 EntityType.projectId eq projectId or
-                        EntityType.projectId.isNull()
+                    EntityType.projectId.isNull()
             }
             .map { entityTypeDb ->
                 dev.scalar.trawler.ontology.EntityType(
@@ -37,7 +37,7 @@ fun loadOntology(projectId: UUID?) =  transaction {
         FacetType
             .select {
                 FacetType.projectId eq projectId or
-                        FacetType.projectId.isNull()
+                    FacetType.projectId.isNull()
             }
             .map { facetTypeDb ->
                 dev.scalar.trawler.ontology.FacetType(
@@ -57,12 +57,11 @@ object OntologyCache {
     val CACHE = CacheBuilder.newBuilder()
         .maximumSize(100)
         .build(
-            object: CacheLoader<UUID, Ontology>(){
+            object : CacheLoader<UUID, Ontology>() {
                 override fun load(key: UUID): Ontology {
                     log.info("loading ontology for project $key")
                     return loadOntology(key)
                 }
             }
         )
-
 }

@@ -15,18 +15,18 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import java.time.Instant
 import java.util.*
 
-class Indexer: CoroutineVerticle() {
+class Indexer : CoroutineVerticle() {
     val log = LogManager.getLogger()
 
     private suspend fun indexEntities(projectId: UUID, urns: List<String>): Map<String, UUID> {
-        Entity.batchInsert(urns, ignore=true) {
+        Entity.batchInsert(urns, ignore = true) {
             this[Entity.projectId] = projectId
             this[Entity.createdAt] = Instant.now()
             this[Entity.urn] = it
         }
 
         return Entity.select { Entity.urn.inList(urns) }
-            .associate { it[Entity.urn] to it[Entity.id].value}
+            .associate { it[Entity.urn] to it[Entity.id].value }
     }
 
     override suspend fun start() {
@@ -39,7 +39,7 @@ class Indexer: CoroutineVerticle() {
             counter += 1
 
             if (counter % 100 == 0) {
-                log.info("indexing: ${counter}")
+                log.info("indexing: $counter")
             }
             newSuspendedTransaction {
                 // Grab the log
@@ -67,7 +67,7 @@ class Indexer: CoroutineVerticle() {
                 }.toList()
 
                 if (facetValues.any { it[FacetValue.version] > facetLog[FacetLog.version] }) {
-                   log.info("Stale write detected: ${id}")
+                    log.info("Stale write detected: $id")
                 } else {
                     // Delete any old versions
                     FacetValue.deleteWhere {

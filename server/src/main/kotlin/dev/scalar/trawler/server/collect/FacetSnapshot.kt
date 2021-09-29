@@ -3,7 +3,6 @@ package dev.scalar.trawler.server.collect
 import dev.scalar.trawler.ontology.FacetType
 import java.util.*
 
-
 data class FacetSnapshot(
     val projectId: UUID,
     val txId: UUID,

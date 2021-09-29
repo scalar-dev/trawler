@@ -27,7 +27,9 @@ fun customDistinctOn(vararg expressions: Expression<*>): CustomFunction<Boolean?
 )
 
 fun CustomBooleanFunction(
-    functionName: String, postfix: String = "", vararg params: Expression<*>
+    functionName: String,
+    postfix: String = "",
+    vararg params: Expression<*>
 ): CustomFunction<Boolean?> =
     object : CustomFunction<Boolean?>(functionName, BooleanColumnType(), *params) {
         override fun toQueryBuilder(queryBuilder: QueryBuilder) {
@@ -44,18 +46,18 @@ fun CustomBooleanFunction(
 * Sample usage:
 *
 * class SampleTable: IntIdTable("whatever"){
-    *     val identifier = varchar("identifier", 32").uniqueIndex()
-            *     val value = varchar("value", 32)
-            * }
+ *     val identifier = varchar("identifier", 32").uniqueIndex()
+ *     val value = varchar("value", 32)
+ * }
 *
 * transaction {
-    *     SampleTable.insertOrUpdate({
-        *         it[SampleTable.identifier] = "some identifier"
-        *         it[SampleTable.value] = "inserted"
-        *     }){
-        *         it[SampleTable.value] = "updated"
-        *     }
-    * }
+ *     SampleTable.insertOrUpdate({
+ *         it[SampleTable.identifier] = "some identifier"
+ *         it[SampleTable.value] = "inserted"
+ *     }){
+ *         it[SampleTable.value] = "updated"
+ *     }
+ * }
 *
 * Which is equivalent of:
 *
@@ -64,13 +66,13 @@ fun CustomBooleanFunction(
 */
 fun <T : Table> T.insertOrUpdate(vararg keys: Column<*>, insert: T.(InsertStatement<Number>) -> Unit, update: T.(UpdateBuilder<Int>) -> Unit) {
     val updateStatement = UpsertUpdateBuilder(this).apply { update(this) }
-    InsertOrUpdate<Number>(keys, updateStatement,this).apply {
+    InsertOrUpdate<Number>(keys, updateStatement, this).apply {
         insert(this)
         execute(TransactionManager.current())
     }
 }
 
-private class UpsertUpdateBuilder(table: Table) : UpdateBuilder<Int>(StatementType.OTHER, listOf(table)){
+private class UpsertUpdateBuilder(table: Table) : UpdateBuilder<Int>(StatementType.OTHER, listOf(table)) {
 
     val firstDataSet: List<Pair<Column<*>, Any?>> get() = values.toList()
 
@@ -104,12 +106,12 @@ private class InsertOrUpdate<Key : Any>(
 
     override fun prepareSQL(transaction: Transaction): String {
         val values = update.firstDataSet
-        if(values.isEmpty())
+        if (values.isEmpty())
             return super.prepareSQL(transaction)
 
         val originalStatement = super.prepareSQL(transaction)
 
-        val updateStm = with(QueryBuilder(true)){
+        val updateStm = with(QueryBuilder(true)) {
             values.appendTo(this) { (col, value) ->
                 append("${transaction.identity(col)}=")
                 registerArgument(col, value)
@@ -123,7 +125,7 @@ private class InsertOrUpdate<Key : Any>(
 
 // https://stackoverflow.com/a/52977812
 class ILikeOp(expr1: Expression<*>, expr2: Expression<*>) : ComparisonOp(expr1, expr2, "ILIKE")
-infix fun<T:String?> ExpressionWithColumnType<T>.ilike(pattern: String): Op<Boolean> = ILikeOp(this, QueryParameter(pattern, columnType))
+infix fun <T : String?> ExpressionWithColumnType<T>.ilike(pattern: String): Op<Boolean> = ILikeOp(this, QueryParameter(pattern, columnType))
 
 @Suppress("UNCHECKED_CAST")
 operator fun <T, S : Comparable<S>, ID : EntityID<S>?, E : S?> UpdateBuilder<T>.set(column: Column<ID>, value: E) =

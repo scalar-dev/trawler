@@ -1,7 +1,6 @@
 package dev.scalar.trawler.server.collect
 
 import com.fasterxml.jackson.annotation.*
-import dev.scalar.trawler.server.collect.CollectFacet
 
 data class CollectNode(
     @JsonProperty("@id")

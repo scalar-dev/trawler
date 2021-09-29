@@ -1,8 +1,8 @@
 package dev.scalar.trawler.server.collect
 
 import dev.scalar.trawler.ontology.FacetMetaType
-import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.ontology.Ontology
+import dev.scalar.trawler.server.db.FacetLog
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
@@ -22,39 +22,39 @@ class FacetStore(val ontology: Ontology) {
     )
 
     suspend fun ingestFacet(snapshot: FacetSnapshot): UUID = newSuspendedTransaction {
-            val version = FacetLog
-                .slice(FacetLog.version)
-                .select { FacetLog.entityUrn.eq(snapshot.entityUrn).and(FacetLog.typeId.eq(snapshot.facetType.id)) }
-                .orderBy(FacetLog.version, SortOrder.DESC)
-                .limit(1)
-                .firstOrNull()?.get(FacetLog.version) ?: 0
+        val version = FacetLog
+            .slice(FacetLog.version)
+            .select { FacetLog.entityUrn.eq(snapshot.entityUrn).and(FacetLog.typeId.eq(snapshot.facetType.id)) }
+            .orderBy(FacetLog.version, SortOrder.DESC)
+            .limit(1)
+            .firstOrNull()?.get(FacetLog.version) ?: 0
 
-            // TODO: check types
-            // TODO: resolve URNs
-            FacetLog.insertAndGetId {
-                it[FacetLog.projectId] = snapshot.projectId
-                it[FacetLog.txId] = snapshot.txId
-                it[FacetLog.typeId] = snapshot.facetType.id
-                it[FacetLog.version] = version + 1
-                it[FacetLog.entityUrn] = snapshot.entityUrn
-                it[FacetLog.value] = snapshot.values.map { value ->
-                    when (value) {
-                        is FacetSnapshotValue.Id -> {
-                            assert(
-                                snapshot.facetType.metaType == FacetMetaType.RELATIONSHIP
-                            )
-                            value.value
-                        }
-                        is FacetSnapshotValue.Value -> {
-                            value.value
-                        }
-                        else -> {
-                            value
-                        }
+        // TODO: check types
+        // TODO: resolve URNs
+        FacetLog.insertAndGetId {
+            it[FacetLog.projectId] = snapshot.projectId
+            it[FacetLog.txId] = snapshot.txId
+            it[FacetLog.typeId] = snapshot.facetType.id
+            it[FacetLog.version] = version + 1
+            it[FacetLog.entityUrn] = snapshot.entityUrn
+            it[FacetLog.value] = snapshot.values.map { value ->
+                when (value) {
+                    is FacetSnapshotValue.Id -> {
+                        assert(
+                            snapshot.facetType.metaType == FacetMetaType.RELATIONSHIP
+                        )
+                        value.value
+                    }
+                    is FacetSnapshotValue.Value -> {
+                        value.value
+                    }
+                    else -> {
+                        value
                     }
                 }
-            }.value
-        }
+            }
+        }.value
+    }
 
     suspend fun ingest(projectId: UUID, request: CollectRequest): StoreReult {
         val unrecognisedFacetTypes = mutableSetOf<String>()
