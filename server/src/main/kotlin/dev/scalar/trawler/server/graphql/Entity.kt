@@ -1,11 +1,10 @@
 package dev.scalar.trawler.server.graphql
 
-import dev.scalar.trawler.server.db.FacetLog
-import org.jetbrains.exposed.sql.select
 import java.util.*
 
 data class Entity(
     val entityId: UUID,
+    val urn: String,
     val type: String,
     val typeName: String,
     val facets: List<Facet>

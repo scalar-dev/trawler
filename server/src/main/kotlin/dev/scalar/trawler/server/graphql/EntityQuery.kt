@@ -72,6 +72,7 @@ class EntityQuery {
                         }
                     Entity(
                         it.key,
+                        it.value[0][dev.scalar.trawler.server.db.Entity.urn],
                         type,
                         typeName,
                         relationships + others
