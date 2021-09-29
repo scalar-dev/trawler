@@ -1,5 +1,6 @@
 package dev.scalar.trawler.server.db.util
 
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.StatementType
@@ -123,3 +124,8 @@ private class InsertOrUpdate<Key : Any>(
 // https://stackoverflow.com/a/52977812
 class ILikeOp(expr1: Expression<*>, expr2: Expression<*>) : ComparisonOp(expr1, expr2, "ILIKE")
 infix fun<T:String?> ExpressionWithColumnType<T>.ilike(pattern: String): Op<Boolean> = ILikeOp(this, QueryParameter(pattern, columnType))
+
+@Suppress("UNCHECKED_CAST")
+operator fun <T, S : Comparable<S>, ID : EntityID<S>?, E : S?> UpdateBuilder<T>.set(column: Column<ID>, value: E) =
+    // see https://github.com/JetBrains/Exposed/issues/1275
+    set(column as Column<EntityID<S>>, value)

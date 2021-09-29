@@ -9,7 +9,8 @@ CREATE TABLE entity_type(
     id UUID PRIMARY KEY,
     uri TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
-    project_id UUID REFERENCES project
+    project_id UUID REFERENCES project,
+    is_deprecated BOOLEAN
 );
 
 CREATE TABLE facet_type(
@@ -17,7 +18,8 @@ CREATE TABLE facet_type(
     uri TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
     meta_type TEXT NOT NULL,
-    project_id UUID REFERENCES project
+    project_id UUID REFERENCES project,
+    is_deprecated BOOLEAN
 );
 
 CREATE TABLE entity(

@@ -6,5 +6,6 @@ data class EntityType(
     val uri: String,
     val id: UUID,
     val name: String,
-    val allowedFacets: Set<FacetType>
+    val allowedFacets: Set<FacetType>,
+    val projectId: UUID?
 )

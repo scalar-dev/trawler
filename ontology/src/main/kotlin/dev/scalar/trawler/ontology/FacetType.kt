@@ -5,5 +5,6 @@ import java.util.*
 data class FacetType(
    val uri: String,
    val id: UUID,
-   val metaType: FacetMetaType
+   val metaType: FacetMetaType,
+   val projectId: UUID?
 )

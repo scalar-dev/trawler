@@ -29,7 +29,8 @@ fun loadOntology(projectId: UUID?) =  transaction {
                     entityTypeDb[EntityType.uri],
                     entityTypeDb[EntityType.id].value,
                     entityTypeDb[EntityType.name],
-                    emptySet()
+                    emptySet(),
+                    entityTypeDb[EntityType.projectId]?.value
                 )
             }
             .toSet(),
@@ -43,6 +44,7 @@ fun loadOntology(projectId: UUID?) =  transaction {
                     facetTypeDb[FacetType.uri],
                     facetTypeDb[FacetType.id].value,
                     FacetMetaType::value.find(facetTypeDb[FacetType.metaType])!!,
+                    facetTypeDb[FacetType.projectId]?.value
                 )
             }
             .toSet(),
