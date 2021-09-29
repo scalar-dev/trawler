@@ -7,6 +7,7 @@ import java.util.*
 data class Entity(
     val entityId: UUID,
     val type: String,
+    val typeName: String,
     val facets: List<Facet>
 ) {
 //    fun facetLog(entityId: UUID, facets: List<UUID>?) {

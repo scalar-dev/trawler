@@ -8,6 +8,7 @@ import dev.scalar.trawler.server.db.util.ilike
 import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.server.ontology.OntologyCache
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
@@ -25,6 +26,10 @@ class EntityQuery {
                 .groupBy { it[FacetValue.entityId] }
                 .map {
                     val type = it.value.map { it[dev.scalar.trawler.server.db.EntityType.uri] }
+                        .filterNotNull()
+                        .first()
+
+                    val typeName = it.value.map { it[dev.scalar.trawler.server.db.EntityType.name] }
                         .filterNotNull()
                         .first()
 
@@ -68,22 +73,68 @@ class EntityQuery {
                     Entity(
                         it.key,
                         type,
+                        typeName,
                         relationships + others
                     )
                 }
         }
 
-    suspend fun search(context: QueryContext, name: String): List<Entity> {
+    data class Filter(
+        val uri: String,
+        val value: String
+    )
+
+    private fun filterToOp(columnSet: Alias<FacetValue>, ontology: Ontology, filter: Filter): Op<Boolean> {
+        val facetType = ontology.facetTypeByUri(filter.uri)!!
+
+        return columnSet[FacetValue.typeId].eq(facetType.id) and when (facetType.metaType) {
+            FacetMetaType.STRING -> {
+                columnSet[FacetValue.value].castTo<String>(TextColumnType()).ilike("%${filter.value}%")
+            }
+            FacetMetaType.TYPE_REFERENCE -> {
+                val entityType = ontology.entityTypeByUri(filter.value)
+                columnSet[FacetValue.entityTypeId].eq(entityType!!.id)
+            }
+            else -> {
+                throw NotImplementedError()
+            }
+        }
+    }
+
+    suspend fun search(context: QueryContext, filters: List<Filter>): List<Entity> {
         val ontology = OntologyCache.CACHE[context.projectId]
 
         val ids = transaction {
-            FacetValue
-                .slice(FacetValue.entityId)
+
+            val aliases = filters.mapIndexed { index, filter ->
+                filter.uri to FacetValue.alias("filter_${index}")
+            }.associate { it.first to it.second }
+
+            val firstAlias = aliases[filters[0].uri]!!
+            var query: ColumnSet = firstAlias
+
+            filters.drop(1).forEachIndexed { index, filter ->
+                val alias = aliases[filter.uri]!!
+                query = query.innerJoin(alias, { firstAlias[FacetValue.entityId] }, { alias[FacetValue.entityId] })
+            }
+
+            query
+                .slice(firstAlias[FacetValue.entityId])
                 .select {
-                    FacetValue.typeId.eq(ontology.facetTypeByUri(Ontology.NAME_TYPE)!!.id) and
-                            FacetValue.value.castTo<String>(TextColumnType()).ilike("%$name%")
+                    val firstFilter = filters[0]
+                    val initialOp = filterToOp(aliases[firstFilter.uri]!!, ontology, firstFilter)
+
+                    filters.drop(1).fold(initialOp) { op, filter ->
+                        op.and(
+                            filterToOp(
+                                aliases[filter.uri]!!,
+                                ontology,
+                                filter
+                            )
+                        )
+                    }
                 }
-                .map { row -> row[FacetValue.entityId] }
+                .map { row -> row[firstAlias[FacetValue.entityId]] }
         }
 
         return fetchEntities(ids)
