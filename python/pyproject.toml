@@ -1,23 +1,26 @@
 [tool.poetry]
 name = "trawler"
-version = "0.1.1"
+version = "0.1.6"
 description = "Trawler is an open source metadata platform for mapping and monitoring your data"
+readme = "README.md"
 authors = ["Alex Sparrow <alex@alexsparrow.dev>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pandas = "^1.2.3"
-grpcio = "^1.36.1"
-grpcio-tools = "^1.36.1"
-SQLAlchemy = "^1.4.17"
-psycopg2-binary = "^2.8.6"
-sqlparse = "^0.4.1"
+pandas = "^1.3.3"
+SQLAlchemy = {version = "^1.4.17", optional = true }
+psycopg2-binary = {version = "^2.8.6", optional = true }
 click = "^8.0.1"
 requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
 
+[tool.poetry.extras]
+sql = ["SQLAlchemy"]
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
