@@ -5,7 +5,6 @@ import os
 
 import requests
 
-
 def to_json(value):
     if isinstance(value, EntityStub):
         return value.json()

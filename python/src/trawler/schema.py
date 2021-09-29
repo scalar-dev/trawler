@@ -24,7 +24,7 @@ class Relation:
     target_fields: List[str]
 
 @dataclass
-class Object:
+class Table:
     name: str
     fields: List[Field]
     relations: List[Relation]

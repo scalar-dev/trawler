@@ -18,6 +18,9 @@ facetTypes:
   - name: "Null Ratio"
     uri: "http://trawler.dev/schema/metrics#nullRatio"
     metaType: DOUBLE
+  - name: "Unique Ratio"
+    uri: "http://trawler.dev/schema/metrics#uniqueRatio"
+    metaType: DOUBLE
   - name: "Count"
     uri: "http://trawler.dev/schema/metrics#count"
     metaType: DOUBLE
