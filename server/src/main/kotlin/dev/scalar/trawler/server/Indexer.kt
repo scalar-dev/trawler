@@ -1,11 +1,10 @@
 package dev.scalar.trawler.server
 
+import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.server.db.Entity
 import dev.scalar.trawler.server.db.FacetLog
-import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.selectForUpdate
-import dev.scalar.trawler.server.ontology.Ontology
 import dev.scalar.trawler.server.ontology.OntologyCache
 import io.vertx.core.eventbus.Message
 import io.vertx.kotlin.coroutines.CoroutineVerticle
@@ -52,7 +51,7 @@ class Indexer: CoroutineVerticle() {
                     .facetTypeById(facetLog[FacetLog.typeId].value)!!
 
                 // Create any entities
-                val urns = if (facetType.metaType == FacetType.MetaType.RELATIONSHIP) {
+                val urns = if (facetType.metaType == FacetMetaType.RELATIONSHIP) {
                     listOf(facetLog[FacetLog.entityUrn]) + facetLog[FacetLog.value]!!.map { it.toString() }
                 } else {
                     listOf(facetLog[FacetLog.entityUrn])
@@ -88,9 +87,9 @@ class Indexer: CoroutineVerticle() {
                         this[FacetValue.version] = facetLog[FacetLog.version]
                         this[FacetValue.updatedAt] = Instant.now()
 
-                        if (facetType.metaType == FacetType.MetaType.RELATIONSHIP) {
+                        if (facetType.metaType == FacetMetaType.RELATIONSHIP) {
                             this[FacetValue.targetEntityId] = entities[it.value.toString()]
-                        } else if (facetType.metaType == FacetType.MetaType.TYPE_REFERENCE) {
+                        } else if (facetType.metaType == FacetMetaType.TYPE_REFERENCE) {
                             this[FacetValue.entityTypeId] = UUID.fromString(it.value as String)
                         } else {
                             this[FacetValue.value] = it.value as Any

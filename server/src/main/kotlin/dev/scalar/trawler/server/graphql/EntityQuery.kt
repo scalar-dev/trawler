@@ -1,11 +1,12 @@
 package dev.scalar.trawler.server.graphql
 
+import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.server.QueryContext
 import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.ilike
-import dev.scalar.trawler.server.ontology.Ontology
+import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.server.ontology.OntologyCache
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -29,7 +30,7 @@ class EntityQuery {
 
                     val relationships =
                         it.value
-                            .filter { it[FacetType.metaType] == FacetType.MetaType.RELATIONSHIP.value }
+                            .filter { it[FacetType.metaType] == FacetMetaType.RELATIONSHIP.value }
                             .groupBy { it[FacetType.uri] }
                             .map {
                                 val name = it.value.first()[FacetType.name]
@@ -47,7 +48,7 @@ class EntityQuery {
 
                     val others = it.value
                         .filter {
-                            it[FacetType.metaType] != FacetType.MetaType.RELATIONSHIP.value &&
+                            it[FacetType.metaType] != FacetMetaType.RELATIONSHIP.value &&
                                     it[EntityType.uri] == null
                         }
                         .groupBy { it[FacetType.uri] }
@@ -97,7 +98,7 @@ class EntityQuery {
         for (i in 0 until d) {
             val targetIds = currentEntities.flatMap { entity ->
                 entity.facets.filter {
-                    it.metaType == FacetType.MetaType.RELATIONSHIP.value
+                    it.metaType == FacetMetaType.RELATIONSHIP.value
                 }
                 .flatMap { (it.value as List<UUID>) }
             }

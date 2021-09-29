@@ -1,8 +1,8 @@
 package dev.scalar.trawler.server.collect
 
+import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.server.db.FacetLog
-import dev.scalar.trawler.server.db.FacetType
-import dev.scalar.trawler.server.ontology.Ontology
+import dev.scalar.trawler.ontology.Ontology
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
@@ -41,7 +41,7 @@ class FacetStore(val ontology: Ontology) {
                     when (value) {
                         is FacetSnapshotValue.Id -> {
                             assert(
-                                snapshot.facetType.metaType == FacetType.MetaType.RELATIONSHIP
+                                snapshot.facetType.metaType == FacetMetaType.RELATIONSHIP
                             )
                             value.value
                         }

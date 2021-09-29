@@ -1,6 +1,6 @@
 package dev.scalar.trawler.server.collect
 
-import dev.scalar.trawler.server.ontology.FacetType
+import dev.scalar.trawler.ontology.FacetType
 import java.util.*
 
 

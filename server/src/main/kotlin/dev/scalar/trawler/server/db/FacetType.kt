@@ -10,13 +10,4 @@ object FacetType : UUIDTable("facet_type") {
     val metaType = text("meta_type")
 //    val jsonSchema = text("json_schema").nullable()
 
-    enum class MetaType(val value: String) {
-        STRING("string"),
-        BOOLEAN("boolean"),
-        INT("int"),
-        DOUBLE("double"),
-        JSON("json"),
-        RELATIONSHIP("relationship"),
-        TYPE_REFERENCE("type_reference")
-    }
 }

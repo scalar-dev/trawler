@@ -12,8 +12,6 @@ val junitVersion = "5.3.2"
 val exposedVersion = "0.32.1"
 
 dependencies {
-  implementation(project(":ontology"))
-
   implementation("io.vertx:vertx-core")
   implementation("io.vertx:vertx-lang-kotlin")
   implementation("io.vertx:vertx-lang-kotlin-coroutines")

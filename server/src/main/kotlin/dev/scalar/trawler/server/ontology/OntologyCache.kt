@@ -2,6 +2,11 @@ package dev.scalar.trawler.server.ontology
 
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
+import dev.scalar.trawler.ontology.FacetMetaType
+import dev.scalar.trawler.ontology.Ontology
+import dev.scalar.trawler.ontology.OntologyImpl
+import dev.scalar.trawler.server.db.EntityType
+import dev.scalar.trawler.server.db.FacetType
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
@@ -22,30 +27,30 @@ object OntologyCache {
                     log.info("loading ontology for project $key")
                     return transaction {
                         OntologyImpl(
-                            dev.scalar.trawler.server.db.EntityType
+                            EntityType
                                 .select {
-                                    dev.scalar.trawler.server.db.EntityType.projectId eq key or
-                                            dev.scalar.trawler.server.db.EntityType.projectId.isNull()
+                                    EntityType.projectId eq key or
+                                            EntityType.projectId.isNull()
                                 }
                                 .map { entityTypeDb ->
-                                    EntityType(
-                                        entityTypeDb[dev.scalar.trawler.server.db.EntityType.uri],
-                                        entityTypeDb[dev.scalar.trawler.server.db.EntityType.id].value,
-                                        entityTypeDb[dev.scalar.trawler.server.db.EntityType.name],
+                                    dev.scalar.trawler.ontology.EntityType(
+                                        entityTypeDb[EntityType.uri],
+                                        entityTypeDb[EntityType.id].value,
+                                        entityTypeDb[EntityType.name],
                                         emptySet()
                                     )
                                 }
                                 .toSet(),
-                            dev.scalar.trawler.server.db.FacetType
+                            FacetType
                                 .select {
-                                    dev.scalar.trawler.server.db.FacetType.projectId eq key or
-                                            dev.scalar.trawler.server.db.FacetType.projectId.isNull()
+                                    FacetType.projectId eq key or
+                                            FacetType.projectId.isNull()
                                 }
                                 .map { facetTypeDb ->
-                                    FacetType(
-                                        facetTypeDb[dev.scalar.trawler.server.db.FacetType.uri],
-                                        facetTypeDb[dev.scalar.trawler.server.db.FacetType.id].value,
-                                        dev.scalar.trawler.server.db.FacetType.MetaType::value.find(facetTypeDb[dev.scalar.trawler.server.db.FacetType.metaType])!!,
+                                    dev.scalar.trawler.ontology.FacetType(
+                                        facetTypeDb[FacetType.uri],
+                                        facetTypeDb[FacetType.id].value,
+                                        FacetMetaType::value.find(facetTypeDb[FacetType.metaType])!!,
                                     )
                                 }
                                 .toSet(),

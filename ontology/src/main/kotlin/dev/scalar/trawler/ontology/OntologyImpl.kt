@@ -1,4 +1,4 @@
-package dev.scalar.trawler.server.ontology
+package dev.scalar.trawler.ontology
 
 import java.lang.IllegalArgumentException
 import java.util.*

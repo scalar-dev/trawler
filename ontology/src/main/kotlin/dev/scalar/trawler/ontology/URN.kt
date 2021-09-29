@@ -1,4 +1,4 @@
-package dev.scalar.trawler.server.ontology
+package dev.scalar.trawler.ontology
 
 data class URNScheme(
     val template: String,
