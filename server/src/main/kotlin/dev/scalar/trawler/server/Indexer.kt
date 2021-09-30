@@ -1,9 +1,7 @@
 package dev.scalar.trawler.server
 
 import dev.scalar.trawler.ontology.FacetMetaType
-import dev.scalar.trawler.server.db.Entity
-import dev.scalar.trawler.server.db.FacetLog
-import dev.scalar.trawler.server.db.FacetValue
+import dev.scalar.trawler.server.db.*
 import dev.scalar.trawler.server.db.util.selectForUpdate
 import dev.scalar.trawler.server.ontology.OntologyCache
 import io.vertx.core.eventbus.Message
@@ -65,6 +63,21 @@ class Indexer : CoroutineVerticle() {
                     FacetValue.entityId.eq(entityId)
                         .and(FacetValue.typeId.eq(facetLog[FacetLog.typeId].value))
                 }.toList()
+
+                if (facetType.indexTimeSeries) {
+                    FacetTimeSeries.insertIgnore {
+                        it[FacetTimeSeries.entityId] = entityId
+                        it[FacetTimeSeries.typeId] = facetType.id
+                        it[FacetTimeSeries.version] = facetLog[FacetLog.version]
+                        it[FacetTimeSeries.timestamp] = facetLog[FacetLog.timestamp] ?: facetLog[FacetLog.createdAt]
+
+                        if (facetType.metaType == FacetMetaType.DOUBLE) {
+                            it[FacetTimeSeries.valueDouble] = (facetLog[FacetLog.value]!![0] as Number).toDouble()
+                        } else if (facetType.metaType == FacetMetaType.INT) {
+                            it[FacetTimeSeries.valueLong] = (facetLog[FacetLog.value]!![0] as Number).toLong()
+                        }
+                    }
+                }
 
                 if (facetValues.any { it[FacetValue.version] > facetLog[FacetLog.version] }) {
                     log.info("Stale write detected: $id")

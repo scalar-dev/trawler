@@ -7,5 +7,6 @@ data class FacetType(
    val id: UUID,
    val name: String,
    val metaType: FacetMetaType,
-   val projectId: UUID?
+   val projectId: UUID?,
+   val indexTimeSeries: Boolean
 )

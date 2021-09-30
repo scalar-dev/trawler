@@ -23,7 +23,8 @@ facetTypes:
     metaType: DOUBLE
   - name: "Count"
     uri: "http://trawler.dev/schema/metrics#count"
-    metaType: DOUBLE
+    indexTimeSeries: true
+    metaType: INT
   - name: "Max"
     uri: "http://trawler.dev/schema/metrics#max"
     metaType: DOUBLE
