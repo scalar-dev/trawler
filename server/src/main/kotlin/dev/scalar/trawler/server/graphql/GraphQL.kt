@@ -18,7 +18,6 @@ val config = SchemaGeneratorConfig(
             Instant::class -> Scalars.dateTime
 //            ByteArray::class -> Scalars.byteArray
             Any::class -> Scalars.json
-//            Map::class -> Scalars.json
             else -> super.willGenerateGraphQLType(type)
         }
     },

@@ -10,4 +10,5 @@ object FacetType : UUIDTable("facet_type") {
     val metaType = text("meta_type")
 //    val jsonSchema = text("json_schema").nullable()
     val isDeprecated = bool("is_deprecated")
+    val indexTimeSeries = bool("index_time_series")
 }

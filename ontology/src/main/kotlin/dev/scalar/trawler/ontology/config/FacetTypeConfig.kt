@@ -5,5 +5,6 @@ import dev.scalar.trawler.ontology.FacetMetaType
 data class FacetTypeConfig(
     val uri: String,
     val name: String,
-    val metaType: FacetMetaType
+    val metaType: FacetMetaType,
+    val indexTimeSeries: Boolean = false
 )

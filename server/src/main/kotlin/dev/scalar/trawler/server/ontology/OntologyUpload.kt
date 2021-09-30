@@ -73,12 +73,14 @@ class OntologyUpload {
                     it[dev.scalar.trawler.server.db.FacetType.name] = facetType.name
                     it[dev.scalar.trawler.server.db.FacetType.metaType] = facetType.metaType.value
                     it[dev.scalar.trawler.server.db.FacetType.projectId] = projectId
+                    it[dev.scalar.trawler.server.db.FacetType.indexTimeSeries] = facetType.indexTimeSeries
                 }
             } else if (existing.projectId == projectId) {
                 log.info("Updating facet type: ${facetType.uri}")
                 dev.scalar.trawler.server.db.FacetType.update({ dev.scalar.trawler.server.db.FacetType.id.eq(existing.id) }) {
                     it[dev.scalar.trawler.server.db.FacetType.name] = facetType.name
                     it[dev.scalar.trawler.server.db.FacetType.isDeprecated] = false
+                    it[dev.scalar.trawler.server.db.FacetType.indexTimeSeries] = facetType.indexTimeSeries
                 }
             } else {
                 log.info("Skipping ${facetType.uri}")

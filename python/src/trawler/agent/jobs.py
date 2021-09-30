@@ -32,7 +32,7 @@ def read_config(fname: str) -> Config:
     return config
 
 
-def run_scheduler(fname: str):
+def run_scheduler(fname: str, now: bool):
   config = read_config(fname)
 
   for job in config["jobs"]:
@@ -51,6 +51,9 @@ def run_scheduler(fname: str):
 
   print(f"Scheduled {len(schedule.get_jobs())} jobs")
 
-  while True:
-    schedule.run_pending()
-    time.sleep(1)
+  if now:
+    schedule.run_all()
+  else:
+    while True:
+      schedule.run_pending()
+      time.sleep(1)

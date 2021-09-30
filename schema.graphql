@@ -26,6 +26,7 @@ type Entity {
   entityId: UUID!
   facetLog(facets: [String!]!): [FacetLog!]!
   facets: [Facet!]!
+  timeSeries(facet: String!): FacetTimeSeries
   type: String!
   typeName: String!
   urn: String!
@@ -46,6 +47,17 @@ type FacetLog {
   name: String!
   urn: String!
   version: Long!
+}
+
+type FacetTimeSeries {
+  name: String!
+  points: [FacetTimeSeriesPoint!]!
+  urn: String!
+}
+
+type FacetTimeSeriesPoint {
+  timestamp: DateTime!
+  value: Float!
 }
 
 type Mutation {

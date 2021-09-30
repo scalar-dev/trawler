@@ -18,8 +18,9 @@ def sql(uri: str, override_dbname: Optional[str]):
 
 @main.command()
 @click.argument("config")
-def run(config: str):
-    run_scheduler(config)
+@click.option("--now", is_flag=True)
+def run(config: str, now: bool):
+    run_scheduler(config, now)
 
 if __name__ == "__main__":
     main()

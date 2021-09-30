@@ -45,7 +45,8 @@ fun loadOntology(projectId: UUID?) = transaction {
                     facetTypeDb[FacetType.id].value,
                     facetTypeDb[FacetType.name],
                     FacetMetaType::value.find(facetTypeDb[FacetType.metaType])!!,
-                    facetTypeDb[FacetType.projectId]?.value
+                    facetTypeDb[FacetType.projectId]?.value,
+                    facetTypeDb[FacetType.indexTimeSeries]
                 )
             }
             .toSet(),

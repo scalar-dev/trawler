@@ -1,7 +1,9 @@
 package dev.scalar.trawler.server.graphql
 
+import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.server.db.Entity
 import dev.scalar.trawler.server.db.FacetLog
+import dev.scalar.trawler.server.db.FacetTimeSeries
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.ontology.OntologyCache
 import org.jetbrains.exposed.sql.JoinType
@@ -49,6 +51,36 @@ data class Entity(
                 row[FacetLog.version],
                 row[FacetLog.value]?.mapNotNull { entitiesByUrn[it.toString()] } ?: emptyList(),
                 row[FacetLog.createdAt]
+            )
+        }
+    }
+
+    suspend fun timeSeries(context: QueryContext, facet: String): dev.scalar.trawler.server.graphql.FacetTimeSeries? = newSuspendedTransaction {
+        val facetType = OntologyCache.CACHE[context.projectId].facetTypeByUri(facet)!!
+
+        val rows = FacetTimeSeries
+            .join(FacetType, JoinType.INNER, FacetTimeSeries.typeId, FacetType.id)
+            .select {
+                FacetTimeSeries.entityId.eq(entityId) and FacetType.uri.eq(facet)
+            }
+            .orderBy(FacetTimeSeries.timestamp, SortOrder.ASC)
+
+        if (rows.toList().isEmpty()) {
+            null
+        } else {
+            dev.scalar.trawler.server.graphql.FacetTimeSeries(
+                facetType.name,
+                urn = facet,
+                points = rows.map { row ->
+                    FacetTimeSeriesPoint(
+                        row[FacetTimeSeries.timestamp],
+                        if (facetType.metaType == FacetMetaType.INT) {
+                            row[FacetTimeSeries.valueLong].toDouble()
+                        } else {
+                            row[FacetTimeSeries.valueDouble]
+                        }
+                    )
+                }
             )
         }
     }
