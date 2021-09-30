@@ -1,7 +1,15 @@
-import { DatabaseIcon, QuestionMarkCircleIcon, TableIcon, DotsVerticalIcon } from "@heroicons/react/solid";
+import {
+  DatabaseIcon,
+  QuestionMarkCircleIcon,
+  TableIcon,
+  DotsVerticalIcon,
+} from "@heroicons/react/solid";
+import { useState } from "react";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
-import { SearchQuery } from "../types";
+import { Option, Selector } from "../components/Selector";
+import { SearchByTypeDocument } from "../types";
+
 
 export const EntityIcon = ({ type }: { type: string }) => {
   if (type === "SqlDatabase") {
@@ -106,34 +114,63 @@ const Table = ({ datasets }: { datasets: any[] }) => {
   );
 };
 
-export const Dashboard = () => {
-  const [data] = useQuery<SearchQuery>({
-    query: gql`
-      query Search {
-        search(
-          filters: [
-            {
-              uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-              value: "http://trawler.dev/schema/core#SqlTable"
-            }
-          ]
-        ) {
-          entityId
-          facets {
-            name
-            uri
-            value
-          }
-          type
-          typeName
-        }
+const types = [
+  {
+    label: "SqlTable",
+    value: "http://trawler.dev/schema/core#SqlTable",
+  },
+  {
+    label: "SqlDatabase",
+    value: "http://trawler.dev/schema/core#SqlDatabase",
+  },
+  {
+    label: "SqlColumn",
+    value: "http://trawler.dev/schema/core#SqlColumn",
+  },
+];
+
+const SEARCH_BY_TYPE = gql`
+  query SearchByType($type: [String!]!) {
+    search(
+      filters: [
+        { uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", value: $type }
+      ]
+    ) {
+      entityId
+      facets {
+        name
+        uri
+        value
       }
-    `,
+      type
+      typeName
+    }
+  }
+`;
+
+export const Dashboard = () => {
+  const [selectedType, setSelectedType] = useState<Option>(types[0]);
+  const [data] = useQuery({
+    query: SearchByTypeDocument,
+    variables: {
+      type: selectedType.value,
+    },
   });
 
   return (
     <>
-      <Header>Dashboard</Header>
+      <Header>
+        <div className="flex items-center">
+          <div className="flex-1">Dashboard</div>
+          <div className="w-32">
+            <Selector
+              values={types}
+              selected={selectedType}
+              setSelected={setSelectedType}
+            />
+          </div>
+        </div>
+      </Header>
       <Main>
         <Table datasets={data.data?.search || []} />
       </Main>

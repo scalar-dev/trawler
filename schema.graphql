@@ -72,5 +72,5 @@ scalar UUID
 
 input FilterInput {
   uri: String!
-  value: String!
+  value: [String!]!
 }
