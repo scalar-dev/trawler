@@ -1,10 +1,9 @@
 import { Fragment, useEffect, useState } from "react";
-import { Menu, Popover, Transition } from "@headlessui/react";
-import { ChevronDownIcon, SearchIcon } from "@heroicons/react/solid";
-import { classNames } from "../utils";
+import { Popover, Transition } from "@headlessui/react";
+import { SearchIcon } from "@heroicons/react/solid";
 import { gql } from "@urql/core";
 import { useQuery } from "urql";
-import { SearchByNameQuery, SearchQuery } from "../types";
+import { SearchByNameQuery } from "../types";
 import { EntityIcon } from "../routes/Dashboard";
 import { useHistory } from "react-router";
 import _ from "lodash";
