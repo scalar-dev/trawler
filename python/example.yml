@@ -1,0 +1,7 @@
+jobs:
+- type: sql
+  schedule:
+    every: minutes
+    interval: 1
+  override_dbname: "my-db"
+  uri: postgresql://postgres:postgres@localhost/postgres

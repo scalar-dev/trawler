@@ -1,9 +1,9 @@
 from datetime import datetime, date
 from typing import Optional
 from pprint import pprint
-import sqlparse
 import click
 from trawler.sql.extract import extract_sql
+from trawler.agent.jobs import run_scheduler
 
 @click.group()
 def main():
@@ -13,8 +13,13 @@ def main():
 @click.argument("uri")
 @click.option("--override-host")
 @click.option("--override-dbname")
-def sql(uri: str, override_host: Optional[str], override_dbname: Optional[str]):
+def sql(uri: str, override_dbname: Optional[str]):
     pprint(extract_sql(uri, override_dbname))
+
+@main.command()
+@click.argument("config")
+def run(config: str):
+    run_scheduler(config)
 
 if __name__ == "__main__":
     main()
