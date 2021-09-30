@@ -14,4 +14,5 @@ object FacetLog : UUIDTable("facet_log") {
     val timestamp = timestamp("timestamp").nullable()
     val value = jsonb("value", List::class.java, jacksonObjectMapper()).nullable()
     val entityId = uuid("entity_id").references(Entity.id).nullable()
+    val createdAt = timestamp("created_at")
 }

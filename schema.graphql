@@ -24,6 +24,7 @@ directive @specifiedBy(
 
 type Entity {
   entityId: UUID!
+  facetLog(facets: [String!]!): [FacetLog!]!
   facets: [Facet!]!
   type: String!
   typeName: String!
@@ -38,6 +39,15 @@ type Facet {
   version: Long!
 }
 
+type FacetLog {
+  createdAt: DateTime!
+  entities: [Entity!]!
+  id: UUID!
+  name: String!
+  urn: String!
+  version: Long!
+}
+
 type Mutation {
   doNothing: String!
 }
@@ -47,6 +57,9 @@ type Query {
   entityGraph(d: Int!, id: UUID!): [Entity!]!
   search(filters: [FilterInput!]!): [Entity!]!
 }
+
+"DataTime scalar"
+scalar DateTime
 
 "A JSON blob"
 scalar Json

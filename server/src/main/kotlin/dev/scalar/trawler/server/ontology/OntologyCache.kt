@@ -43,6 +43,7 @@ fun loadOntology(projectId: UUID?) = transaction {
                 dev.scalar.trawler.ontology.FacetType(
                     facetTypeDb[FacetType.uri],
                     facetTypeDb[FacetType.id].value,
+                    facetTypeDb[FacetType.name],
                     FacetMetaType::value.find(facetTypeDb[FacetType.metaType])!!,
                     facetTypeDb[FacetType.projectId]?.value
                 )

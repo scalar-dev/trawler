@@ -34,7 +34,6 @@ class GraphQLApi : CoroutineVerticle() {
             }
             .route()
             .handler(BodyHandler.create())
-            .handler(JWTAuthHandler.create(provider))
 
         if (WebEnvironment.development()) {
             val devToken = provider.generateToken(
@@ -53,6 +52,7 @@ class GraphQLApi : CoroutineVerticle() {
 
         router
             .route()
+            .handler(JWTAuthHandler.create(provider))
             .handler(
                 GraphQLHandler.create(GraphQL.newGraphQL(schema).build())
                     .queryContext { rc ->
