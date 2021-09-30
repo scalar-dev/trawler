@@ -2,10 +2,8 @@ import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/solid";
 import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import { classNames } from "../utils";
+import { Search } from "./Search";
 
 const ThreeColumn = () => (
   <>
@@ -71,13 +69,15 @@ export const TwoColumn = () => (
   </div>
 );
 
-export const Header: React.FC = ({ children }) => <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <h1 className="text-lg leading-6 font-semibold text-gray-900">
-              {children}
-            </h1>
-          </div>
-        </header>
+export const Header: React.FC = ({ children }) => (
+  <header className="bg-white shadow-sm">
+    <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+      <h1 className="text-lg leading-6 font-semibold text-gray-900">
+        {children}
+      </h1>
+    </div>
+  </header>
+);
 
 export const Main: React.FC = ({ children }) => (
   <main>
@@ -117,18 +117,7 @@ export const Layout: React.FC = ({ children }) => {
                       <label htmlFor="search" className="sr-only">
                         Search projects
                       </label>
-                      <div className="relative text-indigo-200 focus-within:text-gray-400">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <SearchIcon className="h-5 w-5" aria-hidden="true" />
-                        </div>
-                        <input
-                          id="search"
-                          name="search"
-                          className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-indigo-400 bg-opacity-25 text-indigo-100 placeholder-indigo-200 focus:outline-none focus:bg-white focus:ring-0 focus:placeholder-gray-400 focus:text-gray-900 sm:text-sm"
-                          placeholder="Search projects"
-                          type="search"
-                        />
-                      </div>
+                      <Search />
                     </div>
                   </div>
                   <div className="flex lg:hidden">

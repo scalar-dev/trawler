@@ -1,6 +1,7 @@
 package dev.scalar.trawler.server
 
 import dev.scalar.trawler.server.auth.jwtAuth
+import dev.scalar.trawler.server.db.Project.DEMO_PROJECT_ID
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.schema
 import graphql.GraphQL
@@ -15,7 +16,6 @@ import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.apache.logging.log4j.LogManager
-import java.util.*
 
 class GraphQLApi : CoroutineVerticle() {
     val log = LogManager.getLogger()
@@ -40,7 +40,7 @@ class GraphQLApi : CoroutineVerticle() {
                 JsonObject(
                     mapOf(
                         "sub" to "devuser",
-                        "project" to "63255f7a-e383-457a-9c30-4c7f95308749"
+                        "project" to DEMO_PROJECT_ID.toString()
                     )
                 )
             )
@@ -56,7 +56,7 @@ class GraphQLApi : CoroutineVerticle() {
             .handler(
                 GraphQLHandler.create(GraphQL.newGraphQL(schema).build())
                     .queryContext { rc ->
-                        QueryContext(rc.user(), UUID.fromString("63255f7a-e383-457a-9c30-4c7f95308749"))
+                        QueryContext(rc.user(), DEMO_PROJECT_ID)
                     }
             )
 

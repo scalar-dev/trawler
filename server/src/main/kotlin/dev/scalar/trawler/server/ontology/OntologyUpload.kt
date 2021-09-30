@@ -38,7 +38,7 @@ class OntologyUpload {
                 dev.scalar.trawler.server.db.EntityType.insert {
                     it[dev.scalar.trawler.server.db.EntityType.uri] = entityType.uri
                     it[dev.scalar.trawler.server.db.EntityType.name] = entityType.name
-                    it[dev.scalar.trawler.server.db.EntityType.projectId] = projectId!!
+                    it[dev.scalar.trawler.server.db.EntityType.projectId] = projectId
                 }
             } else if (existing.projectId == projectId) {
                 log.info("Updating entity type: ${entityType.uri}")

@@ -1,26 +1,27 @@
 from urllib.parse import urlparse
 from sqlalchemy.inspection import inspect
 from sqlalchemy.engine import create_engine
+from typing import Optional
 
 from trawler.schema import Table, Field, Relation
 from trawler.graph import Graph
 from trawler.sql.metrics import get_column_metrics, get_table_metrics
 
-def database_urn(scheme, host, database):
-    return f"urn:tr:sql-table::{scheme}/{host}/{database}"
+def database_urn(scheme, database):
+    return f"urn:tr:sql-table::{scheme}/{database}"
 
 
-def table_urn(scheme, host, database, schema, table):
-    return f"urn:tr:sql-table::{scheme}/{host}/{database}/{schema}/{table}"
+def table_urn(scheme, database, schema, table):
+    return f"urn:tr:sql-table::{scheme}/{database}/{schema}/{table}"
 
 
-def column_urn(scheme, host, database, schema, table, field):
-    return f"urn:tr:sql-column::{scheme}/{host}/{database}/{schema}/{table}/{field}"
+def column_urn(scheme, database, schema, table, field):
+    return f"urn:tr:sql-column::{scheme}/{database}/{schema}/{table}/{field}"
 
 
-def constraint_urn(scheme, host, database, schema, table, relation):
+def constraint_urn(scheme, database, schema, table, relation):
     return (
-        f"urn:tr:sql-constraint::{scheme}/{host}/{database}/{schema}/{table}/{relation}"
+        f"urn:tr:sql-constraint::{scheme}/{database}/{schema}/{table}/{relation}"
     )
 
 
@@ -54,7 +55,7 @@ def inspect_table(inspector, schema, table_name):
     return table
 
 
-def extract_sql(uri: str):
+def extract_sql(uri: str, override_dbname: Optional[str]):
     """Capture a schema from a running database via sqlalchemy"""
     engine = create_engine(uri)
     inspector = inspect(engine)
@@ -63,6 +64,8 @@ def extract_sql(uri: str):
     host = parsed_uri.netloc.split("@")[-1]
     database = parsed_uri.path.strip("/")
     scheme = parsed_uri.scheme
+
+    db_name = override_dbname or f"{host}-{database}"
 
     g = Graph()
 
@@ -75,14 +78,13 @@ def extract_sql(uri: str):
             table = inspect_table(inspector, schema, table_name)
 
             sql_table = g.SqlTable(
-                table_urn(scheme, host, database, schema, table_name),
+                table_urn(scheme, db_name, schema, table_name),
                 name=table_name,
                 tr__has=[
                     g.SqlColumn(
                         column_urn(
                             scheme,
-                            host,
-                            database,
+                            db_name,
                             schema,
                             table_name,
                             field.name,
@@ -94,8 +96,7 @@ def extract_sql(uri: str):
                         tr__foreignKeyConstraints=[
                             constraint_urn(
                                 scheme,
-                                host,
-                                database,
+                                db_name,
                                 schema,
                                 table_name,
                                 relation.name,
@@ -117,14 +118,13 @@ def extract_sql(uri: str):
                 constraints.append(
                     g.SqlConstraint(
                         constraint_urn(
-                            scheme, host, database, schema, table_name, relation.name
+                            scheme, db_name, schema, table_name, relation.name
                         ),
                         tr__has=[
                             {
                                 "@id": column_urn(
-                                    parsed_uri.scheme,
-                                    host,
-                                    database,
+                                    scheme,
+                                    db_name,
                                     schema,
                                     relation.target_object,
                                     field,
@@ -136,11 +136,11 @@ def extract_sql(uri: str):
                 )
 
     db = g.SqlDatabase(
-        database_urn(scheme, host, database),
-        name=parsed_uri.path.strip("/"),
+        database_urn(scheme, db_name),
+        name=database,
         tr__has=tables + constraints,
     )
 
     g = Graph()
     g.add(db)
-    print(g.store())
+    return g.store()

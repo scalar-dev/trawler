@@ -1,6 +1,21 @@
+import { DatabaseIcon, QuestionMarkCircleIcon, TableIcon, DotsVerticalIcon } from "@heroicons/react/solid";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
 import { SearchQuery } from "../types";
+
+export const EntityIcon = ({ type }: { type: string }) => {
+  if (type === "SqlDatabase") {
+    return <DatabaseIcon className="h-6 w-6 flex-shrink-0 text-gray-600" />;
+  } else if (type === "SqlTable") {
+    return <TableIcon className="h-6 w-6 flex-shrink-0 text-gray-600" />;
+  } else if (type === "SqlColumn") {
+    return <DotsVerticalIcon className="h-6 w-6 flex-shrink-0 text-gray-600" />;
+  } else {
+    return (
+      <QuestionMarkCircleIcon className="h-6 w-6 flex-shrink-0 text-gray-600" />
+    );
+  }
+};
 
 const Table = ({ datasets }: { datasets: any[] }) => {
   return (
@@ -46,12 +61,16 @@ const Table = ({ datasets }: { datasets: any[] }) => {
                     key={dataset.entityId}
                     className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {
-                        dataset.facets.find(
-                          (facet: any) => facet.uri === "http://schema.org/name"
-                        )?.value
-                      }
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center">
+                      <EntityIcon type={dataset.typeName} />
+                      <span className="ml-2">
+                        {
+                          dataset.facets.find(
+                            (facet: any) =>
+                              facet.uri === "http://schema.org/name"
+                          )?.value
+                        }
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {dataset.entityId}
