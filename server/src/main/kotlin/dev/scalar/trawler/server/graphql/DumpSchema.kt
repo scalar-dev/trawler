@@ -1,9 +1,7 @@
-package dev.scalar.trawler.server
+package dev.scalar.trawler.server.graphql
 
-import dev.scalar.trawler.server.graphql.schema
 import graphql.schema.idl.SchemaPrinter
 import java.io.File
-import java.io.FileOutputStream
 
 object DumpSchema {
 

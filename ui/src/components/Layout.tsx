@@ -106,6 +106,9 @@ export const Layout: React.FC = ({ children }) => {
                         />
                       </a>
                     </div>
+                    <div className="ml-4 text-xl text-indigo-300 hover:text-white font-bold">
+                      <a href="/">trawler</a>
+                    </div>
                   </div>
 
                   {/* Search section */}

@@ -5,6 +5,8 @@ import graphql.language.*
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.GraphQLScalarType
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.stream.Collectors
 
@@ -92,6 +94,28 @@ object Scalars {
                     return parsedValues
                 }
                 return Assert.assertShouldNeverHappen("We have covered all Value types")
+            }
+        })
+        .build()
+
+    var dateTime = GraphQLScalarType.newScalar()
+        .name("DateTime")
+        .description("DataTime scalar")
+        .coercing(object : Coercing<Instant, String> {
+            override fun serialize(input: Any): String {
+                return DateTimeFormatter.ISO_INSTANT.format(input as Instant)
+            }
+
+            override fun parseValue(input: Any): Instant {
+                return Instant.parse(input.toString())
+            }
+
+            override fun parseLiteral(input: Any): Instant? {
+                return if (input is StringValue) {
+                    return Instant.parse(input.value)
+                } else {
+                    null
+                }
             }
         })
         .build()
