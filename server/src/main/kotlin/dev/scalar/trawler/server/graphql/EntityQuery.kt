@@ -13,19 +13,23 @@ import java.util.*
 class EntityQuery {
     data class Filter(
         val uri: String,
-        val value: String
+        val value: List<String>
     )
 
-    private fun filterToOp(columnSet: Alias<FacetValue>, ontology: Ontology, filter: Filter): Op<Boolean> {
+    private fun SqlExpressionBuilder.filterToOp(columnSet: Alias<FacetValue>, ontology: Ontology, filter: Filter): Op<Boolean> {
         val facetType = ontology.facetTypeByUri(filter.uri)!!
 
         return columnSet[FacetValue.typeId].eq(facetType.id) and when (facetType.metaType) {
             FacetMetaType.STRING -> {
-                columnSet[FacetValue.value].castTo<String>(TextColumnType()).ilike("%${filter.value}%")
+                filter.value.map { value ->
+                    columnSet[FacetValue.value].castTo<String>(TextColumnType())
+                        .ilike("%${value}%")
+                }.compoundOr()
             }
             FacetMetaType.TYPE_REFERENCE -> {
-                val entityType = ontology.entityTypeByUri(filter.value)
-                columnSet[FacetValue.entityTypeId].eq(entityType!!.id)
+                val entityTypes = filter.value
+                    .mapNotNull { value -> ontology.entityTypeByUri(value)?.id }
+                columnSet[FacetValue.entityTypeId].inList(entityTypes)
             }
             else -> {
                 throw NotImplementedError()

@@ -3,7 +3,9 @@ import { Popover, Transition } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/solid";
 import { gql } from "@urql/core";
 import { useQuery } from "urql";
-import { SearchByNameQuery } from "../types";
+import {
+  SearchByNameDocument,
+} from "../types";
 import { EntityIcon } from "../routes/Dashboard";
 import { useHistory } from "react-router";
 import _ from "lodash";
@@ -19,6 +21,21 @@ export const LoadingGrid = () => (
   </div>
 );
 
+const SEARCH_BY_NAME = gql`
+  query SearchByName($search: [String!]!) {
+    search(filters: [{ uri: "http://schema.org/name", value: $search }]) {
+      entityId
+      facets {
+        name
+        uri
+        value
+      }
+      type
+      typeName
+    }
+  }
+`;
+
 export const Search = () => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -28,21 +45,8 @@ export const Search = () => {
     setOpen(search.length > 0);
   }, [search]);
 
-  const [data] = useQuery<SearchByNameQuery>({
-    query: gql`
-      query SearchByName($search: String!) {
-        search(filters: [{ uri: "http://schema.org/name", value: $search }]) {
-          entityId
-          facets {
-            name
-            uri
-            value
-          }
-          type
-          typeName
-        }
-      }
-    `,
+  const [data] = useQuery({
+    query: SearchByNameDocument,
     pause: !open,
     variables: {
       search,
@@ -50,8 +54,6 @@ export const Search = () => {
   });
 
   const results = _.take(data?.data?.search, 10);
-
-  console.log(search);
 
   return (
     <Popover as="div" className="relative inline-block text-left w-full">
