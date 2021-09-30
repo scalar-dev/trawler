@@ -27,13 +27,13 @@ type FacetLogDiff = {
 const FacetValue: React.FC<{ facet: Facet }> = ({ facet }) => {
   if (facet.metaType === "relationship") {
     return (
-      <>
+      <div className="flex flex-wrap">
         {facet.value?.map((val: any) => (
-          <div>
+          <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
             <a href={`/entity/${val}`}>{val}</a>
-          </div>
+          </span>
         ))}
-      </>
+      </div>
     );
   } else {
     return (
@@ -161,9 +161,9 @@ export const FacetHistory = ({
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap flex flex-wrap">
                         {diff.added.map((added) => (
-                          <span className="ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                             <a href={`/entity/${added.entityId}`}>
                               {
                                 added.facets.find(
@@ -176,7 +176,7 @@ export const FacetHistory = ({
                         ))}
 
                         {diff.deleted.map((deleted) => (
-                          <span className="ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                          <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                             <a href={`/entity/${deleted.entityId}`}>
                               {
                                 deleted.facets.find(
@@ -270,17 +270,37 @@ export const Entity = () => {
     },
   });
 
-  const hasFacet = data.data?.entityGraph[0]?.facets?.find(
+  const facets = data.data?.entityGraph[0]?.facets;
+
+  const hasFacet = facets?.find(
     (facet) => facet.uri === "http://trawler.dev/schema/core#has"
   );
+
+  const name = facets?.find(
+    (facet: any) => facet.uri === "http://schema.org/name"
+  )?.value;
 
   return (
     <>
       <Header>
-        Entity: {data.data && <>{data.data.entityGraph[0].typeName}</>}
-        <pre className="text-gray-500 text-sm">
+        <div className="flex items-center">
+          {name}
+          {data.data && (
+            <span className="ml-4 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+              <svg
+                className="mr-1.5 h-2 w-2 text-indigo-400"
+                fill="currentColor"
+                viewBox="0 0 8 8"
+              >
+                <circle cx={4} cy={4} r={3} />
+              </svg>
+              {data.data.entityGraph[0].typeName}
+            </span>
+          )}
+        </div>
+        <div className="mt-1 text-gray-500 text-xs font-mono">
           {data.data && <>{data.data.entityGraph[0].urn}</>}
-        </pre>
+        </div>
       </Header>
       <Main>
         <FacetTable facets={data.data?.entityGraph[0].facets || []} />
