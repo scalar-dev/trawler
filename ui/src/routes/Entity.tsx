@@ -1,6 +1,7 @@
 import { formatDistanceStrict, formatRelative, parseISO } from "date-fns";
+import { ArrowLeftIcon } from "@heroicons/react/solid";
 import _ from "lodash";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
 import { EntityQuery, FacetLogQuery } from "../types";
@@ -248,6 +249,7 @@ const FacetTable = ({ facets }: { facets: Facet[] }) => {
 
 export const Entity = () => {
   const { entity } = useParams<{ entity: string }>();
+  const history = useHistory();
   const [data] = useQuery<EntityQuery>({
     query: gql`
       query Entity($id: UUID!) {
@@ -283,6 +285,13 @@ export const Entity = () => {
   return (
     <>
       <Header>
+        <div
+          className="flex flex-row text-xl text-gray-600 hover:text-indigo-600 items-center cursor-pointer"
+          onClick={() => history.goBack()}
+        >
+          <ArrowLeftIcon className="h-5 w-5 flex-shrink-0" />
+          <span className="ml-2">Back</span>
+        </div>
         <div className="flex items-center">
           {name}
           {data.data && (
