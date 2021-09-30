@@ -55,7 +55,7 @@ def inspect_table(inspector, schema, table_name):
     return table
 
 
-def extract_sql(uri: str, override_dbname: Optional[str]):
+def extract_sql(uri: str, override_dbname: Optional[str] = None):
     """Capture a schema from a running database via sqlalchemy"""
     engine = create_engine(uri)
     inspector = inspect(engine)

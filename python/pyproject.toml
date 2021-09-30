@@ -12,12 +12,14 @@ SQLAlchemy = {version = "^1.4.17", optional = true }
 psycopg2-binary = {version = "^2.8.6", optional = true }
 click = "^8.0.1"
 requests = "^2.25.1"
+schedule = "^1.1.0"
+PyYAML = "^5.4.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
 
 [tool.poetry.extras]
-sql = ["SQLAlchemy"]
+sql = ["SQLAlchemy", "psycopg2-binary"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

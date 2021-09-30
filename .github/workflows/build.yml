@@ -32,3 +32,20 @@ jobs:
           cd ui
           docker build -t scalardev/trawler-ui:$GITHUB_SHA .
           docker push scalardev/trawler-ui:$GITHUB_SHA 
+
+  agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repo 
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build
+        run: |
+          cd python
+          docker build -t scalardev/trawler-agent:$GITHUB_SHA .
+          docker push scalardev/trawler-agent:$GITHUB_SHA 
