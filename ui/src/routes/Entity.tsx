@@ -79,8 +79,8 @@ const TimeSeries = ({
     },
   });
 
-  const points = data.data?.entity?.timeSeries.points;
-  const name = data.data?.entity?.timeSeries.name;
+  const points = data.data?.entity?.timeSeries?.points;
+  const name = data.data?.entity?.timeSeries?.name;
 
   if (!points) {
     return null;
@@ -97,6 +97,8 @@ const TimeSeries = ({
             datasets: [
               {
                 label: name,
+                backgroundColor: "rgba(79, 70, 229, 1.0)",
+                borderColor: "rgba(79, 70, 229, 1.0)",
                 data: points.map((point) => ({
                   x: point.timestamp,
                   y: point.value,
@@ -108,7 +110,10 @@ const TimeSeries = ({
           options={{
             scales: {
               x: {
-                type: "timeseries",
+                type: "time",
+                time: {
+                  unit: "minute",
+                },
               },
             },
           }}

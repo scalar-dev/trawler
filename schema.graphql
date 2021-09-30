@@ -26,7 +26,7 @@ type Entity {
   entityId: UUID!
   facetLog(facets: [String!]!): [FacetLog!]!
   facets: [Facet!]!
-  timeSeries(facet: String!): FacetTimeSeries!
+  timeSeries(facet: String!): FacetTimeSeries
   type: String!
   typeName: String!
   urn: String!

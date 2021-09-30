@@ -25,7 +25,7 @@ export type Entity = {
   entityId: Scalars['UUID'];
   facetLog: Array<FacetLog>;
   facets: Array<Facet>;
-  timeSeries: FacetTimeSeries;
+  timeSeries?: Maybe<FacetTimeSeries>;
   type: Scalars['String'];
   typeName: Scalars['String'];
   urn: Scalars['String'];
@@ -126,7 +126,7 @@ export type FacetTimeSeriesQueryVariables = Exact<{
 }>;
 
 
-export type FacetTimeSeriesQuery = { __typename?: 'Query', entity?: { __typename?: 'Entity', timeSeries: { __typename?: 'FacetTimeSeries', name: string, urn: string, points: Array<{ __typename?: 'FacetTimeSeriesPoint', timestamp: any, value: number }> } } | null | undefined };
+export type FacetTimeSeriesQuery = { __typename?: 'Query', entity?: { __typename?: 'Entity', timeSeries?: { __typename?: 'FacetTimeSeries', name: string, urn: string, points: Array<{ __typename?: 'FacetTimeSeriesPoint', timestamp: any, value: number }> } | null | undefined } | null | undefined };
 
 export type FacetLogQueryVariables = Exact<{
   id: Scalars['UUID'];

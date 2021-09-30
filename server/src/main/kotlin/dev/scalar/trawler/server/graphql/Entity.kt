@@ -55,7 +55,7 @@ data class Entity(
         }
     }
 
-    suspend fun timeSeries(context: QueryContext, facet: String): dev.scalar.trawler.server.graphql.FacetTimeSeries = newSuspendedTransaction {
+    suspend fun timeSeries(context: QueryContext, facet: String): dev.scalar.trawler.server.graphql.FacetTimeSeries? = newSuspendedTransaction {
         val facetType = OntologyCache.CACHE[context.projectId].facetTypeByUri(facet)!!
 
         val rows = FacetTimeSeries
@@ -65,17 +65,23 @@ data class Entity(
             }
             .orderBy(FacetTimeSeries.timestamp, SortOrder.ASC)
 
-        dev.scalar.trawler.server.graphql.FacetTimeSeries(
-            facetType.name,
-            urn = facet,
-            points = rows.map { row ->
-                FacetTimeSeriesPoint(row[FacetTimeSeries.timestamp],
-                    if (facetType.metaType == FacetMetaType.INT) {
-                        row[FacetTimeSeries.valueLong].toDouble()
-                    } else {
-                        row[FacetTimeSeries.valueDouble]
-                    }
-                )}
-        )
+        if (rows.toList().isEmpty()) {
+            null
+        } else {
+            dev.scalar.trawler.server.graphql.FacetTimeSeries(
+                facetType.name,
+                urn = facet,
+                points = rows.map { row ->
+                    FacetTimeSeriesPoint(
+                        row[FacetTimeSeries.timestamp],
+                        if (facetType.metaType == FacetMetaType.INT) {
+                            row[FacetTimeSeries.valueLong].toDouble()
+                        } else {
+                            row[FacetTimeSeries.valueDouble]
+                        }
+                    )
+                }
+            )
+        }
     }
 }
