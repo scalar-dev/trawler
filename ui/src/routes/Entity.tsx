@@ -1,3 +1,4 @@
+import { formatDistanceStrict, formatRelative, parseISO } from "date-fns";
 import _ from "lodash";
 import { useParams } from "react-router-dom";
 import { useQuery, gql } from "urql";
@@ -151,7 +152,11 @@ export const FacetHistory = ({
                               {diff.log.version}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {diff.log.createdAt}
+                              {formatDistanceStrict(
+                                parseISO(diff.log.createdAt),
+                                new Date(),
+                                { addSuffix: true }
+                              )}
                             </div>
                           </div>
                         </div>
