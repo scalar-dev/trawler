@@ -56,6 +56,10 @@ export const Entity = () => {
     (facet: any) => facet.uri === "http://schema.org/name"
   )?.value;
 
+  const hasFacet = facets?.find(
+    (facet: any) => facet.uri === "http://trawler.dev/schema/core#has"
+  );
+
   const TABS: Tab[] = [
     {
       name: "Overview",
@@ -66,6 +70,7 @@ export const Entity = () => {
       name: "Schema",
       href: `${url}/schema`,
       icon: TableIcon,
+      enabled: !!hasFacet,
     },
     {
       name: "Graph",
@@ -77,7 +82,9 @@ export const Entity = () => {
       href: `${url}/metrics`,
       icon: ChartSquareBarIcon,
     },
-  ].map((tab) => ({ ...tab, current: location.pathname === tab.href }));
+  ]
+    .filter((tab) => tab.enabled !== false)
+    .map((tab) => ({ ...tab, current: location.pathname === tab.href }));
 
   return (
     <>

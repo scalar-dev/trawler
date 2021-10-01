@@ -1,5 +1,5 @@
 import { formatDistanceStrict, parseISO } from "date-fns";
-import _ from "lodash";
+import _, { has } from "lodash";
 import { useQuery, gql } from "urql";
 
 type FacetLog = {
@@ -181,14 +181,16 @@ export const Schema = ({
     (facet: any) => facet.uri === "http://trawler.dev/schema/core#has"
   );
 
+  if (!hasFacet) {
+    return null;
+  }
+
   return (
-    hasFacet && (
-      <div className="mt-4">
-        <FacetHistory
-          entityId={entityId}
-          facets={["http://trawler.dev/schema/core#has"]}
-        />
-      </div>
-    )
+    <div className="mt-4">
+      <FacetHistory
+        entityId={entityId}
+        facets={["http://trawler.dev/schema/core#has"]}
+      />
+    </div>
   );
 };

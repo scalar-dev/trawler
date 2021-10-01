@@ -18,7 +18,6 @@ export const Tabs = ({ tabs }: { tabs: Tab[] }) => {
         <label htmlFor="tabs" className="sr-only">
           Select a tab
         </label>
-        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
         <select
           id="tabs"
           name="tabs"
@@ -26,7 +25,7 @@ export const Tabs = ({ tabs }: { tabs: Tab[] }) => {
           onChange={(e) =>
             history.push(tabs.find((tab) => tab.name == e.target.value)!.href)
           }
-          defaultValue={tabs.find((tab) => tab.current)!.name}
+          defaultValue={tabs.find((tab) => tab.current)?.name}
         >
           {tabs.map((tab) => (
             <option key={tab.name}>{tab.name}</option>
