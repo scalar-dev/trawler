@@ -144,12 +144,6 @@ export const Layout: React.FC = ({ children }) => {
                         >
                           Documentation
                         </a>
-                        <a
-                          href="#"
-                          className="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white"
-                        >
-                          Support
-                        </a>
                       </div>
                       {/* Profile dropdown */}
                       <Menu as="div" className="ml-4 relative flex-shrink-0">
@@ -227,12 +221,6 @@ export const Layout: React.FC = ({ children }) => {
                     className="block px-3 py-2 rounded-md text-base font-medium text-white bg-indigo-800"
                   >
                     Dashboard
-                  </a>
-                  <a
-                    href="#"
-                    className="mt-1 block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600"
-                  >
-                    Support
                   </a>
                 </div>
                 <div className="pt-4 pb-3 border-t border-indigo-800">

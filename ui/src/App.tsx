@@ -13,7 +13,7 @@ const App = () => (
         <Route path="/" exact>
           <Dashboard />
         </Route>
-        <Route path="/entity/:entity" exact>
+        <Route path="/entity/:entity">
           <Entity />
         </Route>
       </Layout>
