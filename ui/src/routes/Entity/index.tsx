@@ -17,6 +17,7 @@ import { useQuery, gql } from "urql";
 import { Header, Main } from "../../components/Layout";
 import { Tab, Tabs } from "../../components/Tabs";
 import { EntityDocument } from "../../types";
+import { Metrics } from "./Metrics";
 import { Overview } from "./Overview";
 import { Schema } from "./Schema";
 
@@ -123,6 +124,10 @@ export const Entity = () => {
           {data.data?.entityGraph[0] && (
             <Schema entityId={entity} entity={data.data?.entityGraph[0]} />
           )}
+        </Route>
+
+        <Route path={`${path}/metrics`} exact>
+          {data.data?.entityGraph[0] && <Metrics entity={entity} />}
         </Route>
       </Main>
     </>

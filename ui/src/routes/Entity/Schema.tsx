@@ -185,7 +185,7 @@ export const Schema = ({
     hasFacet && (
       <div className="mt-4">
         <FacetHistory
-          entityId={entity}
+          entityId={entityId}
           facets={["http://trawler.dev/schema/core#has"]}
         />
       </div>

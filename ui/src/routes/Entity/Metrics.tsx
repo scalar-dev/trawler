@@ -78,8 +78,10 @@ const TimeSeries = ({
   );
 };
 export const Metrics = ({ entity }: { entity: string }) => {
-  <TimeSeries
-    entityId={entity}
-    facet="http://trawler.dev/schema/metrics#count"
-  />;
+  return (
+    <TimeSeries
+      entityId={entity}
+      facet="http://trawler.dev/schema/metrics#count"
+    />
+  );
 };
