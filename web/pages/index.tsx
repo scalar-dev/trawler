@@ -73,7 +73,7 @@ const Example = () => {
                 </div>
               </div>
               <div className="hidden md:flex md:items-center md:space-x-6">
-                <a
+                {/* <a
                   href="#"
                   className="text-base font-medium text-white hover:text-gray-300"
                 >
@@ -84,7 +84,7 @@ const Example = () => {
                   className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
                 >
                   Start free trial
-                </a>
+                </a> */}
 
                 <a
                   href="https://github.com/scalar-dev/trawler"
@@ -167,7 +167,7 @@ const Example = () => {
                       </a>
                     </div>
                   </div>
-                  <div className="mt-6 px-5">
+                  {/* <div className="mt-6 px-5">
                     <a
                       href="#"
                       className="block text-center w-full py-3 px-4 rounded-md shadow bg-indigo-600 text-white font-medium hover:bg-indigo-700"
@@ -182,7 +182,7 @@ const Example = () => {
                         Login
                       </a>
                     </p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </Popover.Panel>
@@ -225,18 +225,18 @@ const Example = () => {
                               type="submit"
                               className="block w-full py-3 px-4 rounded-md shadow bg-indigo-500 text-white font-medium hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300 focus:ring-offset-gray-900"
                             >
-                              Start free trial
+                              Join our substack
                             </button>
                           </div>
                         </div>
-                        <p className="mt-3 text-sm text-gray-300 sm:mt-4">
+                        {/* <p className="mt-3 text-sm text-gray-300 sm:mt-4">
                           Start your free 14-day trial, no credit card
                           necessary. By providing your email, you agree to our{" "}
                           <a href="#" className="font-medium text-white">
                             terms or service
                           </a>
                           .
-                        </p>
+                        </p> */}
                       </form>
                     </div>
                   </div>
