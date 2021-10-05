@@ -22,13 +22,11 @@ import styles from '../styles/Home.module.css'
 import { Fragment } from 'react'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
-import { ChevronRightIcon } from '@heroicons/react/solid'
 
 const navigation = [
-  { name: 'Product', href: '#' },
-  { name: 'Features', href: '#' },
-  { name: 'About', href: '#' },
-]
+  { name: "Product", href: "#" },
+  { name: "Documentation", href: "https://docs.trawler.dev" },
+];
 
 const Example = () => {
   return (
