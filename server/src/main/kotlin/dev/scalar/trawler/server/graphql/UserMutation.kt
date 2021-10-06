@@ -9,6 +9,10 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import java.security.SecureRandom
 import java.util.*
 
+data class AuthenticatedUser(
+    val jwt: String
+)
+
 class UserMutation() {
     suspend fun createUser(context: QueryContext, username: String, password: String): UUID {
         val salt = ByteArray(32)
@@ -28,7 +32,7 @@ class UserMutation() {
         }
     }
 
-    suspend fun login(context: QueryContext, username: String, password: String): String {
+    suspend fun login(context: QueryContext, username: String, password: String): AuthenticatedUser {
         val user = context.jdbcAuthentication.authenticate(
             UsernamePasswordCredentials(
                 username,
@@ -40,6 +44,8 @@ class UserMutation() {
             "sub" to username
         )
 
-        return context.jwtAuth.generateToken(JsonObject(claims))
+        return AuthenticatedUser(
+            context.jwtAuth.generateToken(JsonObject(claims))
+        )
     }
 }

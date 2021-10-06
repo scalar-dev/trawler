@@ -7,7 +7,7 @@ import io.vertx.ext.auth.jwt.JWTAuth
 import java.util.*
 
 data class QueryContext(
-    val user: User,
+    val user: User?,
     val projectId: UUID,
     val jdbcAuthentication: JDBCAuthentication,
     val jwtAuth: JWTAuth

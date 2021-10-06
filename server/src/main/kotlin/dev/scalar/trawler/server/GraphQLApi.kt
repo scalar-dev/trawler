@@ -1,5 +1,6 @@
 package dev.scalar.trawler.server
 
+import dev.scalar.trawler.server.auth.PermissiveJWTAuthHandler
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.Database
 import dev.scalar.trawler.server.db.Project.DEMO_PROJECT_ID
@@ -61,7 +62,7 @@ class GraphQLApi : CoroutineVerticle() {
 
         router
             .route()
-            .handler(JWTAuthHandler.create(jwtAuth))
+            .handler(PermissiveJWTAuthHandler(jwtAuth))
             .handler(
                 GraphQLHandler.create(GraphQL.newGraphQL(makeSchema()).build())
                     .queryContext { rc ->
