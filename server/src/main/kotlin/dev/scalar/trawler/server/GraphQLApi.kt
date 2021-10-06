@@ -1,16 +1,11 @@
 package dev.scalar.trawler.server
 
-import com.expediagroup.graphql.generator.SchemaGeneratorConfig
-import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.generator.toSchema
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.Database
 import dev.scalar.trawler.server.db.Project.DEMO_PROJECT_ID
-import dev.scalar.trawler.server.graphql.*
+import dev.scalar.trawler.server.graphql.QueryContext
+import dev.scalar.trawler.server.graphql.makeSchema
 import graphql.GraphQL
-import graphql.schema.GraphQLSchema
-import graphql.schema.GraphQLType
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.jdbc.JDBCAuthentication
 import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
@@ -24,14 +19,9 @@ import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.apache.logging.log4j.LogManager
-import java.time.Instant
-import java.util.*
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
 
 class GraphQLApi : CoroutineVerticle() {
-    val log = LogManager.getLogger()
-
+    private val log = LogManager.getLogger()
 
     override suspend fun start() {
         val router = Router.router(vertx)

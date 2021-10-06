@@ -3,8 +3,6 @@ package dev.scalar.trawler.server.graphql
 import dev.scalar.trawler.server.db.Account
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.authentication.UsernamePasswordCredentials
-import io.vertx.ext.auth.jdbc.JDBCAuthentication
-import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.kotlin.coroutines.await
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -33,9 +31,9 @@ class UserMutation() {
     suspend fun login(context: QueryContext, username: String, password: String): String {
         val user = context.jdbcAuthentication.authenticate(
             UsernamePasswordCredentials(
-            username,
-            password
-        )
+                username,
+                password
+            )
         ).await()
 
         val claims = mapOf(

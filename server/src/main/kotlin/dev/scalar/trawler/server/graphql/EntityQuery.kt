@@ -23,7 +23,7 @@ class EntityQuery {
             FacetMetaType.STRING -> {
                 filter.value.map { value ->
                     columnSet[FacetValue.value].castTo<String>(TextColumnType())
-                        .ilike("%${value}%")
+                        .ilike("%$value%")
                 }.compoundOr()
             }
             FacetMetaType.TYPE_REFERENCE -> {

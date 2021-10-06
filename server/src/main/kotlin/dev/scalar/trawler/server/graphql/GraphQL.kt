@@ -6,8 +6,6 @@ import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.toSchema
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
-import io.vertx.ext.auth.jdbc.JDBCAuthentication
-import io.vertx.ext.auth.jwt.JWTAuth
 import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
@@ -33,8 +31,10 @@ fun makeSchema(): GraphQLSchema? {
                 EntityQuery(),
             ),
         ),
-        mutations = listOf(TopLevelObject(
-            UserMutation()
-        ))
+        mutations = listOf(
+            TopLevelObject(
+                UserMutation()
+            )
+        )
     )
 }

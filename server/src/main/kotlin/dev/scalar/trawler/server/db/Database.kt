@@ -27,7 +27,6 @@ object Database {
             .setUser(username) // password
             .setPassword(password) // configure the pool
 
-
         val poolOptions = PoolOptions()
             .setMaxSize(16)
 
