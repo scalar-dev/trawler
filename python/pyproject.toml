@@ -9,7 +9,7 @@ authors = ["Alex Sparrow <alex@alexsparrow.dev>"]
 python = "^3.9"
 pandas = "^1.3.3"
 SQLAlchemy = {version = "^1.4.17", optional = true }
-psycopg2-binary = {version = "^2.8.6", optional = true }
+psycopg2-binary = {version = "^2.9.1", optional = true }
 click = "^8.0.1"
 requests = "^2.25.1"
 schedule = "^1.1.0"

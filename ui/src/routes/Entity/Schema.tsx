@@ -1,5 +1,5 @@
 import { formatDistanceStrict, parseISO } from "date-fns";
-import _, { has } from "lodash";
+import _ from "lodash";
 import { useQuery, gql } from "urql";
 
 type FacetLog = {
