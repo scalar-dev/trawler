@@ -1,10 +1,13 @@
 package dev.scalar.trawler.server.graphql
 
 import dev.scalar.trawler.server.db.Account
+import dev.scalar.trawler.server.db.AccountInfo
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.authentication.UsernamePasswordCredentials
 import io.vertx.kotlin.coroutines.await
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.security.SecureRandom
 import java.util.*
@@ -14,7 +17,7 @@ data class AuthenticatedUser(
 )
 
 class UserMutation() {
-    suspend fun createUser(context: QueryContext, username: String, password: String): UUID {
+    suspend fun createUser(context: QueryContext, email: String, password: String): UUID {
         val salt = ByteArray(32)
         SecureRandom().nextBytes(salt)
 
@@ -25,23 +28,35 @@ class UserMutation() {
         )
 
         return newSuspendedTransaction {
-            Account.insertAndGetId {
-                it[Account.username] = username
+            val accountId = Account.insertAndGetId {
                 it[Account.password] = hash
             }.value
+
+            AccountInfo.insert {
+                it[AccountInfo.email] = email
+                it[AccountInfo.accountId] = accountId
+            }
+
+            accountId
         }
     }
 
-    suspend fun login(context: QueryContext, username: String, password: String): AuthenticatedUser {
+    suspend fun login(context: QueryContext, email: String, password: String): AuthenticatedUser {
+        val userId = newSuspendedTransaction {
+            AccountInfo.select { AccountInfo.email eq email }
+                .map { it[AccountInfo.accountId].toString() }.firstOrNull()
+                ?: throw Exception("Invalid username/password")
+        }
+
         val user = context.jdbcAuthentication.authenticate(
             UsernamePasswordCredentials(
-                username,
+                userId,
                 password
             )
         ).await()
 
         val claims = mapOf(
-            "sub" to username
+            "sub" to userId
         )
 
         return AuthenticatedUser(

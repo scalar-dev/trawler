@@ -5,8 +5,8 @@ import { useMutation } from "urql";
 import { LoginDocument } from "../types";
 
 export const LOGIN_MUTATION = gql`
-  mutation Login($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
+  mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
       jwt
     }
   }
@@ -121,7 +121,7 @@ export const SignIn = () => {
 
                   try {
                     const response = await login({
-                      username: email,
+                      email,
                       password,
                     });
 

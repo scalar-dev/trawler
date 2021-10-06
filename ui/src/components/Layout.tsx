@@ -1,9 +1,12 @@
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/solid";
 import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
 import { classNames } from "../utils";
 import { Search } from "./Search";
+import { useHistory } from "react-router";
+import { gql, useQuery } from "urql";
+import { MeDocument } from "../types";
 
 const ThreeColumn = () => (
   <>
@@ -85,7 +88,24 @@ export const Main: React.FC = ({ children }) => (
   </main>
 );
 
+export const ME_QUERY = gql`
+  query Me {
+    me {
+      email
+    }
+  }
+`;
+
 export const Layout: React.FC = ({ children }) => {
+  const history = useHistory();
+  const [me] = useQuery({ query: MeDocument });
+
+  useEffect(() => {
+    if (me.error) {
+      history.push("/sign-in");
+    }
+  }, [me]);
+
   return (
     <>
       <div className="relative min-h-screen flex flex-col bg-gray-100">
@@ -139,8 +159,9 @@ export const Layout: React.FC = ({ children }) => {
                     <div className="flex items-center justify-end">
                       <div className="flex">
                         <a
-                          href="#"
+                          href="https://docs.trawler.dev"
                           className="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white"
+                          target="_blank"
                         >
                           Documentation
                         </a>
@@ -197,6 +218,10 @@ export const Layout: React.FC = ({ children }) => {
                               {({ active }) => (
                                 <a
                                   href="#"
+                                  onClick={() => {
+                                    localStorage.removeItem("jwt");
+                                    window.location.pathname = "/";
+                                  }}
                                   className={classNames(
                                     active ? "bg-gray-100" : "",
                                     "block px-4 py-2 text-sm text-gray-700"

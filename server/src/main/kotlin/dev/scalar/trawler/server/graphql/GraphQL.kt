@@ -28,8 +28,11 @@ fun makeSchema(): GraphQLSchema? {
         config = config,
         queries = listOf(
             TopLevelObject(
-                EntityQuery(),
+                EntityQuery()
             ),
+            TopLevelObject(
+                UserQuery()
+            )
         ),
         mutations = listOf(
             TopLevelObject(

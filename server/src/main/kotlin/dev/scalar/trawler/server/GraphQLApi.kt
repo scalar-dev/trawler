@@ -14,7 +14,6 @@ import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
-import io.vertx.ext.web.handler.JWTAuthHandler
 import io.vertx.ext.web.handler.graphql.GraphQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
@@ -30,7 +29,7 @@ class GraphQLApi : CoroutineVerticle() {
         val jdbcAuth = JDBCAuthentication.create(
             Database.jdbcClient(vertx),
             JDBCAuthenticationOptions().setAuthenticationQuery(
-                "SELECT PASSWORD FROM account WHERE USERNAME = ?"
+                "SELECT PASSWORD FROM account WHERE id = ?::UUID"
             )
         )
 
