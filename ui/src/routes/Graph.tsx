@@ -86,6 +86,8 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
             selector: "edge",
             style: {
               width: 2,
+              label: "data(label)",
+              "font-size": "7px",
               "line-color": "#ccc",
               "target-arrow-color": "#ccc",
               "target-arrow-shape": "triangle",
