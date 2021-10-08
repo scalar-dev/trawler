@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.db.Database
 import dev.scalar.trawler.server.db.Project
+import dev.scalar.trawler.server.db.createGuestUser
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.config.ConfigRetriever
 import io.vertx.config.ConfigRetrieverOptions
@@ -52,6 +53,8 @@ class App : CoroutineVerticle() {
 
         val config = awaitResult<JsonObject> { h -> configRetriever().getConfig(h) }
         Database.configure(config)
+
+        createGuestUser()
 
         if (WebEnvironment.development()) {
             newSuspendedTransaction {

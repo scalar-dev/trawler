@@ -116,7 +116,7 @@ export const Layout: React.FC = ({ children }) => {
   }, [me]);
 
   useEffect(() => {
-    if (!selectedProject && me.data?.projects) {
+    if (!selectedProject && me.data?.projects && me.data.projects.length > 0) {
       setSelectedProject({
         projectId: me.data?.projects[0].id,
         projectName: me.data.projects[0].name,
@@ -331,10 +331,14 @@ export const Layout: React.FC = ({ children }) => {
           )}
         </Disclosure>
 
-        {selectedProject && (
+        {selectedProject ? (
           <ProjectContext.Provider value={selectedProject}>
             {children}
           </ProjectContext.Provider>
+        ) : (
+          <div className="font-bold text-2xl text-gray-500 w-full text-center py-8">
+            You don't have any projects
+          </div>
         )}
       </div>
     </>

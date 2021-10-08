@@ -15,8 +15,16 @@ suspend fun devProject() = newSuspendedTransaction {
     }
 }
 
-suspend fun devUserToken(jwtAuth: JWTAuth) = newSuspendedTransaction {
+suspend fun createGuestUser() = newSuspendedTransaction {
     val id = UUID(0, 0)
+    Account.insertIgnore {
+        it[Account.id] = id
+        it[Account.password] = "NO_LOGIN"
+    }
+}
+
+suspend fun devUserToken(jwtAuth: JWTAuth) = newSuspendedTransaction {
+    val id = UUID(0, 1)
     Account.insertIgnore {
         it[Account.id] = id
         it[Account.password] = "NO_LOGIN"

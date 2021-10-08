@@ -47,7 +47,7 @@ class EntityQuery {
         }
     }
 
-    suspend fun search(context: QueryContext, filters: List<Filter>, projectId: UUID): List<Entity> {
+    suspend fun search(context: QueryContext, projectId: UUID, filters: List<Filter>): List<Entity> {
         val ontology = OntologyCache.CACHE[projectId]
 
         val ids = transaction {
@@ -83,13 +83,13 @@ class EntityQuery {
                 .map { row -> row[firstAlias[FacetValue.entityId]] }
         }
 
-        return fetchEntities(ids)
+        return fetchEntities(context.accountId, ids)
     }
 
-    suspend fun entity(id: UUID) = fetchEntities(listOf(id)).firstOrNull()
+    suspend fun entity(context: QueryContext, id: UUID) = fetchEntities(context.accountId, listOf(id)).firstOrNull()
 
-    suspend fun entityGraph(id: UUID, d: Int): List<Entity> {
-        var currentEntities = fetchEntities(listOf(id))
+    suspend fun entityGraph(context: QueryContext, id: UUID, d: Int): List<Entity> {
+        var currentEntities = fetchEntities(context.accountId, listOf(id))
         val output = currentEntities.toMutableList()
 
         for (i in 0 until d) {
@@ -112,7 +112,7 @@ class EntityQuery {
 
             val idsToFetch = (targetIds + fromIds).filter { !existingIds.contains(it) }
 
-            currentEntities = fetchEntities(idsToFetch)
+            currentEntities = fetchEntities(context.accountId, idsToFetch)
             output.addAll(currentEntities)
         }
 

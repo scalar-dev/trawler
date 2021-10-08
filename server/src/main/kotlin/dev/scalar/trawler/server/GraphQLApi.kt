@@ -60,7 +60,7 @@ class GraphQLApi : CoroutineVerticle() {
 
                         QueryContext(
                             rc.user(),
-                            if (accountId != null) UUID.fromString(accountId) else null,
+                            if (accountId != null) UUID.fromString(accountId) else UUID(0, 0),
                             jdbcAuth,
                             jwtAuth
                         )

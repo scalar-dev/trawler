@@ -39,7 +39,7 @@ data class Entity(
             .select { Entity.urn.inList(urns) }
             .map { row -> row[Entity.id].value }
 
-        val entitiesByUrn = fetchEntities(entities)
+        val entitiesByUrn = fetchEntities(context.accountId, entities)
             .associateBy { it.urn }
 
         rows.map { row ->

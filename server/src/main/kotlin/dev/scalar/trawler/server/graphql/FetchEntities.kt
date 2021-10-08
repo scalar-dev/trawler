@@ -1,22 +1,27 @@
 package dev.scalar.trawler.server.graphql
 
 import dev.scalar.trawler.ontology.FacetMetaType
+import dev.scalar.trawler.server.db.AccountRole
 import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.FacetValue
+import dev.scalar.trawler.server.db.Project
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
 
-suspend fun fetchEntities(ids: Collection<UUID>): List<Entity> =
+suspend fun fetchEntities(accountId: UUID, ids: Collection<UUID>): List<Entity> =
     newSuspendedTransaction {
         FacetValue
             .join(FacetType, JoinType.INNER, FacetType.id, FacetValue.typeId)
             .join(dev.scalar.trawler.server.db.Entity, JoinType.INNER, dev.scalar.trawler.server.db.Entity.id, FacetValue.entityId)
+            .join(Project, JoinType.INNER, dev.scalar.trawler.server.db.Project.id, dev.scalar.trawler.server.db.Entity.projectId)
+            .join(AccountRole, JoinType.INNER, AccountRole.projectId, dev.scalar.trawler.server.db.Entity.projectId)
             .join(EntityType, JoinType.LEFT, FacetValue.entityTypeId, EntityType.id)
             .select {
-                FacetValue.entityId.inList(ids)
+                FacetValue.entityId.inList(ids) and AccountRole.accountId.eq(accountId)
             }
             .groupBy { it[FacetValue.entityId] }
             .map {
