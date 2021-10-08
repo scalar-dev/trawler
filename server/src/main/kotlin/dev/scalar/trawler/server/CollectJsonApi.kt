@@ -10,6 +10,7 @@ import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
+import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.ontology.OntologyCache
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.http.HttpMethod
@@ -35,7 +36,7 @@ class CollectJsonApi : CoroutineVerticle() {
 
     override suspend fun start() {
         val router = Router.router(vertx)
-        val provider = jwtAuth(vertx)
+        val jwtAuth = jwtAuth(vertx)
 
         router
             .errorHandler(400) { rc ->
@@ -45,18 +46,11 @@ class CollectJsonApi : CoroutineVerticle() {
                 rc.fail(403)
             }
             .route()
-            .handler(JWTAuthHandler.create(provider))
+            .handler(JWTAuthHandler.create(jwtAuth))
             .handler(BodyHandler.create())
 
         if (WebEnvironment.development()) {
-            val devToken = provider.generateToken(
-                JsonObject(
-                    mapOf(
-                        "sub" to UUID.randomUUID().toString()
-                    )
-                )
-            )
-            log.info("Development token: $devToken")
+            log.info("Development token: ${devUserToken(jwtAuth)}")
         }
 
         val loader = DocumentLoader { url, _ ->

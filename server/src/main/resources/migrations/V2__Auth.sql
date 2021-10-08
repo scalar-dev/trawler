@@ -14,5 +14,6 @@ CREATE TABLE account_info(
 CREATE TABLE account_role(
     account_id UUID NOT NULL REFERENCES account,
     project_id UUID NOT NULL REFERENCES project,
-    role TEXT NOT NULL
+    role TEXT NOT NULL,
+    UNIQUE(account_id, project_id, role)
 );

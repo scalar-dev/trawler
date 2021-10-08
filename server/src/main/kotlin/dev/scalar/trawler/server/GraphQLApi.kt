@@ -4,6 +4,7 @@ import dev.scalar.trawler.server.auth.PermissiveJWTAuthHandler
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.Database
 import dev.scalar.trawler.server.db.Project.DEMO_PROJECT_ID
+import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
 import graphql.GraphQL
@@ -46,17 +47,8 @@ class GraphQLApi : CoroutineVerticle() {
             .handler(BodyHandler.create())
 
         if (WebEnvironment.development()) {
-            val devToken = jwtAuth.generateToken(
-                JsonObject(
-                    mapOf(
-                        "sub" to UUID.randomUUID().toString(),
-                        "project" to DEMO_PROJECT_ID.toString()
-                    )
-                )
-            )
-
             val options = GraphiQLHandlerOptions().setEnabled(true)
-                .setHeaders(mapOf("Authorization" to "Bearer $devToken"))
+                .setHeaders(mapOf("Authorization" to "Bearer ${devUserToken(jwtAuth)}"))
             router.route("/graphiql/*").handler(GraphiQLHandler.create(options))
         }
 
