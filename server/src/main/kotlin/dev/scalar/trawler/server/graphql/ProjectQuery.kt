@@ -14,11 +14,11 @@ class ProjectQuery {
         Project
             .innerJoin(AccountRole)
             .select { AccountRole.accountId.eq(context.accountId) }
-            .map { dev.scalar.trawler.server.graphql.Project(
-                it[Project.id].value,
-                it[Project.name]
-            )
+            .map {
+                dev.scalar.trawler.server.graphql.Project(
+                    it[Project.id].value,
+                    it[Project.name]
+                )
             }
     }
-
 }

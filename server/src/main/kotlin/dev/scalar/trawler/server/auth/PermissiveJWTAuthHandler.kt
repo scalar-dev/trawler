@@ -9,7 +9,7 @@ class PermissiveJWTAuthHandler(authProvider: JWTAuth) : JWTAuthHandlerImpl(authP
     override fun processException(ctx: RoutingContext?, exception: Throwable?) {
         if (exception != null) {
             if (exception is HttpException) {
-                val statusCode = exception.statusCode;
+                val statusCode = exception.statusCode
 
                 if (statusCode != 401) {
                     super.processException(ctx, exception)
