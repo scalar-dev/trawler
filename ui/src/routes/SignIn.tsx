@@ -1,6 +1,5 @@
 import { gql } from "@urql/core";
 import { useState } from "react";
-import { useHistory } from "react-router";
 import { useMutation } from "urql";
 import { LoginDocument } from "../types";
 
@@ -17,7 +16,6 @@ export const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<any | null>(null);
-  const history = useHistory();
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -126,7 +124,7 @@ export const SignIn = () => {
                     });
 
                     localStorage.setItem("jwt", response.data!.login.jwt);
-                    history.push("/");
+                    window.location.pathname = "/";
                   } catch {
                     setError("Exception while logging in");
                   }
