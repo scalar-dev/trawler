@@ -67,6 +67,7 @@ suspend fun fetchEntities(ids: Collection<UUID>): List<Entity> =
                     }
                 Entity(
                     it.key,
+                    it.value[0][dev.scalar.trawler.server.db.Entity.projectId].value,
                     it.value[0][dev.scalar.trawler.server.db.Entity.urn],
                     type,
                     typeName,

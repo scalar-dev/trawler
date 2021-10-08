@@ -32,6 +32,9 @@ fun makeSchema(): GraphQLSchema? {
             ),
             TopLevelObject(
                 UserQuery()
+            ),
+            TopLevelObject(
+                ProjectQuery()
             )
         ),
         mutations = listOf(

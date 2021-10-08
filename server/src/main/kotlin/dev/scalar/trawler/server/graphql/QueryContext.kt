@@ -8,7 +8,7 @@ import java.util.*
 
 data class QueryContext(
     val user: User?,
-    val projectId: UUID,
+    val accountId: UUID?,
     val jdbcAuthentication: JDBCAuthentication,
     val jwtAuth: JWTAuth
 ) : GraphQLContext

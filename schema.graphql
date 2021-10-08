@@ -30,6 +30,7 @@ type Entity {
   entityId: UUID!
   facetLog(facets: [String!]!): [FacetLog!]!
   facets: [Facet!]!
+  projectId: UUID!
   timeSeries(facet: String!): FacetTimeSeries
   type: String!
   typeName: String!
@@ -69,11 +70,17 @@ type Mutation {
   login(email: String!, password: String!): AuthenticatedUser!
 }
 
+type Project {
+  id: UUID!
+  name: String!
+}
+
 type Query {
   entity(id: UUID!): Entity
   entityGraph(d: Int!, id: UUID!): [Entity!]!
   me: User!
-  search(filters: [FilterInput!]!): [Entity!]!
+  projects: [Project!]!
+  search(filters: [FilterInput!]!, projectId: UUID!): [Entity!]!
 }
 
 type User {

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/solid";
 import { gql } from "@urql/core";
@@ -9,6 +9,7 @@ import {
 import { EntityIcon } from "../routes/Dashboard";
 import { useHistory } from "react-router";
 import _ from "lodash";
+import { ProjectContext } from "../ProjectContext";
 
 export const LoadingBlock = () => (
   <div className="animate-pulse border border-gray-200 rounded-lg bg-gray-200 sm:aspect-none sm:h-16"></div>
@@ -22,8 +23,11 @@ export const LoadingGrid = () => (
 );
 
 const SEARCH_BY_NAME = gql`
-  query SearchByName($search: [String!]!) {
-    search(filters: [{ uri: "http://schema.org/name", value: $search }]) {
+  query SearchByName($search: [String!]!, $projectId: UUID!) {
+    search(
+      filters: [{ uri: "http://schema.org/name", value: $search }]
+      projectId: $projectId
+    ) {
       entityId
       facets {
         name
@@ -37,6 +41,7 @@ const SEARCH_BY_NAME = gql`
 `;
 
 export const Search = () => {
+  const { projectId, projectName } = useContext(ProjectContext);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const history = useHistory();
@@ -50,6 +55,7 @@ export const Search = () => {
     pause: !open,
     variables: {
       search,
+      projectId,
     },
   });
 
@@ -69,7 +75,7 @@ export const Search = () => {
                 name="search"
                 className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-indigo-400 bg-opacity-25 text-indigo-100 placeholder-indigo-200 focus:outline-none focus:bg-white focus:ring-0 focus:placeholder-gray-400 focus:text-gray-900 sm:text-sm"
                 value={search}
-                placeholder="Search projects"
+                placeholder={`Search project ${projectName}`}
                 onChange={(e) => setSearch(e.target.value)}
                 // type="search"
               />

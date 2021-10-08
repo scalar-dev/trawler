@@ -19,6 +19,7 @@ import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.apache.logging.log4j.LogManager
+import java.util.*
 
 class GraphQLApi : CoroutineVerticle() {
     private val log = LogManager.getLogger()
@@ -48,7 +49,7 @@ class GraphQLApi : CoroutineVerticle() {
             val devToken = jwtAuth.generateToken(
                 JsonObject(
                     mapOf(
-                        "sub" to "devuser",
+                        "sub" to UUID.randomUUID().toString(),
                         "project" to DEMO_PROJECT_ID.toString()
                     )
                 )
@@ -65,7 +66,14 @@ class GraphQLApi : CoroutineVerticle() {
             .handler(
                 GraphQLHandler.create(GraphQL.newGraphQL(makeSchema()).build())
                     .queryContext { rc ->
-                        QueryContext(rc.user(), DEMO_PROJECT_ID, jdbcAuth, jwtAuth)
+                        val accountId = rc.user()?.principal()?.getString("sub")
+
+                        QueryContext(
+                            rc.user(),
+                            if (accountId != null) UUID.fromString(accountId) else null,
+                            jdbcAuth,
+                            jwtAuth
+                        )
                     }
             )
 

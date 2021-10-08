@@ -10,3 +10,9 @@ CREATE TABLE account_info(
     first_name TEXT,
     last_name TEXT
 );
+
+CREATE TABLE account_role(
+    account_id UUID NOT NULL REFERENCES account,
+    project_id UUID NOT NULL REFERENCES project,
+    role TEXT NOT NULL
+);

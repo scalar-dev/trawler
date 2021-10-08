@@ -37,8 +37,8 @@ class EntityQuery {
         }
     }
 
-    suspend fun search(context: QueryContext, filters: List<Filter>): List<Entity> {
-        val ontology = OntologyCache.CACHE[context.projectId]
+    suspend fun search(context: QueryContext, filters: List<Filter>, projectId: UUID): List<Entity> {
+        val ontology = OntologyCache.CACHE[projectId]
 
         val ids = transaction {
 

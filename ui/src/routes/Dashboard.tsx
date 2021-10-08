@@ -4,11 +4,12 @@ import {
   TableIcon,
   DotsVerticalIcon,
 } from "@heroicons/react/solid";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useHistory } from "react-router";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
 import { Option, Selector } from "../components/Selector";
+import { ProjectContext } from "../ProjectContext";
 import { SearchByTypeDocument } from "../types";
 
 export const EntityIcon = ({ type }: { type: string }) => {
@@ -118,11 +119,12 @@ const types = [
 ];
 
 const SEARCH_BY_TYPE = gql`
-  query SearchByType($type: [String!]!) {
+  query SearchByType($type: [String!]!, $projectId: UUID!) {
     search(
       filters: [
         { uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", value: $type }
       ]
+      projectId: $projectId
     ) {
       entityId
       urn
@@ -138,11 +140,13 @@ const SEARCH_BY_TYPE = gql`
 `;
 
 export const Dashboard = () => {
+  const { projectId } = useContext(ProjectContext);
   const [selectedType, setSelectedType] = useState<Option>(types[0]);
   const [data] = useQuery({
     query: SearchByTypeDocument,
     variables: {
       type: selectedType.value,
+      projectId,
     },
   });
 

@@ -15,6 +15,7 @@ import java.util.*
 
 data class Entity(
     val entityId: UUID,
+    val projectId: UUID,
     val urn: String,
     val type: String,
     val typeName: String,
@@ -42,7 +43,7 @@ data class Entity(
             .associateBy { it.urn }
 
         rows.map { row ->
-            val facetType = OntologyCache.CACHE[context.projectId].facetTypeById(row[FacetLog.typeId].value)!!
+            val facetType = OntologyCache.CACHE[projectId].facetTypeById(row[FacetLog.typeId].value)!!
 
             dev.scalar.trawler.server.graphql.FacetLog(
                 row[FacetLog.id].value,
@@ -56,7 +57,7 @@ data class Entity(
     }
 
     suspend fun timeSeries(context: QueryContext, facet: String): dev.scalar.trawler.server.graphql.FacetTimeSeries? = newSuspendedTransaction {
-        val facetType = OntologyCache.CACHE[context.projectId].facetTypeByUri(facet)!!
+        val facetType = OntologyCache.CACHE[projectId].facetTypeByUri(facet)!!
 
         val rows = FacetTimeSeries
             .join(FacetType, JoinType.INNER, FacetTimeSeries.typeId, FacetType.id)
