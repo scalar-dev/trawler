@@ -5,10 +5,20 @@ import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.ilike
 import dev.scalar.trawler.server.ontology.OntologyCache
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.Alias
+import org.jetbrains.exposed.sql.ColumnSet
+import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.TextColumnType
+import org.jetbrains.exposed.sql.alias
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.castTo
+import org.jetbrains.exposed.sql.compoundOr
+import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.*
+import java.util.UUID
 
 class EntityQuery {
     data class Filter(

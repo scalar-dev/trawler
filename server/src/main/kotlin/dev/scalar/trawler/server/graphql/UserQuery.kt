@@ -3,7 +3,7 @@ package dev.scalar.trawler.server.graphql
 import dev.scalar.trawler.server.db.AccountInfo
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import java.util.*
+import java.util.UUID
 
 data class User(
     val email: String

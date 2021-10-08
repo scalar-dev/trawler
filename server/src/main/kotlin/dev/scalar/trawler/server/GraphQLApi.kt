@@ -19,7 +19,7 @@ import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.apache.logging.log4j.LogManager
-import java.util.*
+import java.util.UUID
 
 class GraphQLApi : CoroutineVerticle() {
     private val log = LogManager.getLogger()
