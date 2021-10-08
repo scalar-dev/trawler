@@ -1,7 +1,7 @@
 package dev.scalar.trawler.server.db
 
 import org.jetbrains.exposed.dao.id.UUIDTable
-import java.util.*
+import java.util.UUID
 
 object Project : UUIDTable("project") {
     val name = text("name")

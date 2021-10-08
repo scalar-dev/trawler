@@ -27,7 +27,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.LogManager
-import java.util.*
+import java.util.UUID
 import kotlin.system.measureTimeMillis
 
 class CollectJsonApi : CoroutineVerticle() {

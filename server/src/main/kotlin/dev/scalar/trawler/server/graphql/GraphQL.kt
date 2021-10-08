@@ -7,7 +7,7 @@ import com.expediagroup.graphql.generator.toSchema
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 

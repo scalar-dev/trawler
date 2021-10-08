@@ -10,7 +10,8 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.security.SecureRandom
-import java.util.*
+import java.util.Base64
+import java.util.UUID
 
 data class AuthenticatedUser(
     val jwt: String

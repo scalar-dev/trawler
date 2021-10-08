@@ -4,7 +4,7 @@ import com.expediagroup.graphql.generator.execution.GraphQLContext
 import io.vertx.ext.auth.User
 import io.vertx.ext.auth.jdbc.JDBCAuthentication
 import io.vertx.ext.auth.jwt.JWTAuth
-import java.util.*
+import java.util.UUID
 
 data class QueryContext(
     val user: User?,

@@ -1,17 +1,25 @@
 package dev.scalar.trawler.server
 
 import dev.scalar.trawler.ontology.FacetMetaType
-import dev.scalar.trawler.server.db.*
+import dev.scalar.trawler.server.db.Entity
+import dev.scalar.trawler.server.db.FacetLog
+import dev.scalar.trawler.server.db.FacetTimeSeries
+import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.selectForUpdate
 import dev.scalar.trawler.server.ontology.OntologyCache
 import io.vertx.core.eventbus.Message
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.receiveChannelHandler
 import org.apache.logging.log4j.LogManager
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insertIgnore
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.update
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class Indexer : CoroutineVerticle() {
     val log = LogManager.getLogger()

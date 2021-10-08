@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import java.util.*
+import java.util.UUID
 
 class FacetStore(val ontology: Ontology) {
     val log = LogManager.getLogger()

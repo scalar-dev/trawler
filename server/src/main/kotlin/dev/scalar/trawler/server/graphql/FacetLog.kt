@@ -1,7 +1,7 @@
 package dev.scalar.trawler.server.graphql
 
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 data class FacetLog(
     val id: UUID,
