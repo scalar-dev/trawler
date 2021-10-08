@@ -88,7 +88,7 @@ export const Search = () => {
           >
             <Popover.Panel
               static
-              className="origin-top-right absolute left-0 right-0 mt-2 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+              className="origin-top-right absolute left-0 right-0 mt-2 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
             >
               <div className="p-4">
                 {data.fetching ? (
