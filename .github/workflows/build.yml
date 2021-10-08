@@ -6,31 +6,38 @@ jobs:
     steps:
       - name: Check Out Repo 
         uses: actions/checkout@v2
+      - name: Build
+        run: |
+          ./gradlew --no-daemon --console=plain ktlintFormat server:jibDockerBuild --image=scalardev/trawler:$GITHUB_SHA
       - name: Login to Docker Hub
+        if: github.ref == 'refs/heads/master'
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Build
+      - name: Push
+        if: github.ref == 'refs/heads/master'
         run: |
-          ./gradlew ktlintFormat server:jib --no-daemon --console=plain --image=scalardev/trawler:$GITHUB_SHA
+          ./gradlew --no-daemon --console=plain server:jib --image=scalardev/trawler:$GITHUB_SHA
 
   ui:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo 
         uses: actions/checkout@v2
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
       - name: Build
         run: |
           cd ui
           docker build -t scalardev/trawler-ui:$GITHUB_SHA .
+      - name: Login to Docker Hub
+        if: github.ref == 'refs/heads/master'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Push
+        if: github.ref == 'refs/heads/master'
+        run: |
           docker push scalardev/trawler-ui:$GITHUB_SHA 
 
   agent:
@@ -38,14 +45,17 @@ jobs:
     steps:
       - name: Check Out Repo 
         uses: actions/checkout@v2
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
       - name: Build
         run: |
           cd python
           docker build -t scalardev/trawler-agent:$GITHUB_SHA .
+      - name: Login to Docker Hub
+        if: github.ref == 'refs/heads/master'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Push
+        if: github.ref == 'refs/heads/master'
+        run: |
           docker push scalardev/trawler-agent:$GITHUB_SHA 

@@ -3,12 +3,10 @@ package dev.scalar.trawler.server
 import dev.scalar.trawler.server.auth.PermissiveJWTAuthHandler
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.Database
-import dev.scalar.trawler.server.db.Project.DEMO_PROJECT_ID
 import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
 import graphql.GraphQL
-import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.jdbc.JDBCAuthentication
 import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
 import io.vertx.ext.auth.jwt.JWTAuth
