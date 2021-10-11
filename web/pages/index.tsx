@@ -56,7 +56,7 @@ const Features = () => {
             Open source metadata catalogue
           </p>
           <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-            Trawler's flexible data model allows you to ingest metadata from
+            Trawler&apos;s flexible data model allows you to ingest metadata from
             across your organisation.
           </p>
         </div>
