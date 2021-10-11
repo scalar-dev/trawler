@@ -1,9 +1,12 @@
-package dev.scalar.trawler.server.graphql
+package dev.scalar.trawler.server.graphql.query
 
 import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.ilike
+import dev.scalar.trawler.server.graphql.Entity
+import dev.scalar.trawler.server.graphql.QueryContext
+import dev.scalar.trawler.server.graphql.fetchEntities
 import dev.scalar.trawler.server.ontology.OntologyCache
 import org.jetbrains.exposed.sql.Alias
 import org.jetbrains.exposed.sql.ColumnSet

@@ -4,6 +4,8 @@ import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.toSchema
+import dev.scalar.trawler.server.graphql.query.EntityQuery
+import dev.scalar.trawler.server.graphql.query.ProjectQuery
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import java.time.Instant
