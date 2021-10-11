@@ -22,10 +22,15 @@ directive @specifiedBy(
     url: String!
   ) on SCALAR
 
+type AuthenticatedUser {
+  jwt: String!
+}
+
 type Entity {
   entityId: UUID!
   facetLog(facets: [String!]!): [FacetLog!]!
   facets: [Facet!]!
+  projectId: UUID!
   timeSeries(facet: String!): FacetTimeSeries
   type: String!
   typeName: String!
@@ -61,13 +66,25 @@ type FacetTimeSeriesPoint {
 }
 
 type Mutation {
-  doNothing: String!
+  createUser(email: String!, password: String!): UUID!
+  login(email: String!, password: String!): AuthenticatedUser!
+}
+
+type Project {
+  id: UUID!
+  name: String!
 }
 
 type Query {
   entity(id: UUID!): Entity
   entityGraph(d: Int!, id: UUID!): [Entity!]!
-  search(filters: [FilterInput!]!): [Entity!]!
+  me: User!
+  projects: [Project!]!
+  search(filters: [FilterInput!]!, projectId: UUID!): [Entity!]!
+}
+
+type User {
+  email: String!
 }
 
 "DataTime scalar"

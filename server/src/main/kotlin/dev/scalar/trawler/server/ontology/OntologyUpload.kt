@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.update
-import java.util.*
+import java.util.UUID
 
 class OntologyUpload {
     val log = LogManager.getLogger()

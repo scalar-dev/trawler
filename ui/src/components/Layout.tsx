@@ -1,9 +1,13 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { SearchIcon } from "@heroicons/react/solid";
+import { CheckIcon, SearchIcon } from "@heroicons/react/solid";
 import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
 import { classNames } from "../utils";
 import { Search } from "./Search";
+import { useHistory } from "react-router";
+import { gql, useQuery } from "urql";
+import { MeDocument } from "../types";
+import { ProjectContext } from "../ProjectContext";
 
 const ThreeColumn = () => (
   <>
@@ -85,7 +89,41 @@ export const Main: React.FC = ({ children }) => (
   </main>
 );
 
+export const ME_QUERY = gql`
+  query Me {
+    me {
+      email
+    }
+    projects {
+      id
+      name
+    }
+  }
+`;
+
 export const Layout: React.FC = ({ children }) => {
+  const history = useHistory();
+  const [me] = useQuery({ query: MeDocument });
+  const [selectedProject, setSelectedProject] = useState<{
+    projectId: string;
+    projectName: string;
+  } | null>();
+
+  useEffect(() => {
+    if (me.error) {
+      history.push("/sign-in");
+    }
+  }, [me]);
+
+  useEffect(() => {
+    if (!selectedProject && me.data?.projects && me.data.projects.length > 0) {
+      setSelectedProject({
+        projectId: me.data?.projects[0].id,
+        projectName: me.data.projects[0].name,
+      });
+    }
+  }, [me]);
+
   return (
     <>
       <div className="relative min-h-screen flex flex-col bg-gray-100">
@@ -117,7 +155,12 @@ export const Layout: React.FC = ({ children }) => {
                       <label htmlFor="search" className="sr-only">
                         Search projects
                       </label>
-                      <Search />
+
+                      {selectedProject && (
+                        <ProjectContext.Provider value={selectedProject}>
+                          <Search />
+                        </ProjectContext.Provider>
+                      )}
                     </div>
                   </div>
                   <div className="flex lg:hidden">
@@ -139,8 +182,9 @@ export const Layout: React.FC = ({ children }) => {
                     <div className="flex items-center justify-end">
                       <div className="flex">
                         <a
-                          href="#"
+                          href="https://docs.trawler.dev"
                           className="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white"
+                          target="_blank"
                         >
                           Documentation
                         </a>
@@ -166,46 +210,83 @@ export const Layout: React.FC = ({ children }) => {
                           leaveFrom="transform opacity-100 scale-100"
                           leaveTo="transform opacity-0 scale-95"
                         >
-                          <Menu.Items className="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <Menu.Item>
-                              {({ active }) => (
-                                <a
-                                  href="#"
-                                  className={classNames(
-                                    active ? "bg-gray-100" : "",
-                                    "block px-4 py-2 text-sm text-gray-700"
+                          <Menu.Items className="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white divide-y divide-gray-100 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <div className="py-1">
+                              {me.data?.projects.map((project) => (
+                                <Menu.Item>
+                                  {({ active }) => (
+                                    <a
+                                      href="#"
+                                      onClick={() =>
+                                        setSelectedProject(project.id)
+                                      }
+                                      className={classNames(
+                                        active ? "bg-gray-100" : "",
+                                        "flex px-4 py-2 text-sm text-gray-700"
+                                      )}
+                                    >
+                                      <span className="flex-1">
+                                        {project.name}
+                                      </span>
+                                      {selectedProject?.projectId ===
+                                        project.id && (
+                                        <span className="text-indigo-600">
+                                          <CheckIcon
+                                            className="h-5 w-5"
+                                            aria-hidden="true"
+                                          />
+                                        </span>
+                                      )}
+                                    </a>
                                   )}
-                                >
-                                  View Profile
-                                </a>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <a
-                                  href="#"
-                                  className={classNames(
-                                    active ? "bg-gray-100" : "",
-                                    "block px-4 py-2 text-sm text-gray-700"
-                                  )}
-                                >
-                                  Settings
-                                </a>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <a
-                                  href="#"
-                                  className={classNames(
-                                    active ? "bg-gray-100" : "",
-                                    "block px-4 py-2 text-sm text-gray-700"
-                                  )}
-                                >
-                                  Logout
-                                </a>
-                              )}
-                            </Menu.Item>
+                                </Menu.Item>
+                              ))}
+                            </div>
+                            <div className="py-1">
+                              <Menu.Item>
+                                {({ active }) => (
+                                  <a
+                                    href="#"
+                                    className={classNames(
+                                      active ? "bg-gray-100" : "",
+                                      "block px-4 py-2 text-sm text-gray-700"
+                                    )}
+                                  >
+                                    View Profile
+                                  </a>
+                                )}
+                              </Menu.Item>
+                              <Menu.Item>
+                                {({ active }) => (
+                                  <a
+                                    href="#"
+                                    className={classNames(
+                                      active ? "bg-gray-100" : "",
+                                      "block px-4 py-2 text-sm text-gray-700"
+                                    )}
+                                  >
+                                    Settings
+                                  </a>
+                                )}
+                              </Menu.Item>
+                              <Menu.Item>
+                                {({ active }) => (
+                                  <a
+                                    href="#"
+                                    onClick={() => {
+                                      localStorage.removeItem("jwt");
+                                      window.location.pathname = "/";
+                                    }}
+                                    className={classNames(
+                                      active ? "bg-gray-100" : "",
+                                      "block px-4 py-2 text-sm text-gray-700"
+                                    )}
+                                  >
+                                    Logout
+                                  </a>
+                                )}
+                              </Menu.Item>
+                            </div>
                           </Menu.Items>
                         </Transition>
                       </Menu>
@@ -250,7 +331,15 @@ export const Layout: React.FC = ({ children }) => {
           )}
         </Disclosure>
 
-        {children}
+        {selectedProject ? (
+          <ProjectContext.Provider value={selectedProject}>
+            {children}
+          </ProjectContext.Provider>
+        ) : (
+          <div className="font-bold text-2xl text-gray-500 w-full text-center py-8">
+            You don't have any projects
+          </div>
+        )}
       </div>
     </>
   );

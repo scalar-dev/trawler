@@ -7,6 +7,6 @@ object DumpSchema {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        File("./schema.graphql").writeText(SchemaPrinter().print(schema))
+        File("./schema.graphql").writeText(SchemaPrinter().print(makeSchema()))
     }
 }

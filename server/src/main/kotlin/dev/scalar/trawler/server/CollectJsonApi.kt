@@ -10,10 +10,10 @@ import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
+import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.ontology.OntologyCache
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.http.HttpMethod
-import io.vertx.core.json.JsonObject
 import io.vertx.core.json.jackson.DatabindCodec
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
@@ -27,7 +27,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.LogManager
-import java.util.*
+import java.util.UUID
 import kotlin.system.measureTimeMillis
 
 class CollectJsonApi : CoroutineVerticle() {
@@ -35,7 +35,7 @@ class CollectJsonApi : CoroutineVerticle() {
 
     override suspend fun start() {
         val router = Router.router(vertx)
-        val provider = jwtAuth(vertx)
+        val jwtAuth = jwtAuth(vertx)
 
         router
             .errorHandler(400) { rc ->
@@ -45,18 +45,11 @@ class CollectJsonApi : CoroutineVerticle() {
                 rc.fail(403)
             }
             .route()
-            .handler(JWTAuthHandler.create(provider))
+            .handler(JWTAuthHandler.create(jwtAuth))
             .handler(BodyHandler.create())
 
         if (WebEnvironment.development()) {
-            val devToken = provider.generateToken(
-                JsonObject(
-                    mapOf(
-                        "sub" to UUID.randomUUID().toString()
-                    )
-                )
-            )
-            log.info("Development token: $devToken")
+            log.info("Development token: ${devUserToken(jwtAuth)}")
         }
 
         val loader = DocumentLoader { url, _ ->

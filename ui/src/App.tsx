@@ -5,10 +5,14 @@ import { Layout } from "./components/Layout";
 import { Route, BrowserRouter as Router } from "react-router-dom";
 import { Dashboard } from "./routes/Dashboard";
 import { Entity } from "./routes/Entity";
+import { SignIn } from "./routes/SignIn";
 
 const App = () => (
   <Provider value={client}>
     <Router>
+      <Route path="/sign-in" exact>
+        <SignIn />
+      </Route>
       <Layout>
         <Route path="/" exact>
           <Dashboard />

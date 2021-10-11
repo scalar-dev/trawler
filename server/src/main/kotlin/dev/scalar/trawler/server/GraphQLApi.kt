@@ -1,28 +1,37 @@
 package dev.scalar.trawler.server
 
+import dev.scalar.trawler.server.auth.PermissiveJWTAuthHandler
 import dev.scalar.trawler.server.auth.jwtAuth
-import dev.scalar.trawler.server.db.Project.DEMO_PROJECT_ID
+import dev.scalar.trawler.server.db.Database
+import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.graphql.QueryContext
-import dev.scalar.trawler.server.graphql.schema
+import dev.scalar.trawler.server.graphql.makeSchema
 import graphql.GraphQL
-import io.vertx.core.json.JsonObject
+import io.vertx.ext.auth.jdbc.JDBCAuthentication
+import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
 import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
-import io.vertx.ext.web.handler.JWTAuthHandler
 import io.vertx.ext.web.handler.graphql.GraphQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.apache.logging.log4j.LogManager
+import java.util.UUID
 
 class GraphQLApi : CoroutineVerticle() {
-    val log = LogManager.getLogger()
+    private val log = LogManager.getLogger()
 
     override suspend fun start() {
         val router = Router.router(vertx)
-        val provider: JWTAuth = jwtAuth(vertx)
+        val jwtAuth: JWTAuth = jwtAuth(vertx)
+        val jdbcAuth = JDBCAuthentication.create(
+            Database.jdbcClient(vertx),
+            JDBCAuthenticationOptions().setAuthenticationQuery(
+                "SELECT PASSWORD FROM account WHERE id = ?::UUID"
+            )
+        )
 
         router
             .errorHandler(500) { rc ->
@@ -36,27 +45,25 @@ class GraphQLApi : CoroutineVerticle() {
             .handler(BodyHandler.create())
 
         if (WebEnvironment.development()) {
-            val devToken = provider.generateToken(
-                JsonObject(
-                    mapOf(
-                        "sub" to "devuser",
-                        "project" to DEMO_PROJECT_ID.toString()
-                    )
-                )
-            )
-
             val options = GraphiQLHandlerOptions().setEnabled(true)
-                .setHeaders(mapOf("Authorization" to "Bearer $devToken"))
+                .setHeaders(mapOf("Authorization" to "Bearer ${devUserToken(jwtAuth)}"))
             router.route("/graphiql/*").handler(GraphiQLHandler.create(options))
         }
 
         router
             .route()
-            .handler(JWTAuthHandler.create(provider))
+            .handler(PermissiveJWTAuthHandler(jwtAuth))
             .handler(
-                GraphQLHandler.create(GraphQL.newGraphQL(schema).build())
+                GraphQLHandler.create(GraphQL.newGraphQL(makeSchema()).build())
                     .queryContext { rc ->
-                        QueryContext(rc.user(), DEMO_PROJECT_ID)
+                        val accountId = rc.user()?.principal()?.getString("sub")
+
+                        QueryContext(
+                            rc.user(),
+                            if (accountId != null) UUID.fromString(accountId) else UUID(0, 0),
+                            jdbcAuth,
+                            jwtAuth
+                        )
                     }
             )
 

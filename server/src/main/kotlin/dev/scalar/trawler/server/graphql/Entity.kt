@@ -11,10 +11,11 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import java.util.*
+import java.util.UUID
 
 data class Entity(
     val entityId: UUID,
+    val projectId: UUID,
     val urn: String,
     val type: String,
     val typeName: String,
@@ -38,11 +39,11 @@ data class Entity(
             .select { Entity.urn.inList(urns) }
             .map { row -> row[Entity.id].value }
 
-        val entitiesByUrn = fetchEntities(entities)
+        val entitiesByUrn = fetchEntities(context.accountId, entities)
             .associateBy { it.urn }
 
         rows.map { row ->
-            val facetType = OntologyCache.CACHE[context.projectId].facetTypeById(row[FacetLog.typeId].value)!!
+            val facetType = OntologyCache.CACHE[projectId].facetTypeById(row[FacetLog.typeId].value)!!
 
             dev.scalar.trawler.server.graphql.FacetLog(
                 row[FacetLog.id].value,
@@ -56,7 +57,7 @@ data class Entity(
     }
 
     suspend fun timeSeries(context: QueryContext, facet: String): dev.scalar.trawler.server.graphql.FacetTimeSeries? = newSuspendedTransaction {
-        val facetType = OntologyCache.CACHE[context.projectId].facetTypeByUri(facet)!!
+        val facetType = OntologyCache.CACHE[projectId].facetTypeByUri(facet)!!
 
         val rows = FacetTimeSeries
             .join(FacetType, JoinType.INNER, FacetTimeSeries.typeId, FacetType.id)

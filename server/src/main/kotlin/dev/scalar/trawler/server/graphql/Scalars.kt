@@ -1,13 +1,22 @@
 package dev.scalar.trawler.server.graphql
 
 import graphql.Assert
-import graphql.language.*
+import graphql.language.ArrayValue
+import graphql.language.BooleanValue
+import graphql.language.EnumValue
+import graphql.language.FloatValue
+import graphql.language.IntValue
+import graphql.language.NullValue
+import graphql.language.ObjectValue
+import graphql.language.StringValue
+import graphql.language.Value
+import graphql.language.VariableReference
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.GraphQLScalarType
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.UUID
 import java.util.stream.Collectors
 
 object Scalars {
