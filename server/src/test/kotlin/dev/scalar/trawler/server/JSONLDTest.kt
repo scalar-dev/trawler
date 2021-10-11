@@ -1,13 +1,5 @@
 package dev.scalar.trawler.server
 
-import com.apicatalog.jsonld.JsonLd
-import com.apicatalog.jsonld.document.JsonDocument
-import com.apicatalog.jsonld.loader.DocumentLoader
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import org.junit.jupiter.api.Test
-import java.io.FileInputStream
-
 class JSONLDTest {
 //    @Test
 //    fun it_works() {
