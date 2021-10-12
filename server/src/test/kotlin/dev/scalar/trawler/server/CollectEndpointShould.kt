@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.Project
+import dev.scalar.trawler.server.db.devSecret
 import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.verticle.CollectApi
 import dev.scalar.trawler.server.verticle.Config
@@ -51,13 +52,13 @@ class CollectEndpointShould {
                         Config.PGDATABASE to postgresContainer.databaseName
                     )
                 )
-            ),
+            ).setWorker(true),
             testContext.succeedingThenComplete()
         )
     }
 
     suspend fun sendRequest(vertx: Vertx, body: String): HttpClientResponse {
-        val jwt = jwtAuth(vertx)
+        val jwt = jwtAuth(vertx, devSecret(), 30)
         val client = vertx.createHttpClient()
         val request = client
             .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")

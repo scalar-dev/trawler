@@ -8,7 +8,6 @@ import dev.scalar.trawler.server.graphql.makeSchema
 import graphql.GraphQL
 import io.vertx.ext.auth.jdbc.JDBCAuthentication
 import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
-import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
@@ -23,10 +22,9 @@ class GraphQLApi : BaseVerticle() {
 
     override suspend fun start() {
         super.start()
-        configureDatabase(config)
+        configureDatabase()
 
         val router = Router.router(vertx)
-        val jwtAuth: JWTAuth = jwtAuth(vertx)
         val jdbcAuth = JDBCAuthentication.create(
             jdbcClient(vertx),
             JDBCAuthenticationOptions().setAuthenticationQuery(

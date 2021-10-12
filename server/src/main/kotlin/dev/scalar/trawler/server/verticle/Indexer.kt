@@ -36,7 +36,7 @@ class Indexer : BaseVerticle() {
 
     override suspend fun start() {
         super.start()
-        configureDatabase(config)
+        configureDatabase()
 
         val adapter = vertx.receiveChannelHandler<Message<String>>()
         var counter = 0

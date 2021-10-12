@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.App
-import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
@@ -35,12 +34,10 @@ class CollectApi : BaseVerticle() {
 
     override suspend fun start() {
         super.start()
-
-        configureDatabase(config)
+        configureDatabase()
         dbDefaults()
 
         val router = Router.router(vertx)
-        val jwtAuth = jwtAuth(vertx)
 
         router
             .errorHandler(400) { rc ->

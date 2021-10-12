@@ -7,8 +7,10 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.App
 import dev.scalar.trawler.server.ontology.OntologyUpload
+import dev.scalar.trawler.server.verticle.Config
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.jwt.JWTAuth
+import io.vertx.ext.web.common.WebEnvironment
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
@@ -63,4 +65,10 @@ suspend fun devUserToken(jwtAuth: JWTAuth) = newSuspendedTransaction {
             )
         )
     )
+}
+
+fun devSecret() = if (WebEnvironment.development()) {
+    "keyboard cat"
+} else {
+    throw Exception("Please supply a valid value for ${Config.TRAWLER_SECRET}")
 }
