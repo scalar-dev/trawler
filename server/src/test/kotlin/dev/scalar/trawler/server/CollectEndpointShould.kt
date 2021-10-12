@@ -32,7 +32,11 @@ class CollectEndpointShould {
             .await()
         val response = request
             .putHeader("Authorization", "Bearer ${devUserToken(jwt)}")
-            .send("{}")
+            .send(
+                """
+                {"@context": "http://trawler.dev/schema/core", "@graph": [{"@type": "tr:SqlDatabase", "@id": "urn:tr:::postgres/example.com/postgres", "name": "foo", "tr:has": [{"@type": "tr:SqlTable", "@id": "urn:tr:::postgres/example.com/postgres/foo", "name": "foo"}]}]}
+                """
+            )
             .await()
 
         Assert.assertEquals(200, response.statusCode())

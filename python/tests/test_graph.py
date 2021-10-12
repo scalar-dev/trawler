@@ -3,14 +3,13 @@ import json
 import requests
 
 def test_simple_graph():
-  ctx = tr.Context()
   g = tr.Graph()
 
-  db = ctx.SqlDatabase(
+  db = g.SqlDatabase(
     "urn:tr:::postgres/example.com/postgres",
     name = "foo",
     tr__has = [
-      ctx.SqlTable(
+      g.SqlTable(
         "urn:tr:::postgres/example.com/postgres/foo",
         name = "foo"
       )
