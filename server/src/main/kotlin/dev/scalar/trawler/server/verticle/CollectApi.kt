@@ -12,6 +12,8 @@ import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
+import dev.scalar.trawler.server.db.Account
+import dev.scalar.trawler.server.db.AccountRole
 import dev.scalar.trawler.server.ontology.OntologyCache
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.http.HttpMethod
@@ -27,6 +29,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.LogManager
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
 import kotlin.system.measureTimeMillis
 
@@ -84,35 +89,50 @@ class CollectApi : BaseVerticle() {
                         val projectId = UUID.fromString(rc.pathParam("projectId"))
                         val user = rc.user()
 
-                        try {
-                            val json = DatabindCodec.mapper().readValue<JsonStructure>(rc.bodyAsString)
-                            val doc = JsonDocument.of(json)
-                            val flat = JsonLd.flatten(doc).loader(loader).get()
-
-                            val request = DatabindCodec.mapper().convertValue<CollectRequest>(flat)
-
-                            val time = measureTimeMillis {
-                                val storeResult = withContext(Dispatchers.IO) {
-                                    val facetStore = FacetStore(OntologyCache.CACHE[projectId])
-                                    val result = facetStore.ingest(projectId, request)
-                                    result.ids.forEach { vertx.eventBus().send("indexer.queue", it.toString()) }
-                                    result
+                        val role = newSuspendedTransaction {
+                            AccountRole
+                                .innerJoin(Account)
+                                .select {
+                                    Account.id.eq(UUID.fromString(user.principal().getString("sub"))) and
+                                        AccountRole.projectId.eq(projectId)
                                 }
+                                .map { it[AccountRole.role] }
+                                .firstOrNull()
+                        }
 
-                                rc.response().send(
-                                    DatabindCodec.mapper().writeValueAsString(
-                                        CollectResponse(
-                                            storeResult.txId,
-                                            storeResult.unrecognisedFacetTypes,
-                                            storeResult.unrecognisedEntityTypes
+                        if (role == null) {
+                            rc.fail(404)
+                        } else {
+                            try {
+                                val json = DatabindCodec.mapper().readValue<JsonStructure>(rc.bodyAsString)
+                                val doc = JsonDocument.of(json)
+                                val flat = JsonLd.flatten(doc).loader(loader).get()
+
+                                val request = DatabindCodec.mapper().convertValue<CollectRequest>(flat)
+
+                                val time = measureTimeMillis {
+                                    val storeResult = withContext(Dispatchers.IO) {
+                                        val facetStore = FacetStore(OntologyCache.CACHE[projectId])
+                                        val result = facetStore.ingest(projectId, request)
+                                        result.ids.forEach { vertx.eventBus().send("indexer.queue", it.toString()) }
+                                        result
+                                    }
+
+                                    rc.response().send(
+                                        DatabindCodec.mapper().writeValueAsString(
+                                            CollectResponse(
+                                                storeResult.txId,
+                                                storeResult.unrecognisedFacetTypes,
+                                                storeResult.unrecognisedEntityTypes
+                                            )
                                         )
                                     )
-                                )
+                                }
+                                log.info("took ${time}ms")
+                            } catch (e: IllegalArgumentException) {
+                                log.error("Exception processing collect", e)
+                                rc.fail(400, e)
                             }
-                            log.info("took ${time}ms")
-                        } catch (e: IllegalArgumentException) {
-                            log.error("Exception processing collect", e)
-                            rc.fail(400, e)
                         }
                     } catch (e: Exception) {
                         log.error("Exception processing collect", e)

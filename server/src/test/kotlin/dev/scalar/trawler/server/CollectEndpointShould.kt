@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.auth.mintToken
+import dev.scalar.trawler.server.db.Account
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.Project
 import dev.scalar.trawler.server.db.devSecret
@@ -20,6 +21,7 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.await
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.junit.Assert
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.Random
+import java.util.UUID
 
 @Testcontainers
 @ExtendWith(VertxExtension::class)
@@ -126,6 +129,40 @@ class CollectEndpointShould {
             .await()
 
         Assert.assertEquals(401, response.statusCode())
+    }
+
+    @Test
+    fun reject_no_authz(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
+        val jwt = jwtAuth(vertx, devSecret(), 30)
+
+        newSuspendedTransaction {
+            Account.insertIgnore {
+                it[Account.id] = UUID(0, 2)
+                it[Account.password] = "NO_LOGIN"
+            }
+        }
+
+        val token = jwt.generateToken(
+            JsonObject(
+                mapOf(
+                    "sub" to UUID(0, 2).toString(),
+                    "scope" to listOf("collect").joinToString(" "),
+                    "exp" to 0
+                )
+            )
+        )
+
+        val client = vertx.createHttpClient()
+        val request = client
+            .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
+            .await()
+
+        val response = request
+            .putHeader("Authorization", "Bearer $token")
+            .send("{}")
+            .await()
+
+        Assert.assertEquals(404, response.statusCode())
     }
 
     @RepeatedTest(3)
