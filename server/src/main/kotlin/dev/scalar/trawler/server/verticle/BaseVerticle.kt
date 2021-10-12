@@ -22,17 +22,17 @@ abstract class BaseVerticle : CoroutineVerticle() {
     private val log = LogManager.getLogger()
     private lateinit var dataSource: DataSource
 
-    fun configureDatabase(config: JsonObject) {
-        val host = config.getString("PGHOST", "localhost")
-        val port = config.getInteger("PGPORT", 54321)
-        val database = config.getString("PGDATABASE", "postgres")
-        val username = config.getString("PGUSER", "postgres")
-        val password = config.getString("PGPASSWORD", "postgres")
+    protected fun configureDatabase(config: JsonObject) {
+        val host = config.getString(Config.PGHOST, "localhost")
+        val port = config.getInteger(Config.PGPORT, 54321)
+        val database = config.getString(Config.PGDATABASE, "postgres")
+        val username = config.getString(Config.PGUSER, "postgres")
+        val password = config.getString(Config.PGPASSWORD, "postgres")
 
-        val connectOptions = JDBCConnectOptions() // H2 connection string
-            .setJdbcUrl("jdbc:postgresql://$host:$port/$database") // username
-            .setUser(username) // password
-            .setPassword(password) // configure the pool
+        val connectOptions = JDBCConnectOptions()
+            .setJdbcUrl("jdbc:postgresql://$host:$port/$database")
+            .setUser(username)
+            .setPassword(password)
 
         val poolOptions = PoolOptions()
             .setMaxSize(16)
