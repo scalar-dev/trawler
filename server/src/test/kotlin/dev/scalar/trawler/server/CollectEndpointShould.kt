@@ -3,8 +3,12 @@ package dev.scalar.trawler.server
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.Project
 import dev.scalar.trawler.server.db.devUserToken
+import dev.scalar.trawler.server.verticle.CollectApi
+import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpMethod
+import io.vertx.core.json.JsonObject
+import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.junit5.VertxExtension
 import io.vertx.kotlin.coroutines.await
 import io.vertx.kotlin.coroutines.dispatcher
@@ -13,7 +17,9 @@ import org.junit.Assert
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 
+@Testcontainers
 @ExtendWith(VertxExtension::class)
 class CollectEndpointShould {
     companion object {
@@ -24,7 +30,20 @@ class CollectEndpointShould {
 
     @Test
     fun ingest_json_ld(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
-        vertx.deployVerticle(App()).await()
+        System.setProperty(WebEnvironment.SYSTEM_PROPERTY_NAME, "dev")
+        vertx.deployVerticle(
+            CollectApi(),
+            DeploymentOptions().setConfig(
+                JsonObject(
+                    mapOf(
+                        "PGPORT" to postgresContainer.firstMappedPort,
+                        "PGUSER" to "test",
+                        "PGPASSWORD" to "test"
+                    )
+                )
+            )
+        ).await()
+
         val jwt = jwtAuth(vertx)
         val client = vertx.createHttpClient()
         val request = client
