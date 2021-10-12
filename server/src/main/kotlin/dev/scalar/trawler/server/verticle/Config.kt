@@ -6,4 +6,6 @@ object Config {
     const val PGDATABASE = "PGDATABASE"
     const val PGUSER = "PGUSER"
     const val PGPASSWORD = "PGPASSWORD"
+
+    const val TRAWLER_SECRET = "TRAWLER_SECRET"
 }

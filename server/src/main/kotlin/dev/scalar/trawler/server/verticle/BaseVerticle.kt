@@ -2,11 +2,13 @@ package dev.scalar.trawler.server.verticle
 
 import com.fasterxml.jackson.datatype.jsonp.JSONPModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.createGuestUser
 import dev.scalar.trawler.server.db.devProject
+import dev.scalar.trawler.server.db.devSecret
+import dev.scalar.trawler.server.db.devUser
 import dev.scalar.trawler.server.db.updateOntology
 import io.vertx.core.Vertx
-import io.vertx.core.json.JsonObject
 import io.vertx.core.json.jackson.DatabindCodec
 import io.vertx.ext.jdbc.JDBCClient
 import io.vertx.ext.web.common.WebEnvironment
@@ -22,7 +24,15 @@ abstract class BaseVerticle : CoroutineVerticle() {
     private val log = LogManager.getLogger()
     private lateinit var dataSource: DataSource
 
-    protected fun configureDatabase(config: JsonObject) {
+    protected val jwtAuth by lazy {
+        jwtAuth(
+            vertx,
+            config.getString(Config.TRAWLER_SECRET, devSecret()),
+            30 * 24 * 60 * 60
+        )
+    }
+
+    protected fun configureDatabase() {
         val host = config.getString(Config.PGHOST, "localhost")
         val port = config.getInteger(Config.PGPORT, 54321)
         val database = config.getString(Config.PGDATABASE, "postgres")
@@ -55,6 +65,7 @@ abstract class BaseVerticle : CoroutineVerticle() {
 
         if (WebEnvironment.development()) {
             devProject()
+            devUser()
         }
 
         log.info("Updating root ontology")

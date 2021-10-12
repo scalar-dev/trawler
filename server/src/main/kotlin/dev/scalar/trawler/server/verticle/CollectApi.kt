@@ -7,11 +7,11 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.App
-import dev.scalar.trawler.server.auth.jwtAuth
+import dev.scalar.trawler.server.auth.Users
+import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
-import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.ontology.OntologyCache
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.http.HttpMethod
@@ -35,12 +35,10 @@ class CollectApi : BaseVerticle() {
 
     override suspend fun start() {
         super.start()
-
-        configureDatabase(config)
+        configureDatabase()
         dbDefaults()
 
         val router = Router.router(vertx)
-        val jwtAuth = jwtAuth(vertx)
 
         router
             .errorHandler(400) { rc ->
@@ -50,11 +48,11 @@ class CollectApi : BaseVerticle() {
                 rc.fail(403)
             }
             .route()
-            .handler(JWTAuthHandler.create(jwtAuth))
+            .handler(JWTAuthHandler.create(jwtAuth).withScope("collect"))
             .handler(BodyHandler.create())
 
         if (WebEnvironment.development()) {
-            log.info("Development token: ${devUserToken(jwtAuth)}")
+            log.info("Development token: ${mintToken(jwtAuth, Users.DEV, listOf("collect"))}")
         }
 
         val loader = DocumentLoader { url, _ ->

@@ -1,14 +1,13 @@
 package dev.scalar.trawler.server.verticle
 
 import dev.scalar.trawler.server.auth.PermissiveJWTAuthHandler
-import dev.scalar.trawler.server.auth.jwtAuth
-import dev.scalar.trawler.server.db.devUserToken
+import dev.scalar.trawler.server.auth.Users
+import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
 import graphql.GraphQL
 import io.vertx.ext.auth.jdbc.JDBCAuthentication
 import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
-import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
@@ -23,10 +22,9 @@ class GraphQLApi : BaseVerticle() {
 
     override suspend fun start() {
         super.start()
-        configureDatabase(config)
+        configureDatabase()
 
         val router = Router.router(vertx)
-        val jwtAuth: JWTAuth = jwtAuth(vertx)
         val jdbcAuth = JDBCAuthentication.create(
             jdbcClient(vertx),
             JDBCAuthenticationOptions().setAuthenticationQuery(
@@ -47,7 +45,7 @@ class GraphQLApi : BaseVerticle() {
 
         if (WebEnvironment.development()) {
             val options = GraphiQLHandlerOptions().setEnabled(true)
-                .setHeaders(mapOf("Authorization" to "Bearer ${devUserToken(jwtAuth)}"))
+                .setHeaders(mapOf("Authorization" to "Bearer ${mintToken(jwtAuth, Users.DEV)}"))
             router.route("/graphiql/*").handler(GraphiQLHandler.create(options))
         }
 
