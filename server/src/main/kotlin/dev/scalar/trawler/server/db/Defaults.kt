@@ -6,10 +6,9 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.App
+import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import dev.scalar.trawler.server.verticle.Config
-import io.vertx.core.json.JsonObject
-import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.web.common.WebEnvironment
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -40,31 +39,22 @@ suspend fun createGuestUser() = newSuspendedTransaction {
     }
 }
 
-suspend fun devUserToken(jwtAuth: JWTAuth) = newSuspendedTransaction {
-    val id = UUID(0, 1)
+suspend fun devUser() = newSuspendedTransaction {
     Account.insertIgnore {
-        it[Account.id] = id
+        it[Account.id] = Users.DEV
         it[Account.password] = "NO_LOGIN"
     }
 
     AccountInfo.insertIgnore {
-        it[AccountInfo.accountId] = id
+        it[AccountInfo.accountId] = Users.DEV
         it[AccountInfo.email] = "dev@trawler.dev"
     }
 
     AccountRole.insertIgnore {
-        it[AccountRole.accountId] = id
+        it[AccountRole.accountId] = Users.DEV
         it[AccountRole.projectId] = Project.DEMO_PROJECT_ID
         it[AccountRole.role] = "admin"
     }
-
-    jwtAuth.generateToken(
-        JsonObject(
-            mapOf(
-                "sub" to id.toString(),
-            )
-        )
-    )
 }
 
 fun devSecret() = if (WebEnvironment.development()) {

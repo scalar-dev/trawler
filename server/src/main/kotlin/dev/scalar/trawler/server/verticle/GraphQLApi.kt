@@ -1,8 +1,8 @@
 package dev.scalar.trawler.server.verticle
 
 import dev.scalar.trawler.server.auth.PermissiveJWTAuthHandler
-import dev.scalar.trawler.server.auth.jwtAuth
-import dev.scalar.trawler.server.db.devUserToken
+import dev.scalar.trawler.server.auth.Users
+import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
 import graphql.GraphQL
@@ -45,7 +45,7 @@ class GraphQLApi : BaseVerticle() {
 
         if (WebEnvironment.development()) {
             val options = GraphiQLHandlerOptions().setEnabled(true)
-                .setHeaders(mapOf("Authorization" to "Bearer ${devUserToken(jwtAuth)}"))
+                .setHeaders(mapOf("Authorization" to "Bearer ${mintToken(jwtAuth, Users.DEV)}"))
             router.route("/graphiql/*").handler(GraphiQLHandler.create(options))
         }
 

@@ -1,11 +1,12 @@
 package dev.scalar.trawler.server
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.auth.jwtAuth
+import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.Project
 import dev.scalar.trawler.server.db.devSecret
-import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.verticle.CollectApi
 import dev.scalar.trawler.server.verticle.Config
 import io.vertx.core.DeploymentOptions
@@ -24,6 +25,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.junit.Assert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -65,9 +67,65 @@ class CollectEndpointShould {
             .await()
 
         return request
-            .putHeader("Authorization", "Bearer ${devUserToken(jwt)}")
+            .putHeader("Authorization", "Bearer ${mintToken(jwt, Users.DEV, listOf("collect"))}")
             .send(body)
             .await()
+    }
+
+    @Test
+    fun reject_bad_jwt(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
+        val jwt = jwtAuth(vertx, "the wrong secret", 30)
+        val client = vertx.createHttpClient()
+        val request = client
+            .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
+            .await()
+
+        val response = request
+            .putHeader("Authorization", "Bearer ${mintToken(jwt, Users.DEV, listOf("collect"))}")
+            .send("{}")
+            .await()
+
+        Assert.assertEquals(401, response.statusCode())
+    }
+
+    @Test
+    fun reject_expired_jwt(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
+        val jwt = jwtAuth(vertx, devSecret(), 0)
+        val client = vertx.createHttpClient()
+        val request = client
+            .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
+            .await()
+
+        val token = jwt.generateToken(
+            JsonObject(
+                mapOf(
+                    "sub" to Users.DEV.toString(),
+                    "scope" to listOf("collect").joinToString(" "),
+                    "exp" to 0
+                )
+            )
+        )
+
+        val response = request
+            .putHeader("Authorization", "Bearer $token")
+            .send("{}")
+            .await()
+
+        Assert.assertEquals(401, response.statusCode())
+    }
+
+    @Test
+    fun reject_no_jwt(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
+        val client = vertx.createHttpClient()
+        val request = client
+            .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
+            .await()
+
+        val response = request
+            .send("{}")
+            .await()
+
+        Assert.assertEquals(401, response.statusCode())
     }
 
     @RepeatedTest(3)

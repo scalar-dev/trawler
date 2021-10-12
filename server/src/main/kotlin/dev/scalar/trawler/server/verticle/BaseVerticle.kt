@@ -6,6 +6,7 @@ import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.createGuestUser
 import dev.scalar.trawler.server.db.devProject
 import dev.scalar.trawler.server.db.devSecret
+import dev.scalar.trawler.server.db.devUser
 import dev.scalar.trawler.server.db.updateOntology
 import io.vertx.core.Vertx
 import io.vertx.core.json.jackson.DatabindCodec
@@ -64,6 +65,7 @@ abstract class BaseVerticle : CoroutineVerticle() {
 
         if (WebEnvironment.development()) {
             devProject()
+            devUser()
         }
 
         log.info("Updating root ontology")
