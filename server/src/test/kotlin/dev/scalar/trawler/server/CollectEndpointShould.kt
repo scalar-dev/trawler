@@ -1,5 +1,6 @@
 package dev.scalar.trawler.server
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.Project
@@ -70,15 +71,26 @@ class CollectEndpointShould {
 
     @RepeatedTest(3)
     fun ingest_json_ld(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
-
         val databaseUrn = "urn:tr:::postgres/example.com/${Random().nextLong()}"
         val tableUrn = "urn:tr:::postgres/example.com/${Random().nextLong()}/${Random().nextLong()}"
 
         val response = sendRequest(
             vertx,
-            """
-                {"@context": "http://trawler.dev/schema/core", "@graph": [{"@type": "tr:SqlDatabase", "@id": "$databaseUrn", "name": "foo", "tr:has": [{"@type": "tr:SqlTable", "@id": "$tableUrn", "name": "foo"}]}]}
-                """
+            jacksonObjectMapper().writeValueAsString(
+                mapOf(
+                    "@context" to "http://trawler.dev/schema/core",
+                    "@graph" to listOf(
+                        mapOf(
+                            "@type" to "tr:SqlDatabase",
+                            "@id" to databaseUrn,
+                            "name" to "foo",
+                            "tr:has" to listOf(
+                                mapOf("@type" to "tr:SqlTable", "@id" to tableUrn, "name" to "foo")
+                            )
+                        )
+                    )
+                )
+            )
         )
 
         Assert.assertEquals(200, response.statusCode())
