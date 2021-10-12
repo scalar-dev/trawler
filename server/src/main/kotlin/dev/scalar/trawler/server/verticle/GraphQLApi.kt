@@ -1,8 +1,7 @@
-package dev.scalar.trawler.server
+package dev.scalar.trawler.server.verticle
 
 import dev.scalar.trawler.server.auth.PermissiveJWTAuthHandler
 import dev.scalar.trawler.server.auth.jwtAuth
-import dev.scalar.trawler.server.db.Database
 import dev.scalar.trawler.server.db.devUserToken
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
@@ -16,18 +15,20 @@ import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.graphql.GraphQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
-import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.apache.logging.log4j.LogManager
 import java.util.UUID
 
-class GraphQLApi : CoroutineVerticle() {
+class GraphQLApi : BaseVerticle() {
     private val log = LogManager.getLogger()
 
     override suspend fun start() {
+        super.start()
+        configureDatabase(config)
+
         val router = Router.router(vertx)
         val jwtAuth: JWTAuth = jwtAuth(vertx)
         val jdbcAuth = JDBCAuthentication.create(
-            Database.jdbcClient(vertx),
+            jdbcClient(vertx),
             JDBCAuthenticationOptions().setAuthenticationQuery(
                 "SELECT PASSWORD FROM account WHERE id = ?::UUID"
             )

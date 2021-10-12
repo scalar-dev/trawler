@@ -1,4 +1,4 @@
-package dev.scalar.trawler.server
+package dev.scalar.trawler.server.verticle
 
 import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.server.db.Entity
@@ -8,7 +8,6 @@ import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.selectForUpdate
 import dev.scalar.trawler.server.ontology.OntologyCache
 import io.vertx.core.eventbus.Message
-import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.receiveChannelHandler
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.and
@@ -21,7 +20,7 @@ import org.jetbrains.exposed.sql.update
 import java.time.Instant
 import java.util.UUID
 
-class Indexer : CoroutineVerticle() {
+class Indexer : BaseVerticle() {
     val log = LogManager.getLogger()
 
     private suspend fun indexEntities(projectId: UUID, urns: List<String>): Map<String, UUID> {
@@ -36,6 +35,9 @@ class Indexer : CoroutineVerticle() {
     }
 
     override suspend fun start() {
+        super.start()
+        configureDatabase(config)
+
         val adapter = vertx.receiveChannelHandler<Message<String>>()
         var counter = 0
         vertx.eventBus().localConsumer<String>("indexer.queue").handler(adapter)

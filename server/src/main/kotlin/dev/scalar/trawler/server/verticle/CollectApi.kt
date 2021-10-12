@@ -1,4 +1,4 @@
-package dev.scalar.trawler.server
+package dev.scalar.trawler.server.verticle
 
 import com.apicatalog.jsonld.JsonLd
 import com.apicatalog.jsonld.document.JsonDocument
@@ -6,6 +6,7 @@ import com.apicatalog.jsonld.loader.DocumentLoader
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
+import dev.scalar.trawler.server.App
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
@@ -19,7 +20,6 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.JWTAuthHandler
-import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.dispatcher
 import jakarta.json.JsonStructure
 import kotlinx.coroutines.Dispatchers
@@ -30,10 +30,15 @@ import org.apache.logging.log4j.LogManager
 import java.util.UUID
 import kotlin.system.measureTimeMillis
 
-class CollectJsonApi : CoroutineVerticle() {
+class CollectApi : BaseVerticle() {
     val log = LogManager.getLogger()
 
     override suspend fun start() {
+        super.start()
+
+        configureDatabase(config)
+        dbDefaults()
+
         val router = Router.router(vertx)
         val jwtAuth = jwtAuth(vertx)
 

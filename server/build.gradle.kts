@@ -57,6 +57,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testImplementation("org.mockito:mockito-core:3.+")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+
+    testImplementation("org.testcontainers:testcontainers:1.16.0")
+    testImplementation("org.testcontainers:postgresql:1.16.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.16.0")
 }
 
 vertx {
