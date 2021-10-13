@@ -179,7 +179,10 @@ export const Layout: React.FC = ({ children }) => {
                                     <a
                                       href="#"
                                       onClick={() =>
-                                        setSelectedProject(project.id)
+                                        setSelectedProject({
+                                          projectId: project.id,
+                                          projectName: project.name,
+                                        })
                                       }
                                       className={classNames(
                                         active ? "bg-gray-100" : "",
