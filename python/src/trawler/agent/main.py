@@ -4,6 +4,10 @@ from pprint import pprint
 import click
 from trawler.sql.extract import extract_sql
 from trawler.agent.jobs import run_scheduler
+import logging
+
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
 
 @click.group()
 def main():
