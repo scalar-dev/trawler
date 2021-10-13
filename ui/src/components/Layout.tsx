@@ -8,6 +8,7 @@ import { useHistory } from "react-router";
 import { gql, useQuery } from "urql";
 import { MeDocument } from "../types";
 import { ProjectContext } from "../ProjectContext";
+import { Link } from "react-router-dom";
 
 export const TwoColumn = () => (
   <div className="flex-grow w-full max-w-7xl mx-auto xl:px-8 lg:flex">
@@ -96,13 +97,15 @@ export const Layout: React.FC = ({ children }) => {
                   {/* Logo section */}
                   <div className="flex items-center px-2 lg:px-0 xl:w-64">
                     <div className="flex-shrink-0">
-                      <a href="/">
-                        <img
-                          className="h-8 w-auto"
-                          src="https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg"
-                          alt="Workflow"
-                        />
-                      </a>
+                      <Link to="/">
+                        <a>
+                          <img
+                            className="h-8 w-auto"
+                            src="https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg"
+                            alt="Workflow"
+                          />
+                        </a>
+                      </Link>
                     </div>
                     <div className="ml-4 text-xl text-indigo-300 hover:text-white font-bold">
                       <a href="/">trawler</a>

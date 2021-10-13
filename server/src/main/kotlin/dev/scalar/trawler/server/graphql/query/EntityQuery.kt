@@ -87,6 +87,7 @@ class EntityQuery {
         }
 
         return fetchEntities(context.accountId, ids)
+            .filter { it.projectId == projectId }
     }
 
     suspend fun entity(context: QueryContext, id: UUID) = fetchEntities(context.accountId, listOf(id)).firstOrNull()
