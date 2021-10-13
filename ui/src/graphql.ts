@@ -53,7 +53,10 @@ const getAuth = async ({ authState }: { authState: AuthState | null }) => {
 };
 
 export const client = createClient({
-  url: "http://localhost:3000/graphql",
+  url:
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000/graphql"
+      : "https://api.trawler.dev/graphql",
   exchanges: [
     dedupExchange,
     cacheExchange,

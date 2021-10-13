@@ -47,6 +47,8 @@ class GraphQLApi : BaseVerticle() {
             val options = GraphiQLHandlerOptions().setEnabled(true)
                 .setHeaders(mapOf("Authorization" to "Bearer ${mintToken(jwtAuth, Users.DEV)}"))
             router.route("/graphiql/*").handler(GraphiQLHandler.create(options))
+        } else {
+            router.route("/graphiql/*").handler(GraphiQLHandler.create())
         }
 
         router
