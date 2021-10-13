@@ -11,6 +11,7 @@ import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.ext.web.handler.CorsHandler
 import io.vertx.ext.web.handler.graphql.GraphQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
@@ -54,6 +55,7 @@ class GraphQLApi : BaseVerticle() {
         router
             .route()
             .handler(PermissiveJWTAuthHandler(jwtAuth))
+            .handler(CorsHandler.create(".*."))
             .handler(
                 GraphQLHandler.create(GraphQL.newGraphQL(makeSchema()).build())
                     .queryContext { rc ->
