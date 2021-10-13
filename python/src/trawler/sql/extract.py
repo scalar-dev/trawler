@@ -78,7 +78,7 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None):
     LOG.info(f"starting capture: {db_name}")
     for schema in inspector.get_schema_names():
         for table_name in inspector.get_table_names(schema):
-            LOG.info(f"catpure: {schema}/{table_name")
+            LOG.info(f"catpure: {schema}/{table_name}")
             table = inspect_table(inspector, schema, table_name)
 
             sql_table = g.SqlTable(
@@ -144,6 +144,7 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None):
         name=database,
         tr__has=tables + constraints,
     )
+    LOG.info(f"Finished capture: {db_name}")
 
     g = Graph()
     g.add(db)

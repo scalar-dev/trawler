@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 type Facet = {
   uri: string;
   name: string;
@@ -11,7 +13,7 @@ const FacetValue: React.FC<{ facet: Facet }> = ({ facet }) => {
       <div className="flex flex-wrap">
         {facet.value?.map((val: any) => (
           <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-            <a href={`/entity/${val}`}>{val}</a>
+            <Link to={`/entity/${val}`}>{val}</Link>
           </span>
         ))}
       </div>
