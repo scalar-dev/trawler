@@ -59,14 +59,12 @@ class Graph:
     def store(self):
         out = self.json()
 
-        endpoint = os.environ.get("TRAWLER_ENDPOINT", "http://localhost:9090")
-        token = os.environ.get(
-            "TRAWLER_TOKEN",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzZTQwY2U5MC1kN2M4LTQ5YzQtOTI3ZS05OWU3MGNhNmY3YmMiLCJpYXQiOjE2MjI5OTYxNjl9.DODGqPd8pj3OiTTm7VV2XhxGC5gyV7qV97HRVEUiOEY",
-        )
+        token = os.environ.get("TRAWLER_TOKEN")
+        endpoint = os.environ.get("TRAWLER_ENDPOINT", "https://api.trawler.dev")
+        project = os.environ.get("TRAWLER_PROJECT", "63255f7a-e383-457a-9c30-4c7f95308749")
 
         r = requests.post(
-            f"{endpoint}/api/collect/63255f7a-e383-457a-9c30-4c7f95308749",
+            f"{endpoint}/api/collect/{project}",
             json=out,
             headers={"Authorization": f"Bearer {token}"},
         )
