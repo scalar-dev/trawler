@@ -64,4 +64,15 @@ class UserMutation() {
             context.jwtAuth.generateToken(JsonObject(claims))
         )
     }
+
+    suspend fun collectToken(context: QueryContext, email: String, password: String): AuthenticatedUser {
+        val claims = mapOf(
+            "sub" to context.accountId,
+            "scope" to listOf("collect").joinToString(" "),
+        )
+
+        return AuthenticatedUser(
+            context.jwtAuth.generateToken(JsonObject(claims))
+        )
+    }
 }
