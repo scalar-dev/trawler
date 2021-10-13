@@ -62,7 +62,7 @@ class CollectEndpointShould {
         )
     }
 
-    suspend fun sendRequest(vertx: Vertx, body: String): HttpClientResponse {
+    private suspend fun sendRequest(vertx: Vertx, body: String): HttpClientResponse {
         val jwt = jwtAuth(vertx, devSecret(), 30)
         val client = vertx.createHttpClient()
         val request = client
