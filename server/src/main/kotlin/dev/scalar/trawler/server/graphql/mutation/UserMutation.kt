@@ -65,9 +65,9 @@ class UserMutation() {
         )
     }
 
-    suspend fun collectToken(context: QueryContext, email: String, password: String): AuthenticatedUser {
+    suspend fun collectToken(context: QueryContext): AuthenticatedUser {
         val claims = mapOf(
-            "sub" to context.accountId,
+            "sub" to context.accountId.toString(),
             "scope" to listOf("collect").joinToString(" "),
         )
 
