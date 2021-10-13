@@ -1,4 +1,3 @@
-import { InformationCircleIcon, TableIcon, CubeTransparentIcon, ChartSquareBarIcon } from "@heroicons/react/solid";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { classNames } from "../utils";
@@ -23,7 +22,7 @@ export const Tabs = ({ tabs }: { tabs: Tab[] }) => {
           name="tabs"
           className="block w-full focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
           onChange={(e) =>
-            history.push(tabs.find((tab) => tab.name == e.target.value)!.href)
+            history.push(tabs.find((tab) => tab.name === e.target.value)!.href)
           }
           defaultValue={tabs.find((tab) => tab.current)?.name}
         >

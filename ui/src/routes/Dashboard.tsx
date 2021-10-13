@@ -118,7 +118,7 @@ const types = [
   },
 ];
 
-const SEARCH_BY_TYPE = gql`
+export const SEARCH_BY_TYPE = gql`
   query SearchByType($type: [String!]!, $projectId: UUID!) {
     search(
       filters: [
