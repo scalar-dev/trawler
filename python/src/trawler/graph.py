@@ -56,12 +56,12 @@ class Graph:
             "@graph": [entity.json() for entity in self._entities],
         }
 
-    def store(self):
+    def store(self, project=None):
         out = self.json()
 
         token = os.environ.get("TRAWLER_TOKEN")
         endpoint = os.environ.get("TRAWLER_ENDPOINT", "https://api.trawler.dev")
-        project = os.environ.get("TRAWLER_PROJECT", "63255f7a-e383-457a-9c30-4c7f95308749")
+        project = project or os.environ.get("TRAWLER_PROJECT", "63255f7a-e383-457a-9c30-4c7f95308749")
 
         r = requests.post(
             f"{endpoint}/api/collect/{project}",

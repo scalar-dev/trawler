@@ -7,6 +7,7 @@ from trawler.schema import Table, Field, Relation
 from trawler.graph import Graph
 from trawler.sql.metrics import get_column_metrics, get_table_metrics
 import logging
+import os
 
 LOG = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ def inspect_table(inspector, schema, table_name):
     return table
 
 
-def extract_sql(uri: str, override_dbname: Optional[str] = None):
+def extract_sql(uri: str, override_dbname: Optional[str] = None, project=None):
     """Capture a schema from a running database via sqlalchemy"""
     engine = create_engine(uri)
     inspector = inspect(engine)
@@ -148,4 +149,4 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None):
 
     g = Graph()
     g.add(db)
-    return g.store()
+    return g.store(project=project)
