@@ -108,7 +108,9 @@ export const Layout: React.FC = ({ children }) => {
                       </Link>
                     </div>
                     <div className="ml-4 text-xl text-indigo-300 hover:text-white font-bold">
-                      <a href="/">trawler</a>
+                      <Link to="/">
+                        <a>trawler</a>
+                      </Link>
                     </div>
                   </div>
 
