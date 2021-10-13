@@ -13,14 +13,16 @@ const App = () => (
       <Route path="/sign-in" exact>
         <SignIn />
       </Route>
-      <Layout>
-        <Route path="/" exact>
+      <Route path="/" exact>
+        <Layout>
           <Dashboard />
-        </Route>
-        <Route path="/entity/:entity">
+        </Layout>
+      </Route>
+      <Route path="/entity/:entity">
+        <Layout>
           <Entity />
-        </Route>
-      </Layout>
+        </Layout>
+      </Route>
     </Router>
   </Provider>
 );

@@ -44,13 +44,13 @@ class GraphQLApi : BaseVerticle() {
             .route()
             .handler(BodyHandler.create())
 
-        if (WebEnvironment.development()) {
-            val options = GraphiQLHandlerOptions().setEnabled(true)
+        val options = if (WebEnvironment.development()) {
+            GraphiQLHandlerOptions().setEnabled(true)
                 .setHeaders(mapOf("Authorization" to "Bearer ${mintToken(jwtAuth, Users.DEV)}"))
-            router.route("/graphiql/*").handler(GraphiQLHandler.create(options))
         } else {
-            router.route("/graphiql/*").handler(GraphiQLHandler.create())
+            GraphiQLHandlerOptions().setEnabled(true)
         }
+        router.route("/graphiql/*").handler(GraphiQLHandler.create(options))
 
         router
             .route()
