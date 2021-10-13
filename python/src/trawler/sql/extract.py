@@ -6,6 +6,9 @@ from typing import Optional
 from trawler.schema import Table, Field, Relation
 from trawler.graph import Graph
 from trawler.sql.metrics import get_column_metrics, get_table_metrics
+import logging
+
+LOG = logging.getLogger(__name__)
 
 def database_urn(scheme, database):
     return f"urn:tr:sql-table::{scheme}/{database}"
@@ -72,9 +75,10 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None):
     tables = []
     constraints = []
 
+    LOG.info(f"starting capture: {db_name}")
     for schema in inspector.get_schema_names():
         for table_name in inspector.get_table_names(schema):
-            print(schema, table_name)
+            LOG.info(f"catpure: {schema}/{table_name")
             table = inspect_table(inspector, schema, table_name)
 
             sql_table = g.SqlTable(

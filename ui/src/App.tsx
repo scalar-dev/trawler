@@ -2,7 +2,7 @@ import "./App.css";
 import { Provider } from "urql";
 import { client } from "./graphql";
 import { Layout } from "./components/Layout";
-import { Route, BrowserRouter as Router } from "react-router-dom";
+import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import { Dashboard } from "./routes/Dashboard";
 import { Entity } from "./routes/Entity";
 import { SignIn } from "./routes/SignIn";
@@ -10,19 +10,19 @@ import { SignIn } from "./routes/SignIn";
 const App = () => (
   <Provider value={client}>
     <Router>
-      <Route path="/sign-in" exact>
-        <SignIn />
-      </Route>
-      <Route path="/" exact>
+      <Switch>
+        <Route path="/sign-in" exact>
+          <SignIn />
+        </Route>
         <Layout>
-          <Dashboard />
+          <Route path="/" exact>
+            <Dashboard />
+          </Route>
+          <Route path="/entity/:entity">
+            <Entity />
+          </Route>
         </Layout>
-      </Route>
-      <Route path="/entity/:entity">
-        <Layout>
-          <Entity />
-        </Layout>
-      </Route>
+      </Switch>
     </Router>
   </Provider>
 );

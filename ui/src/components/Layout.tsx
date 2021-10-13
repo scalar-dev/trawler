@@ -96,17 +96,15 @@ export const Layout: React.FC = ({ children }) => {
                 <div className="relative flex items-center justify-between h-16">
                   {/* Logo section */}
                   <div className="flex items-center px-2 lg:px-0 xl:w-64">
-                    <div className="flex-shrink-0">
+                    {/* <div className="flex-shrink-0">
                       <Link to="/">
-                        <a>
                           <img
                             className="h-8 w-auto"
                             src="https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg"
                             alt="Workflow"
                           />
-                        </a>
                       </Link>
-                    </div>
+                    </div> */}
                     <div className="ml-4 text-xl text-indigo-300 hover:text-white font-bold">
                       <Link to="/">
                         <a>trawler</a>
