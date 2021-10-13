@@ -27,7 +27,7 @@ abstract class BaseVerticle : CoroutineVerticle() {
     protected val jwtAuth by lazy {
         jwtAuth(
             vertx,
-            config.getString(Config.TRAWLER_SECRET, devSecret()),
+            config.getString(Config.TRAWLER_SECRET) ?: devSecret(),
             30 * 24 * 60 * 60
         )
     }
