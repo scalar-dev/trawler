@@ -4,7 +4,7 @@ import { FacetTimeSeriesDocument } from "../../types";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
 
-const TIME_SERIES = gql`
+export const TIME_SERIES = gql`
   query FacetTimeSeries($id: UUID!, $facet: String!) {
     entity(id: $id) {
       timeSeries(facet: $facet) {

@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import CytoscapeComponent from 'react-cytoscapejs';
-import { FacetHistory } from './Entity/Schema';
 
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
@@ -29,7 +28,7 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
 
     const edges = _.flatMap(entityGraph, (entity: any) => {
       const relationshFacets = entity.facets.filter(
-        (facet: any) => facet.metaType == "relationship"
+        (facet: any) => facet.metaType === "relationship"
       );
 
       return _.flatMap(relationshFacets, (facet: any) =>

@@ -12,10 +12,10 @@ export const LOGIN_MUTATION = gql`
 `;
 
 export const SignIn = () => {
-  const [state, login] = useMutation(LoginDocument);
+  const [, login] = useMutation(LoginDocument);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<any | null>(null);
+  const [, setError] = useState<any | null>(null);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

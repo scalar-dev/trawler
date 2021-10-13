@@ -5,7 +5,6 @@ import {
   InformationCircleIcon,
   TableIcon,
 } from "@heroicons/react/solid";
-import _ from "lodash";
 import {
   Route,
   useHistory,

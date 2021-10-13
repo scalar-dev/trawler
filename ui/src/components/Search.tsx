@@ -22,7 +22,7 @@ export const LoadingGrid = () => (
   </div>
 );
 
-const SEARCH_BY_NAME = gql`
+export const SEARCH_BY_NAME = gql`
   query SearchByName($search: [String!]!, $projectId: UUID!) {
     search(
       filters: [{ uri: "http://schema.org/name", value: $search }]

@@ -1,7 +1,6 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { SelectorIcon, CheckIcon } from "@heroicons/react/solid";
-import { useState, Fragment } from "react";
-import { isNoSubstitutionTemplateLiteral } from "typescript";
+import { Fragment } from "react";
 import { classNames } from "../utils";
 
 export type Option = {
