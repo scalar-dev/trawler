@@ -60,23 +60,23 @@ class Indexer : BaseVerticle() {
         }.toList()
 
         if (facetType.indexTimeSeries) {
-            FacetTimeSeries.insertIgnore {
-                it[FacetTimeSeries.entityId] = entityId
-                it[FacetTimeSeries.typeId] = facetType.id
-                it[FacetTimeSeries.version] = facetLog[FacetLog.version]
-                it[FacetTimeSeries.timestamp] = facetLog[FacetLog.timestamp] ?: facetLog[FacetLog.createdAt]
+            val value = facetLog[FacetLog.value]!![0]
 
-                val value = facetLog[FacetLog.value]!![0]
+            if (value is Number) {
+                FacetTimeSeries.insertIgnore {
+                    it[FacetTimeSeries.entityId] = entityId
+                    it[FacetTimeSeries.typeId] = facetType.id
+                    it[FacetTimeSeries.version] = facetLog[FacetLog.version]
+                    it[FacetTimeSeries.timestamp] = facetLog[FacetLog.timestamp] ?: facetLog[FacetLog.createdAt]
 
-                if (value is Number) {
                     if (facetType.metaType == FacetMetaType.DOUBLE) {
                         it[FacetTimeSeries.valueDouble] = value.toDouble()
                     } else if (facetType.metaType == FacetMetaType.INT) {
                         it[FacetTimeSeries.valueLong] = value.toLong()
                     }
-                } else {
-                    log.warn("skipping time series index for facet $id since it is not Number")
                 }
+            } else {
+                log.warn("skipping time series index for facet $id since it is not Number")
             }
         }
 
