@@ -19,7 +19,7 @@ export const Settings = () => {
     getCollectToken().then((result) =>
       setCollectToken(result.data?.collectToken.jwt)
     );
-  }, [setCollectToken]);
+  }, [getCollectToken, setCollectToken]);
 
   return (
     <>
