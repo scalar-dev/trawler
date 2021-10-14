@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trawler
+spec:
+  selector:
+    matchLabels:
+      app: trawler
+  template:
+    metadata:
+      labels:
+        app: trawler
+    spec:
+      containers:
+      - name: server
+        image: scalardev/trawler
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "500m" 
+        env:
+          - name: PGHOST
+            value: db
+          - name: PGPORT
+            value: "5432"
+        envFrom:
+          - secretRef:
+              name: db-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trawler
+  labels:
+    app: trawler
+spec:
+  ports:
+   - name: graphql
+     port: 8080
+     targetPort: 8080
+     protocol: TCP
+   - name: collect
+     port: 9090
+     targetPort: 9090
+     protocol: TCP
+  selector:
+    app: trawler
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: api.trawler.dev
+      http:
+        paths:
+          - path: /graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: trawler
+                port:
+                  name: graphql
+          - path: /graphiql
+            pathType: Prefix
+            backend:
+              service:
+                name: trawler
+                port:
+                  name: graphql
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: trawler
+                port:
+                  name: collect
+
+  tls:
+  - hosts:
+    - api.trawler.dev
+    secretName: api-cert

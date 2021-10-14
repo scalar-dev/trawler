@@ -1,0 +1,8 @@
+resources:
+  - ./deployment.yml
+
+secretGenerator:
+- name: db-secret
+  envs:
+    - .env.secret
+
