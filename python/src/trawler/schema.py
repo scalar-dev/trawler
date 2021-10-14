@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional
+from sqlalchemy.sql.sqltypes import TypeEngine
 
 class FieldType(Enum):
     INT = "int"
@@ -11,10 +12,10 @@ class FieldType(Enum):
 @dataclass
 class Field:
     name: str
-    type: str
-    comment: Optional[str]
+    field_type: TypeEngine
     nullable: bool
     is_primary_key: bool
+    comment: Optional[str]
 
 @dataclass
 class Relation:

@@ -37,13 +37,14 @@ def inspect_table(inspector, schema, table_name):
         inspector.get_pk_constraint(table_name, schema=schema)["constrained_columns"]
     )
     for column in inspector.get_columns(table_name, schema=schema):
+        LOG.debug(type(column["type"]))
         table.fields.append(
             Field(
-                column["name"],
-                column["type"].__visit_name__,
-                column["comment"],
-                column["nullable"],
-                column["name"] in primary_key_columns,
+                name=column["name"],
+                field_type=column["type"],
+                comment=column["comment"],
+                nullable=column["nullable"],
+                is_primary_key=column["name"] in primary_key_columns,
             )
         )
     for fkey in inspector.get_foreign_keys(table_name, schema=schema):
@@ -95,7 +96,7 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None, project=None):
                             field.name,
                         ),
                         name=field.name,
-                        tr__type=field.type,
+                        tr__type=field.field_type.__visit_name__,
                         tr__isNullable=field.nullable,
                         tr__comment=field.comment,
                         tr__foreignKeyConstraints=[
@@ -110,7 +111,7 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None, project=None):
                             if field.name in relation.source_fields
                         ],
                         **get_column_metrics(
-                            engine, f'{schema}."{table_name}"', f'"{field.name}"'
+                            engine, field.field_type, f'{schema}."{table_name}"', f'"{field.name}"'
                         ),
                     )
                     for field in table.fields
