@@ -68,7 +68,13 @@ jobs:
     # needs:
       # - server
     steps:
-      - name: Deploy
+      - name: Check Out Repo 
+        uses: actions/checkout@v
+      - name: Install scaleway
+        run: |
+          curl -o scw -L "https://github.com/scaleway/scaleway-cli/releases/download/v2.3.1/scw-2.3.1-linux-x86_64"
+          chmod +x scw
+      - name: kubectl
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
@@ -77,7 +83,5 @@ jobs:
           TRAWLER_SECRET: ${{ secrets.TRAWLER_SECRET }}
           PGPASSWORD: ${{ secrets.TRAWLER_DB_PASSWORD }}
         run: |
-          curl -o scw -L "https://github.com/scaleway/scaleway-cli/releases/download/v2.3.1/scw-2.3.1-linux-x86_64"
-          chmod +x scw
           ./scw k8s kubeconfig install a1a3ab1f-497d-4b50-bf89-7ef3223368f8
           kubectl apply -k ./k8s/overlays/prod
