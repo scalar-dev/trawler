@@ -45,9 +45,9 @@ const TimeSeries = ({
     <div className="mt-4 shadow overflow-hidden border-b border-gray-200 sm:rounded-lg bg-white p-4">
       <h3 className="text-lg leading-6 font-medium text-gray-900">{name}</h3>
 
-      <div>
+      <div className="mt-2">
         <Line
-          height={100}
+          height={60}
           data={{
             datasets: [
               {
@@ -63,11 +63,22 @@ const TimeSeries = ({
             ],
           }}
           options={{
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
             scales: {
               x: {
                 type: "time",
                 time: {
-                  unit: "minute",
+                  minUnit: "hour",
+                  displayFormats: {
+                    day: "MMM D",
+                    week: "MMM YYYY",
+                    month: "MMM YYYY",
+                    quarter: "MMM YYYY",
+                  },
                 },
               },
             },
