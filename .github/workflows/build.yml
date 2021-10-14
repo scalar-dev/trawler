@@ -69,7 +69,7 @@ jobs:
       # - server
     steps:
       - name: Check Out Repo 
-        uses: actions/checkout@v
+        uses: actions/checkout@v2
       - name: Install scaleway
         run: |
           curl -o scw -L "https://github.com/scaleway/scaleway-cli/releases/download/v2.3.1/scw-2.3.1-linux-x86_64"
