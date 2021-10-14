@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: server
-        image: "scalardev/trawler:8ee091d381d710c347547a77923e46491465fd9e"
+        image: scalardev/trawler
         resources:
           limits:
             memory: "1024Mi"

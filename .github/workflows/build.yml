@@ -65,8 +65,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    # needs:
-    #   - server
+    needs:
+      - server
     steps:
       - name: Check Out Repo 
         uses: actions/checkout@v2
