@@ -52,7 +52,7 @@ def run_scheduler(fname: str, now: bool):
       scheduled_job.do(lambda: extract_sql(**args))
 
     if job["schedule"].get("on_startup", False):
-      run_on_startup.append(job)
+      run_on_startup.append(scheduled_job)
 
   print(f"Scheduled {len(schedule.get_jobs())} jobs")
 

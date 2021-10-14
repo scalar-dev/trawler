@@ -3,6 +3,6 @@ jobs:
   schedule:
     every: minutes
     interval: 1
-    on_startup: True
+    on_startup: true
   override_dbname: "my-db"
   uri: postgresql://postgres:postgres@localhost/postgres
