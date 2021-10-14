@@ -65,6 +65,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    concurrency: deploy-${{ github.ref }}
     needs:
       - server
     steps:
@@ -86,6 +87,7 @@ jobs:
         run: |
           ./scw k8s kubeconfig install a1a3ab1f-497d-4b50-bf89-7ef3223368f8
           pushd k8s/overlays/prod
-          kustomize edit set image scalardev/trawler=$GITHUB_SHA
+          kustomize edit set image scalardev/trawler=scalardev/trawler:$GITHUB_SHA
           popd
           kubectl apply -k k8s/overlays/prod
+          kubectl rollout status deployment/trawler --timeout=30s
