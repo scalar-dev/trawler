@@ -270,12 +270,30 @@ export const Layout: React.FC = ({ children }) => {
                 </div>
                 <div className="pt-4 pb-3 border-t border-indigo-800">
                   <div className="px-2">
-                    <a
-                      href="#"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600"
-                    >
-                      Your Profile
-                    </a>
+                    {}
+                    {me.data?.projects.map((project) => (
+                      <a
+                        onClick={() =>
+                          setSelectedProject({
+                            projectId: project.id,
+                            projectName: project.name,
+                          })
+                        }
+                        href="#"
+                        className="flex block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600"
+                      >
+                        <span className="flex-1">{project.name}</span>
+                        {selectedProject?.projectId === project.id && (
+                          <span className="text-white">
+                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                          </span>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+                <div className="pt-4 pb-3 border-t border-indigo-800">
+                  <div className="px-2">
                     <Link to="/settings">
                       <a className="mt-1 block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600">
                         Settings
