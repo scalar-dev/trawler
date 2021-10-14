@@ -129,7 +129,7 @@ class Indexer : BaseVerticle() {
 
             try {
                 indexFacetLog(id)
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 log.error("Exception while trying to index facet log $id", e)
             }
         }
