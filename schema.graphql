@@ -66,6 +66,7 @@ type FacetTimeSeriesPoint {
 }
 
 type Mutation {
+  collectToken: AuthenticatedUser!
   createUser(email: String!, password: String!): UUID!
   login(email: String!, password: String!): AuthenticatedUser!
 }
@@ -85,6 +86,8 @@ type Query {
 
 type User {
   email: String!
+  firstName: String
+  lastName: String
 }
 
 "DataTime scalar"

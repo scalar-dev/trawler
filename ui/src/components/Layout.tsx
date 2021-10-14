@@ -54,6 +54,8 @@ export const ME_QUERY = gql`
   query Me {
     me {
       email
+      firstName
+      lastName
     }
     projects {
       id
@@ -61,6 +63,12 @@ export const ME_QUERY = gql`
     }
   }
 `;
+
+const getInitials = (firstName?: string | null, lastName?: string | null) => {
+  return [firstName, lastName]
+    .map((s) => (s && s.length > 0 ? s[0] : ""))
+    .join("");
+};
 
 export const Layout: React.FC = ({ children }) => {
   const history = useHistory();
@@ -158,11 +166,14 @@ export const Layout: React.FC = ({ children }) => {
                         <div>
                           <Menu.Button className="bg-indigo-700 flex text-sm rounded-full text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white">
                             <span className="sr-only">Open user menu</span>
-                            <img
-                              className="h-8 w-8 rounded-full"
-                              src="https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=256&h=256&q=80"
-                              alt=""
-                            />
+                            <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-400">
+                              <span className="text-sm font-medium leading-none text-white">
+                                {getInitials(
+                                  me.data?.me.firstName,
+                                  me.data?.me.lastName
+                                )}
+                              </span>
+                            </span>
                           </Menu.Button>
                         </div>
                         <Transition

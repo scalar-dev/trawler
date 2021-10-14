@@ -1,12 +1,15 @@
-package dev.scalar.trawler.server.graphql
+package dev.scalar.trawler.server.graphql.query
 
 import dev.scalar.trawler.server.db.AccountInfo
+import dev.scalar.trawler.server.graphql.QueryContext
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
 
 data class User(
-    val email: String
+    val email: String,
+    val firstName: String?,
+    val lastName: String?
 )
 
 class UserQuery {
@@ -21,7 +24,7 @@ class UserQuery {
             AccountInfo.select {
                 AccountInfo.accountId.eq(userId)
             }
-                .map { User(it[AccountInfo.email]) }
+                .map { User(it[AccountInfo.email], it[AccountInfo.firstName], it[AccountInfo.lastName]) }
                 .first()
         }
     }
