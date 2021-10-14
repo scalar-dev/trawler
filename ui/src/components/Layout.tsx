@@ -236,15 +236,17 @@ export const Layout: React.FC = ({ children }) => {
                               </Menu.Item>
                               <Menu.Item>
                                 {({ active }) => (
-                                  <a
-                                    href="#"
-                                    className={classNames(
-                                      active ? "bg-gray-100" : "",
-                                      "block px-4 py-2 text-sm text-gray-700"
-                                    )}
-                                  >
-                                    Settings
-                                  </a>
+                                  <Link to="/settings">
+                                    <a
+                                      href="#"
+                                      className={classNames(
+                                        active ? "bg-gray-100" : "",
+                                        "block px-4 py-2 text-sm text-gray-700"
+                                      )}
+                                    >
+                                      Settings
+                                    </a>
+                                  </Link>
                                 )}
                               </Menu.Item>
                               <Menu.Item>
@@ -290,12 +292,11 @@ export const Layout: React.FC = ({ children }) => {
                     >
                       Your Profile
                     </a>
-                    <a
-                      href="#"
-                      className="mt-1 block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600"
-                    >
-                      Settings
-                    </a>
+                    <Link to="/settings">
+                      <a className="mt-1 block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600">
+                        Settings
+                      </a>
+                    </Link>
                     <a
                       href="#"
                       className="mt-1 block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600"

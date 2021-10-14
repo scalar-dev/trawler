@@ -6,6 +6,7 @@ import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import { Dashboard } from "./routes/Dashboard";
 import { Entity } from "./routes/Entity";
 import { SignIn } from "./routes/SignIn";
+import { Settings } from "./routes/Settings";
 
 const App = () => (
   <Provider value={client}>
@@ -17,6 +18,9 @@ const App = () => (
         <Layout>
           <Route path="/" exact>
             <Dashboard />
+          </Route>
+          <Route path="/settings" exact>
+            <Settings />
           </Route>
           <Route path="/entity/:entity">
             <Entity />
