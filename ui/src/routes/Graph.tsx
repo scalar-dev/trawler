@@ -1,51 +1,45 @@
-import _ from 'lodash';
-import CytoscapeComponent from 'react-cytoscapejs';
+import _ from "lodash";
+import CytoscapeComponent from "react-cytoscapejs";
 
-import cytoscape from 'cytoscape';
-import dagre from 'cytoscape-dagre';
+import cytoscape from "cytoscape";
+import dagre from "cytoscape-dagre";
 
 cytoscape.use(dagre);
 
 export const Graph = ({ entityGraph }: { entityGraph: any }) => {
-    // const elements = [
-    //    { data: { id: 'one', label: 'Node 1' }, position: { x: 0, y: 0 } },
-    //    { data: { id: 'two', label: 'Node 2' }, position: { x: 100, y: 0 } },
-    //    { data: { source: 'one', target: 'two', label: 'Edge from Node1 to Node2' } }
-    // ];
+  // const elements = [
+  //    { data: { id: 'one', label: 'Node 1' }, position: { x: 0, y: 0 } },
+  //    { data: { id: 'two', label: 'Node 2' }, position: { x: 100, y: 0 } },
+  //    { data: { source: 'one', target: 'two', label: 'Edge from Node1 to Node2' } }
+  // ];
 
-    const nodes = entityGraph.map((entity: any) => ({
-      data: {
-        id: entity.entityId,
-        label: entity.facets.find(
-          (facet: any) => facet.uri === "http://schema.org/name"
-        )?.value,
-      },
-    }));
+  const nodes = entityGraph.map((entity: any) => ({
+    data: {
+      id: entity.entityId,
+      label: entity.facets.find(
+        (facet: any) => facet.uri === "http://schema.org/name"
+      )?.value,
+    },
+  }));
 
-    const nodeIds = new Set(nodes.map((node: any) => node.data.id));
+  const nodeIds = new Set(nodes.map((node: any) => node.data.id));
 
-    console.log(entityGraph);
-
-    const edges = _.flatMap(entityGraph, (entity: any) => {
-      const relationshFacets = entity.facets.filter(
-        (facet: any) => facet.metaType === "relationship"
-      );
-
-      return _.flatMap(relationshFacets, (facet: any) =>
-        facet.value.map((target: string) => ({
-          data: { source: entity.entityId, target, label: facet.name },
-        }))
-      );
-    }).filter(
-      (edge: any) =>
-        nodeIds.has(edge.data.source) && nodeIds.has(edge.data.target)
+  const edges = _.flatMap(entityGraph, (entity: any) => {
+    const relationshFacets = entity.facets.filter(
+      (facet: any) => facet.metaType === "relationship"
     );
 
-    const elements = [...nodes, ...edges];
+    return _.flatMap(relationshFacets, (facet: any) =>
+      facet.value.map((target: string) => ({
+        data: { source: entity.entityId, target, label: facet.name },
+      }))
+    );
+  }).filter(
+    (edge: any) =>
+      nodeIds.has(edge.data.source) && nodeIds.has(edge.data.target)
+  );
 
-    console.log(nodes);
-    console.log(nodeIds);
-    console.log(elements);
+  const elements = [...nodes, ...edges];
 
   return (
     <>
@@ -58,7 +52,7 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
             fit: true,
           } as any
         }
-        style={{ width: "100%", height: "600px" }}
+        style={{ width: "100%", height: "400px" }}
         stylesheet={[
           {
             selector: "node",

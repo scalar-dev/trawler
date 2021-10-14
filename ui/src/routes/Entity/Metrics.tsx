@@ -88,11 +88,28 @@ const TimeSeries = ({
     </div>
   );
 };
-export const Metrics = ({ entity }: { entity: string }) => {
+export const Metrics = ({
+  entity,
+  facets,
+}: {
+  entity: string;
+  facets: any[];
+}) => {
+  console.log(facets);
+  const eligibleFacets =facets
+        .filter(
+          (facet: any) =>
+            facet.metaType === "int" || facet.metaType === "double"
+        )
+        .map((facet: any) => facet.uri);
+
+  console.log(eligibleFacets);
+
   return (
-    <TimeSeries
-      entityId={entity}
-      facet="http://trawler.dev/schema/metrics#count"
-    />
+    <>
+      {eligibleFacets.map((uri) => (
+        <TimeSeries key={uri} entityId={entity} facet={uri} />
+      ))}
+    </>
   );
 };

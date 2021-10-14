@@ -140,7 +140,9 @@ export const Entity = () => {
         </Route>
 
         <Route path={`${path}/metrics`} exact>
-          {data.data?.entityGraph[0] && <Metrics entity={entity} />}
+          {data.data?.entityGraph[0] && (
+            <Metrics entity={entity} facets={data.data.entityGraph[0].facets} />
+          )}
         </Route>
       </Main>
     </>

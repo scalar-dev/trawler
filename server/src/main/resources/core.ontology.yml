@@ -18,9 +18,11 @@ facetTypes:
   - name: "Null Ratio"
     uri: "http://trawler.dev/schema/metrics#nullRatio"
     metaType: DOUBLE
+    indexTimeSeries: true
   - name: "Unique Ratio"
     uri: "http://trawler.dev/schema/metrics#uniqueRatio"
     metaType: DOUBLE
+    indexTimeSeries: true
   - name: "Count"
     uri: "http://trawler.dev/schema/metrics#count"
     indexTimeSeries: true
@@ -28,9 +30,11 @@ facetTypes:
   - name: "Max"
     uri: "http://trawler.dev/schema/metrics#max"
     metaType: DOUBLE
+    indexTimeSeries: true
   - name: "Min"
     uri: "http://trawler.dev/schema/metrics#min"
     metaType: DOUBLE
+    indexTimeSeries: true
   - name: "Type"
     uri: "http://trawler.dev/schema/core#type"
     metaType: STRING
