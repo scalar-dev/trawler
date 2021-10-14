@@ -4,13 +4,13 @@ import {
   TableIcon,
   DotsVerticalIcon,
 } from "@heroicons/react/solid";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { useQuery, gql } from "urql";
+import { useQuery, gql, useMutation } from "urql";
 import { Header, Main } from "../components/Layout";
 import { Option, Selector } from "../components/Selector";
 import { ProjectContext } from "../ProjectContext";
-import { SearchByTypeDocument } from "../types";
+import { GetCollectTokenDocument, SearchByTypeDocument } from "../types";
 
 export const EntityIcon = ({ type }: { type: string }) => {
   if (type === "SqlDatabase") {
@@ -139,6 +139,14 @@ export const SEARCH_BY_TYPE = gql`
   }
 `;
 
+export const GET_COLLECT_TOKEN = gql`
+  mutation GetCollectToken {
+    collectToken {
+      jwt
+    }
+  }
+`;
+
 export const Dashboard = () => {
   const { projectId } = useContext(ProjectContext);
   const [selectedType, setSelectedType] = useState<Option>(types[0]);
@@ -150,11 +158,23 @@ export const Dashboard = () => {
     },
   });
 
+  const [, getCollectToken] = useMutation(GetCollectTokenDocument);
+  const [collectToken, setCollectToken] = useState<string | undefined>("");
+
+  useEffect(() => {
+    getCollectToken().then((result) =>
+      setCollectToken(result.data?.collectToken.jwt)
+    );
+  }, [setCollectToken]);
+
   return (
     <>
       <Header>
         <div className="flex items-center">
-          <div className="flex-1">Dashboard</div>
+          <div className="flex-1">
+            <div>Dashboard</div>
+            <div className="text-xs break-all w-1/2 text-gray-500">{collectToken}</div>
+          </div>
           <div className="w-32">
             <Selector
               values={types}
