@@ -41,6 +41,30 @@ const TimeSeries = ({
     return null;
   }
 
+  const chartData = (canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext("2d");
+    const gradient = ctx!.createLinearGradient(0, 0, 0, 400);
+
+    gradient.addColorStop(0, "rgba(79, 70, 229, 1.0)");
+    gradient.addColorStop(1, "rgba(255,255,255, 0.0)");
+
+    return {
+      datasets: [
+        {
+          label: name,
+          fill: "origin",
+          backgroundColor: gradient,
+          borderColor: "rgba(79, 70, 229, 1.0)",
+          data: points.map((point) => ({
+            x: point.timestamp,
+            y: point.value,
+            r: 0,
+          })),
+        },
+      ],
+    };
+  };
+
   return (
     <div className="mt-4 shadow overflow-hidden border-b border-gray-200 sm:rounded-lg bg-white p-4">
       <h3 className="text-lg leading-6 font-medium text-gray-900">{name}</h3>
@@ -48,20 +72,7 @@ const TimeSeries = ({
       <div className="mt-2">
         <Line
           height={60}
-          data={{
-            datasets: [
-              {
-                label: name,
-                backgroundColor: "rgba(79, 70, 229, 1.0)",
-                borderColor: "rgba(79, 70, 229, 1.0)",
-                data: points.map((point) => ({
-                  x: point.timestamp,
-                  y: point.value,
-                  r: 0,
-                })),
-              },
-            ],
-          }}
+          data={chartData}
           options={{
             plugins: {
               legend: {
@@ -96,12 +107,11 @@ export const Metrics = ({
   facets: any[];
 }) => {
   console.log(facets);
-  const eligibleFacets =facets
-        .filter(
-          (facet: any) =>
-            facet.metaType === "int" || facet.metaType === "double"
-        )
-        .map((facet: any) => facet.uri);
+  const eligibleFacets = facets
+    .filter(
+      (facet: any) => facet.metaType === "int" || facet.metaType === "double"
+    )
+    .map((facet: any) => facet.uri);
 
   console.log(eligibleFacets);
 
