@@ -3,10 +3,12 @@ import CytoscapeComponent from "react-cytoscapejs";
 
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
+import { useHistory } from "react-router";
 
 cytoscape.use(dagre);
 
 export const Graph = ({ entityGraph }: { entityGraph: any }) => {
+  const history = useHistory();
   // const elements = [
   //    { data: { id: 'one', label: 'Node 1' }, position: { x: 0, y: 0 } },
   //    { data: { id: 'two', label: 'Node 2' }, position: { x: 100, y: 0 } },
@@ -44,6 +46,11 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
   return (
     <>
       <CytoscapeComponent
+        cy={(cy) => {
+          cy.on("tap", "node", function(this: any, event) {
+            history.push(`/entity/${this.id()}`);
+          });
+        }}
         elements={elements}
         layout={
           {

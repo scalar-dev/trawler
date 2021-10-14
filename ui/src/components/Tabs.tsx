@@ -35,7 +35,7 @@ export const Tabs = ({ tabs }: { tabs: Tab[] }) => {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => (
-              <Link to={tab.href}>
+              <Link to={tab.href} key={tab.name}>
                 <a
                   key={tab.name}
                   className={classNames(

@@ -114,9 +114,7 @@ export const Layout: React.FC = ({ children }) => {
                       </Link>
                     </div> */}
                     <div className="ml-4 text-xl text-indigo-300 hover:text-white font-bold">
-                      <Link to="/">
-                        <a>trawler</a>
-                      </Link>
+                      <Link to="/">trawler</Link>
                     </div>
                   </div>
 
@@ -188,7 +186,7 @@ export const Layout: React.FC = ({ children }) => {
                           <Menu.Items className="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white divide-y divide-gray-100 ring-1 ring-black ring-opacity-5 focus:outline-none">
                             <div className="py-1">
                               {me.data?.projects.map((project) => (
-                                <Menu.Item>
+                                <Menu.Item key={project.id}>
                                   {({ active }) => (
                                     <a
                                       href="#"
@@ -223,22 +221,8 @@ export const Layout: React.FC = ({ children }) => {
                             <div className="py-1">
                               <Menu.Item>
                                 {({ active }) => (
-                                  <a
-                                    href="#"
-                                    className={classNames(
-                                      active ? "bg-gray-100" : "",
-                                      "block px-4 py-2 text-sm text-gray-700"
-                                    )}
-                                  >
-                                    View Profile
-                                  </a>
-                                )}
-                              </Menu.Item>
-                              <Menu.Item>
-                                {({ active }) => (
                                   <Link to="/settings">
                                     <a
-                                      href="#"
                                       className={classNames(
                                         active ? "bg-gray-100" : "",
                                         "block px-4 py-2 text-sm text-gray-700"

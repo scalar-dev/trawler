@@ -21,8 +21,8 @@ const FacetValue: React.FC<{ facet: Facet }> = ({ facet }) => {
   } else {
     return (
       <>
-        {facet.value?.map((value: any) => (
-          <div>{value}</div>
+        {facet.value?.map((value: any, index) => (
+          <div key={index}>{value}</div>
         ))}
       </>
     );
