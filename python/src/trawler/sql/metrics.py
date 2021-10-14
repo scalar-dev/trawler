@@ -5,7 +5,7 @@ import logging
 LOG = logging.getLogger(__name__)
 
 def sql_query(conn, sql):
-    LOG.info(f"running SQL: {sql}")
+    LOG.debug(f"running SQL: {sql}")
     try:
         val = next(conn.execute(sql))[0]
         if isinstance(val, datetime):

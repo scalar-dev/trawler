@@ -35,6 +35,8 @@ def read_config(fname: str) -> Config:
 def run_scheduler(fname: str, now: bool):
   config = read_config(fname)
 
+  run_on_startup = []
+
   for job in config["jobs"]:
     scheduled_job = getattr(
       schedule.every(job["schedule"]["interval"]),
@@ -49,11 +51,17 @@ def run_scheduler(fname: str, now: bool):
       args.pop("type")
       scheduled_job.do(lambda: extract_sql(**args))
 
+    if job["schedule"].get("on_startup", False):
+      run_on_startup.append(job)
+
   print(f"Scheduled {len(schedule.get_jobs())} jobs")
 
   if now:
     schedule.run_all()
   else:
+    for job in run_on_startup:
+      job.run()
+
     while True:
       schedule.run_pending()
       time.sleep(1)

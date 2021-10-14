@@ -7,11 +7,14 @@ from trawler.agent.jobs import run_scheduler
 import logging
 
 logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
 
 @click.group()
-def main():
-    pass
+@click.option('--debug', default=False, is_flag=True)
+def main(debug: bool):
+    if debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
 
 @main.command()
 @click.argument("uri")
