@@ -1,14 +1,18 @@
 {
   "@context": {
+  "dcat": "http://www.w3.org/ns/dcat#",
+      "prov": "http://www.w3.org/ns/prov#",
+      "tr": "http://trawler.dev/schema/core#",
+      "metrics": "http://trawler.dev/schema/metrics#",
     "name": "http://schema.org/name",
     "description": "http://schema.org/description",
     "has": {
       "@id": "http://trawler.dev/schema/core#has",
       "@type": "@id"
     },
-    "dcat": "http://www.w3.org/ns/dcat#",
-    "prov": "http://www.w3.org/ns/prov#",
-    "tr": "http://trawler.dev/schema/core#",
-    "metrics": "http://trawler.dev/schema/metrics#"
+    "metrics:histogram": {
+      "@id": "http://trawler.dev/schema/metrics#histogram",
+      "@type": "@json"
+    }
   }
 }

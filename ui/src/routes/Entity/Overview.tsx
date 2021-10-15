@@ -25,6 +25,14 @@ const FacetValue: React.FC<{ facet: Facet }> = ({ facet }) => {
         ))}
       </div>
     );
+  } else if (facet.metaType === "json") {
+    return (
+      <div className="flex flex-wrap">
+        {facet.value?.map((value: any, index) => (
+          <div key={index}>{JSON.stringify(value)}</div>
+        ))}
+      </div>
+    );
   } else {
     return (
       <>

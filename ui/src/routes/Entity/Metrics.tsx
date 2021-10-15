@@ -1,7 +1,7 @@
 import { gql } from "@urql/core";
 import { useQuery } from "urql";
 import { FacetTimeSeriesDocument } from "../../types";
-import { Line } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
 
 export const TIME_SERIES = gql`
@@ -99,6 +99,75 @@ const TimeSeries = ({
     </div>
   );
 };
+
+const Histogram = ({
+  facet,
+}: {
+  facet: any;
+}) => {
+  const value = facet.value[0]
+  const binWidth = (value.max - value.min) / value.buckets;
+
+  const data = value.counts.slice(1).map((count: number, idx:number) => {
+    return {
+      x: value.min + (idx - 1) * binWidth,
+      y: count,
+    };
+  });
+
+  const chartData = (canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext("2d");
+    const gradient = ctx!.createLinearGradient(0, 0, 0, 400);
+
+    gradient.addColorStop(0, "rgba(79, 70, 229, 1.0)");
+    gradient.addColorStop(1, "rgba(255,255,255, 0.0)");
+
+    return {
+      datasets: [
+        {
+          label: facet.name,
+          fill: "origin",
+          backgroundColor: gradient,
+          borderColor:  "rgba(79, 70, 229, 1.0)",
+          borderWidth: 0.25,
+          barPercentage: 1,
+          categoryPercentage: 1,
+          data,
+        },
+      ],
+    };
+  };
+
+  return (
+    <div className="mt-4 shadow overflow-hidden border-b border-gray-200 sm:rounded-lg bg-white p-4">
+      <h3 className="text-lg leading-6 font-medium text-gray-900">
+        {facet.name}
+      </h3>
+
+      <div className="mt-2">
+        <Bar
+          height={60}
+          data={chartData}
+          options={{
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+            scales: {
+              x: {
+                type: "linear",
+              },
+            },
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+
+
 export const Metrics = ({
   entity,
   facets,
@@ -107,18 +176,23 @@ export const Metrics = ({
   facets: any[];
 }) => {
   console.log(facets);
-  const eligibleFacets = facets
+  const timeSeriesFacets = facets
     .filter(
       (facet: any) => facet.metaType === "int" || facet.metaType === "double"
     )
     .map((facet: any) => facet.uri);
 
-  console.log(eligibleFacets);
+  const histFacets = facets.filter(
+    (facet: any) => facet.uri === "http://trawler.dev/schema/metrics#histogram"
+  );
 
   return (
     <>
-      {eligibleFacets.map((uri) => (
+      {timeSeriesFacets.map((uri) => (
         <TimeSeries key={uri} entityId={entity} facet={uri} />
+      ))}
+      {histFacets.map((facet) => (
+        <Histogram key={facet.uri} facet={facet} />
       ))}
     </>
   );

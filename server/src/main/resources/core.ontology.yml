@@ -35,6 +35,9 @@ facetTypes:
     uri: "http://trawler.dev/schema/metrics#min"
     metaType: DOUBLE
     indexTimeSeries: true
+  - name: "Histogram"
+    uri: "http://trawler.dev/schema/metrics#histogram"
+    metaType: JSON
   - name: "Type"
     uri: "http://trawler.dev/schema/core#type"
     metaType: STRING
