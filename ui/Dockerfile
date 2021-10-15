@@ -2,6 +2,9 @@
 FROM node:16.6.2-alpine as build
 WORKDIR /app
 COPY . .
+
+ENV CI=true
+
 RUN yarn
 RUN yarn build
 # production environment

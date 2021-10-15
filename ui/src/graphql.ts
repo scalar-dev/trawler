@@ -49,7 +49,7 @@ const getAuth = async ({ authState }: { authState: AuthState | null }) => {
     return { token: localStorage.getItem("jwt")! };
   }
 
-  return { token: undefined };
+  return null;
 };
 
 export const client = createClient({

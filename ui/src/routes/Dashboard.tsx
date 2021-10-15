@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/solid";
 import { useContext, useState } from "react";
 import { useHistory, useParams } from "react-router";
+import { Link } from "react-router-dom";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
 import { Option, Selector } from "../components/Selector";
@@ -150,6 +151,30 @@ export const Dashboard = () => {
       project,
     },
   });
+
+  if (data.fetching) {
+    return null;
+  }
+
+  if (!data.data?.search) {
+    return (
+      <div className="flex flex-1">
+        <div className="m-auto font-bold text-3xl text-gray-500 text-center">
+          Project {project} not found
+          <div className="text-lg">
+            Perhaps you need to{" "}
+            <Link
+              to="/sign-in"
+              className="text-indigo-500 hover:text-indigo-600"
+            >
+              sign in
+            </Link>
+            ?
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -80,7 +80,7 @@ type Project {
 type Query {
   entity(id: UUID!): Entity
   entityGraph(d: Int!, id: UUID!): [Entity!]!
-  me: User!
+  me: User
   projects: [Project!]!
   search(filters: [FilterInput!]!, project: String!): [Entity!]!
 }

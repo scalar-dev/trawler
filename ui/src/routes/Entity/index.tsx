@@ -6,6 +6,7 @@ import {
   TableIcon,
 } from "@heroicons/react/solid";
 import {
+  Link,
   Route,
   useHistory,
   useLocation,
@@ -85,6 +86,30 @@ export const Entity = () => {
   ]
     .filter((tab) => tab.enabled !== false)
     .map((tab) => ({ ...tab, current: location.pathname === tab.href }));
+
+  if (data.fetching) {
+    return null;
+  }
+
+  if (!data.data?.entityGraph) {
+    return (
+      <div className="flex flex-1">
+        <div className="m-auto font-bold text-3xl text-gray-500 text-center">
+          Entity {entity} not found
+          <div className="text-lg">
+            Perhaps you need to{" "}
+            <Link
+              to="/sign-in"
+              className="text-indigo-500 hover:text-indigo-600"
+            >
+              sign in
+            </Link>
+            ?
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
