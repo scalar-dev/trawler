@@ -1,9 +1,8 @@
-import { Fragment, useContext, useEffect } from "react";
+import { Fragment, useContext } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
 import { classNames } from "../utils";
 import { Search } from "./Search";
-import { useHistory } from "react-router";
 import { gql, useQuery } from "urql";
 import { MeDocument } from "../types";
 import { Link } from "react-router-dom";
