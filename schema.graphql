@@ -74,6 +74,7 @@ type Mutation {
 type Project {
   id: UUID!
   name: String!
+  slug: String!
 }
 
 type Query {
@@ -81,7 +82,7 @@ type Query {
   entityGraph(d: Int!, id: UUID!): [Entity!]!
   me: User!
   projects: [Project!]!
-  search(filters: [FilterInput!]!, projectId: UUID!): [Entity!]!
+  search(filters: [FilterInput!]!, project: String!): [Entity!]!
 }
 
 type User {

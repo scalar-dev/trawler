@@ -4,16 +4,14 @@ import CytoscapeComponent from "react-cytoscapejs";
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 import { useHistory } from "react-router";
+import { useContext } from "react";
+import { ProjectContext } from "../ProjectContext";
 
 cytoscape.use(dagre);
 
 export const Graph = ({ entityGraph }: { entityGraph: any }) => {
   const history = useHistory();
-  // const elements = [
-  //    { data: { id: 'one', label: 'Node 1' }, position: { x: 0, y: 0 } },
-  //    { data: { id: 'two', label: 'Node 2' }, position: { x: 100, y: 0 } },
-  //    { data: { source: 'one', target: 'two', label: 'Edge from Node1 to Node2' } }
-  // ];
+  const { entityLink } = useContext(ProjectContext);
 
   const nodes = entityGraph.map((entity: any) => ({
     data: {
@@ -47,8 +45,8 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
     <>
       <CytoscapeComponent
         cy={(cy) => {
-          cy.on("tap", "node", function(this: any, event) {
-            history.push(`/entity/${this.id()}`);
+          cy.on("tap", "node", function (this: any, event) {
+            history.push(entityLink(this.id()));
           });
         }}
         elements={elements}

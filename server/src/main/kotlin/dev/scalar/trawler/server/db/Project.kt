@@ -5,6 +5,8 @@ import java.util.UUID
 
 object Project : UUIDTable("project") {
     val name = text("name")
+    val description = text("description")
+    val slug = text("slug")
 
     val DEMO_PROJECT_ID = UUID.fromString("63255f7a-e383-457a-9c30-4c7f95308749")
 }

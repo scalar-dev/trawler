@@ -23,10 +23,10 @@ export const LoadingGrid = () => (
 );
 
 export const SEARCH_BY_NAME = gql`
-  query SearchByName($search: [String!]!, $projectId: UUID!) {
+  query SearchByName($search: [String!]!, $project: String!) {
     search(
       filters: [{ uri: "http://schema.org/name", value: $search }]
-      projectId: $projectId
+      project: $project
     ) {
       entityId
       facets {
@@ -41,7 +41,7 @@ export const SEARCH_BY_NAME = gql`
 `;
 
 export const Search = () => {
-  const { projectId, projectName } = useContext(ProjectContext);
+  const { project, entityLink } = useContext(ProjectContext);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const history = useHistory();
@@ -55,7 +55,7 @@ export const Search = () => {
     pause: !open,
     variables: {
       search,
-      projectId,
+      project,
     },
   });
 
@@ -75,7 +75,7 @@ export const Search = () => {
                 name="search"
                 className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-indigo-400 bg-opacity-25 text-indigo-100 placeholder-indigo-200 focus:outline-none focus:bg-white focus:ring-0 focus:placeholder-gray-400 focus:text-gray-900 sm:text-sm"
                 value={search}
-                placeholder={`Search project ${projectName}`}
+                placeholder={`Search project ${project}`}
                 onChange={(e) => setSearch(e.target.value)}
                 // type="search"
               />
@@ -107,7 +107,7 @@ export const Search = () => {
                           className="flex items-center py-2 px-1 cursor-pointer hover:bg-gray-200"
                           onClick={() => {
                             setSearch("");
-                            history.push(`/entity/${result.entityId}`);
+                            history.push(entityLink(result.entityId));
                           }}
                         >
                           <EntityIcon type={result.typeName} />
