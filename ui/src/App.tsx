@@ -13,6 +13,7 @@ import { Entity } from "./routes/Entity";
 import { SignIn } from "./routes/SignIn";
 import { Settings } from "./routes/Settings";
 import { ProjectContextURLProvider } from "./ProjectContext";
+import { Home } from "./routes/Home";
 
 const App = () => (
   <Provider value={client}>
@@ -23,7 +24,7 @@ const App = () => (
         </Route>
 
         <Route path="/" exact>
-          Show project list
+          <Home />
         </Route>
 
         <Route path="/settings" exact>
