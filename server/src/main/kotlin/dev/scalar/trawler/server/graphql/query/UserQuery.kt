@@ -13,9 +13,9 @@ data class User(
 )
 
 class UserQuery {
-    suspend fun me(context: QueryContext): User {
+    suspend fun me(context: QueryContext): User? {
         if (context.user == null) {
-            throw Exception("Not logged in")
+            return null
         }
 
         val userId = UUID.fromString(context.user.principal().getString("sub"))

@@ -72,15 +72,8 @@ const getInitials = (firstName?: string | null, lastName?: string | null) => {
 };
 
 export const Layout: React.FC = ({ children }) => {
-  const history = useHistory();
   const [me] = useQuery({ query: MeDocument });
   const { project } = useContext(ProjectContext);
-
-  useEffect(() => {
-    if (me.error) {
-      history.push("/sign-in");
-    }
-  }, [me, history]);
 
   return (
     <>
@@ -145,94 +138,115 @@ export const Layout: React.FC = ({ children }) => {
                         >
                           Documentation
                         </a>
+                        {!me.data?.me && (
+                          <>
+                            <Link
+                              to="/sign-in"
+                              className="px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white"
+                              rel="noreferrer"
+                            >
+                              Sign in
+                            </Link>
+                            <div className="flex-shrink-0">
+                              <button
+                                type="button"
+                                className="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
+                              >
+                                <span>Sign up</span>
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                       {/* Profile dropdown */}
-                      <Menu as="div" className="ml-4 relative flex-shrink-0">
-                        <div>
-                          <Menu.Button className="bg-indigo-700 flex text-sm rounded-full text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white">
-                            <span className="sr-only">Open user menu</span>
-                            <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-400">
-                              <span className="text-sm font-medium leading-none text-white">
-                                {getInitials(
-                                  me.data?.me.firstName,
-                                  me.data?.me.lastName
-                                )}
+                      {me.data?.me && (
+                        <Menu as="div" className="ml-4 relative flex-shrink-0">
+                          <div>
+                            <Menu.Button className="bg-indigo-700 flex text-sm rounded-full text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white">
+                              <span className="sr-only">Open user menu</span>
+                              <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-400">
+                                <span className="text-sm font-medium leading-none text-white">
+                                  {getInitials(
+                                    me.data.me.firstName,
+                                    me.data.me.lastName
+                                  )}
+                                </span>
                               </span>
-                            </span>
-                          </Menu.Button>
-                        </div>
-                        <Transition
-                          as={Fragment}
-                          enter="transition ease-out duration-100"
-                          enterFrom="transform opacity-0 scale-95"
-                          enterTo="transform opacity-100 scale-100"
-                          leave="transition ease-in duration-75"
-                          leaveFrom="transform opacity-100 scale-100"
-                          leaveTo="transform opacity-0 scale-95"
-                        >
-                          <Menu.Items className="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white divide-y divide-gray-100 ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <div className="py-1">
-                              {me.data?.projects.map((proj) => (
-                                <Menu.Item key={proj.id}>
+                            </Menu.Button>
+                          </div>
+                          <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                          >
+                            <Menu.Items className="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white divide-y divide-gray-100 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                              <div className="py-1">
+                                {me.data?.projects.map((proj) => (
+                                  <Menu.Item key={proj.id}>
+                                    {({ active }) => (
+                                      <Link
+                                        to={`/${proj.slug}`}
+                                        className={classNames(
+                                          active ? "bg-gray-100" : "",
+                                          "flex px-4 py-2 text-sm text-gray-700"
+                                        )}
+                                      >
+                                        <span className="flex-1">
+                                          {proj.name}
+                                        </span>
+                                        {project === proj.slug && (
+                                          <span className="text-indigo-600">
+                                            <CheckIcon
+                                              className="h-5 w-5"
+                                              aria-hidden="true"
+                                            />
+                                          </span>
+                                        )}
+                                      </Link>
+                                    )}
+                                  </Menu.Item>
+                                ))}
+                              </div>
+                              <div className="py-1">
+                                <Menu.Item>
                                   {({ active }) => (
                                     <Link
-                                      to={`/${proj.slug}`}
+                                      to="/settings"
                                       className={classNames(
                                         active ? "bg-gray-100" : "",
-                                        "flex px-4 py-2 text-sm text-gray-700"
+                                        "block px-4 py-2 text-sm text-gray-700"
                                       )}
                                     >
-                                      <span className="flex-1">
-                                        {proj.name}
-                                      </span>
-                                      {project === proj.slug && (
-                                        <span className="text-indigo-600">
-                                          <CheckIcon
-                                            className="h-5 w-5"
-                                            aria-hidden="true"
-                                          />
-                                        </span>
-                                      )}
+                                      Settings
                                     </Link>
                                   )}
                                 </Menu.Item>
-                              ))}
-                            </div>
-                            <div className="py-1">
-                              <Menu.Item>
-                                {({ active }) => (
-                                  <Link
-                                    to="/settings"
-                                    className={classNames(
-                                      active ? "bg-gray-100" : "",
-                                      "block px-4 py-2 text-sm text-gray-700"
-                                    )}
-                                  >
-                                    Settings
-                                  </Link>
-                                )}
-                              </Menu.Item>
-                              <Menu.Item>
-                                {({ active }) => (
-                                  <a
-                                    href="#"
-                                    onClick={() => {
-                                      localStorage.removeItem("jwt");
-                                      window.location.pathname = "/";
-                                    }}
-                                    className={classNames(
-                                      active ? "bg-gray-100" : "",
-                                      "block px-4 py-2 text-sm text-gray-700"
-                                    )}
-                                  >
-                                    Logout
-                                  </a>
-                                )}
-                              </Menu.Item>
-                            </div>
-                          </Menu.Items>
-                        </Transition>
-                      </Menu>
+                                <Menu.Item>
+                                  {({ active }) => (
+                                    <a
+                                      href="#"
+                                      onClick={() => {
+                                        localStorage.removeItem("jwt");
+                                        window.location.pathname = "/";
+                                      }}
+                                      className={classNames(
+                                        active ? "bg-gray-100" : "",
+                                        "block px-4 py-2 text-sm text-gray-700"
+                                      )}
+                                    >
+                                      Logout
+                                    </a>
+                                  )}
+                                </Menu.Item>
+                              </div>
+                            </Menu.Items>
+                          </Transition>
+                        </Menu>
+                      )}
                     </div>
                   </div>
                 </div>

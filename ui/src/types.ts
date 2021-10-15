@@ -114,7 +114,7 @@ export type Query = {
   __typename?: 'Query';
   entity?: Maybe<Entity>;
   entityGraph: Array<Entity>;
-  me: User;
+  me?: Maybe<User>;
   projects: Array<Project>;
   search: Array<Entity>;
 };
@@ -146,7 +146,7 @@ export type User = {
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', email: string, firstName?: string | null | undefined, lastName?: string | null | undefined }, projects: Array<{ __typename?: 'Project', id: any, name: string, slug: string }> };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', email: string, firstName?: string | null | undefined, lastName?: string | null | undefined } | null | undefined, projects: Array<{ __typename?: 'Project', id: any, name: string, slug: string }> };
 
 export type SearchByNameQueryVariables = Exact<{
   search: Array<Scalars['String']> | Scalars['String'];

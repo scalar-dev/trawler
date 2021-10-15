@@ -2,6 +2,7 @@ package dev.scalar.trawler.server.graphql.query
 
 import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.ontology.Ontology
+import dev.scalar.trawler.server.db.AccountRole
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.Project
 import dev.scalar.trawler.server.db.util.ilike
@@ -55,8 +56,9 @@ class EntityQuery {
     suspend fun search(context: QueryContext, project: String, filters: List<Filter>): List<Entity> {
         val projectId = newSuspendedTransaction {
             Project
+                .innerJoin(AccountRole)
                 .slice(Project.id)
-                .select { Project.slug.eq(project) }
+                .select { Project.slug.eq(project) and AccountRole.accountId.eq(context.accountId) }
                 .firstOrNull()?.get(Project.id)?.value
         } ?: throw Exception("Project not found: $project")
 
