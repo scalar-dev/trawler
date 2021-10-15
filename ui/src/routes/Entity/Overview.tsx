@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import { Link } from "react-router-dom";
+import { ProjectContext } from "../../ProjectContext";
 
 type Facet = {
   uri: string;
@@ -8,12 +10,17 @@ type Facet = {
 };
 
 const FacetValue: React.FC<{ facet: Facet }> = ({ facet }) => {
+  const { entityLink } = useContext(ProjectContext);
+
   if (facet.metaType === "relationship") {
     return (
       <div className="flex flex-wrap">
-        {facet.value?.map((val: any) => (
-          <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-            <Link to={`/entity/${val}`}>{val}</Link>
+        {facet.value?.map((val: any, index) => (
+          <span
+            key={index}
+            className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+          >
+            <Link to={entityLink(val)}>{val}</Link>
           </span>
         ))}
       </div>

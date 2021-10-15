@@ -5,7 +5,7 @@ import {
   DotsVerticalIcon,
 } from "@heroicons/react/solid";
 import { useContext, useState } from "react";
-import { useHistory } from "react-router";
+import { useHistory, useParams } from "react-router";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
 import { Option, Selector } from "../components/Selector";
@@ -28,6 +28,7 @@ export const EntityIcon = ({ type }: { type: string }) => {
 
 const Table = ({ entities }: { entities: any[] }) => {
   const history = useHistory();
+  const { entityLink } = useContext(ProjectContext);
 
   return (
     <div className="flex flex-col">
@@ -61,7 +62,7 @@ const Table = ({ entities }: { entities: any[] }) => {
                 {entities?.map((entity, idx) => (
                   <tr
                     key={entity.entityId}
-                    onClick={() => history.push(`/entity/${entity.entityId}`)}
+                    onClick={() => history.push(entityLink(entity.entityId))}
                     className={`hover:bg-gray-100 cursor-pointer ${
                       idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`}
@@ -119,12 +120,12 @@ const types = [
 ];
 
 export const SEARCH_BY_TYPE = gql`
-  query SearchByType($type: [String!]!, $projectId: UUID!) {
+  query SearchByType($type: [String!]!, $project: String!) {
     search(
       filters: [
         { uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", value: $type }
       ]
-      projectId: $projectId
+      project: $project
     ) {
       entityId
       urn
@@ -140,13 +141,13 @@ export const SEARCH_BY_TYPE = gql`
 `;
 
 export const Dashboard = () => {
-  const { projectId } = useContext(ProjectContext);
+  const { project } = useParams<{ project: string }>();
   const [selectedType, setSelectedType] = useState<Option>(types[0]);
   const [data] = useQuery({
     query: SearchByTypeDocument,
     variables: {
       type: selectedType.value,
-      projectId,
+      project,
     },
   });
 

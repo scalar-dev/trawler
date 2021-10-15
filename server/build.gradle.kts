@@ -52,6 +52,8 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jakarta-jsonp:2.12.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.2")
 
+    implementation("com.github.slugify:slugify:2.4")
+
     testImplementation("io.vertx:vertx-junit5")
     testImplementation("io.vertx:vertx-web-client")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")

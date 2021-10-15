@@ -1,6 +1,9 @@
 import { formatDistanceStrict, parseISO } from "date-fns";
 import _ from "lodash";
+import { useContext } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, gql } from "urql";
+import { ProjectContext } from "../../ProjectContext";
 
 type FacetLog = {
   entities: {
@@ -15,26 +18,26 @@ type FacetLogDiff = {
 };
 
 export const FACET_LOG_QUERY = gql`
-      query FacetLog($id: UUID!, $facets: [String!]!) {
-        entity(id: $id) {
-          facetLog(facets: $facets) {
-            id
-            createdAt
+  query FacetLog($id: UUID!, $facets: [String!]!) {
+    entity(id: $id) {
+      facetLog(facets: $facets) {
+        id
+        createdAt
+        name
+        urn
+        version
+        entities {
+          entityId
+          facets {
             name
-            urn
-            version
-            entities {
-              entityId
-              facets {
-                name
-                uri
-                value
-              }
-            }
+            uri
+            value
           }
         }
       }
-   `; 
+    }
+  }
+`;
 
 export const FacetHistory = ({
   entityId,
@@ -43,6 +46,7 @@ export const FacetHistory = ({
   entityId: string;
   facets: string[];
 }) => {
+  const { entityLink } = useContext(ProjectContext);
   const [data] = useQuery({
     query: FACET_LOG_QUERY,
     variables: {
@@ -134,27 +138,27 @@ export const FacetHistory = ({
                       <td className="px-6 py-4 whitespace-nowrap flex flex-wrap">
                         {diff.added.map((added) => (
                           <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            <a href={`/entity/${added.entityId}`}>
+                            <Link to={entityLink(added.entityId)}>
                               {
                                 added.facets.find(
                                   (facet: any) =>
                                     facet.uri === "http://schema.org/name"
                                 )?.value
                               }
-                            </a>
+                            </Link>
                           </span>
                         ))}
 
                         {diff.deleted.map((deleted) => (
                           <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                            <a href={`/entity/${deleted.entityId}`}>
+                            <Link to={entityLink(deleted.entityId)}>
                               {
                                 deleted.facets.find(
                                   (facet: any) =>
                                     facet.uri === "http://schema.org/name"
                                 )?.value
                               }
-                            </a>
+                            </Link>
                           </span>
                         ))}
                       </td>

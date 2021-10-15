@@ -1,14 +1,14 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { CheckIcon } from "@heroicons/react/solid";
 import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
 import { classNames } from "../utils";
 import { Search } from "./Search";
 import { useHistory } from "react-router";
 import { gql, useQuery } from "urql";
 import { MeDocument } from "../types";
-import { ProjectContext } from "../ProjectContext";
 import { Link } from "react-router-dom";
+import { ProjectContext } from "../ProjectContext";
+import { CheckIcon } from "@heroicons/react/solid";
 
 export const TwoColumn = () => (
   <div className="flex-grow w-full max-w-7xl mx-auto xl:px-8 lg:flex">
@@ -60,6 +60,7 @@ export const ME_QUERY = gql`
     projects {
       id
       name
+      slug
     }
   }
 `;
@@ -73,25 +74,13 @@ const getInitials = (firstName?: string | null, lastName?: string | null) => {
 export const Layout: React.FC = ({ children }) => {
   const history = useHistory();
   const [me] = useQuery({ query: MeDocument });
-  const [selectedProject, setSelectedProject] = useState<{
-    projectId: string;
-    projectName: string;
-  } | null>();
+  const { project } = useContext(ProjectContext);
 
   useEffect(() => {
     if (me.error) {
       history.push("/sign-in");
     }
   }, [me, history]);
-
-  useEffect(() => {
-    if (!selectedProject && me.data?.projects && me.data.projects.length > 0) {
-      setSelectedProject({
-        projectId: me.data?.projects[0].id,
-        projectName: me.data.projects[0].name,
-      });
-    }
-  }, [me, selectedProject]);
 
   return (
     <>
@@ -118,20 +107,18 @@ export const Layout: React.FC = ({ children }) => {
                     </div>
                   </div>
 
-                  {/* Search section */}
-                  <div className="flex-1 flex justify-center lg:justify-end">
-                    <div className="w-full px-2 lg:px-6">
-                      <label htmlFor="search" className="sr-only">
-                        Search projects
-                      </label>
+                  {project && (
+                    <div className="flex-1 flex justify-center lg:justify-end">
+                      <div className="w-full px-2 lg:px-6">
+                        <label htmlFor="search" className="sr-only">
+                          Search projects
+                        </label>
 
-                      {selectedProject && (
-                        <ProjectContext.Provider value={selectedProject}>
-                          <Search />
-                        </ProjectContext.Provider>
-                      )}
+                        <Search />
+                      </div>
                     </div>
-                  </div>
+                  )}
+
                   <div className="flex lg:hidden">
                     {/* Mobile menu button */}
                     <Disclosure.Button className="bg-indigo-600 inline-flex items-center justify-center p-2 rounded-md text-indigo-400 hover:text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white">
@@ -185,27 +172,20 @@ export const Layout: React.FC = ({ children }) => {
                         >
                           <Menu.Items className="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white divide-y divide-gray-100 ring-1 ring-black ring-opacity-5 focus:outline-none">
                             <div className="py-1">
-                              {me.data?.projects.map((project) => (
-                                <Menu.Item key={project.id}>
+                              {me.data?.projects.map((proj) => (
+                                <Menu.Item key={proj.id}>
                                   {({ active }) => (
-                                    <a
-                                      href="#"
-                                      onClick={() =>
-                                        setSelectedProject({
-                                          projectId: project.id,
-                                          projectName: project.name,
-                                        })
-                                      }
+                                    <Link
+                                      to={`/${proj.slug}`}
                                       className={classNames(
                                         active ? "bg-gray-100" : "",
                                         "flex px-4 py-2 text-sm text-gray-700"
                                       )}
                                     >
                                       <span className="flex-1">
-                                        {project.name}
+                                        {proj.name}
                                       </span>
-                                      {selectedProject?.projectId ===
-                                        project.id && (
+                                      {project === proj.slug && (
                                         <span className="text-indigo-600">
                                           <CheckIcon
                                             className="h-5 w-5"
@@ -213,7 +193,7 @@ export const Layout: React.FC = ({ children }) => {
                                           />
                                         </span>
                                       )}
-                                    </a>
+                                    </Link>
                                   )}
                                 </Menu.Item>
                               ))}
@@ -221,15 +201,14 @@ export const Layout: React.FC = ({ children }) => {
                             <div className="py-1">
                               <Menu.Item>
                                 {({ active }) => (
-                                  <Link to="/settings">
-                                    <a
-                                      className={classNames(
-                                        active ? "bg-gray-100" : "",
-                                        "block px-4 py-2 text-sm text-gray-700"
-                                      )}
-                                    >
-                                      Settings
-                                    </a>
+                                  <Link
+                                    to="/settings"
+                                    className={classNames(
+                                      active ? "bg-gray-100" : "",
+                                      "block px-4 py-2 text-sm text-gray-700"
+                                    )}
+                                  >
+                                    Settings
                                   </Link>
                                 )}
                               </Menu.Item>
@@ -270,34 +249,29 @@ export const Layout: React.FC = ({ children }) => {
                 </div>
                 <div className="pt-4 pb-3 border-t border-indigo-800">
                   <div className="px-2">
-                    {}
-                    {me.data?.projects.map((project) => (
-                      <a
-                        onClick={() =>
-                          setSelectedProject({
-                            projectId: project.id,
-                            projectName: project.name,
-                          })
-                        }
-                        href="#"
+                    {me.data?.projects.map((proj) => (
+                      <Link
+                        to={`/${proj.slug}`}
+                        key={proj.id}
                         className="flex block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600"
                       >
-                        <span className="flex-1">{project.name}</span>
-                        {selectedProject?.projectId === project.id && (
+                        <span className="flex-1">{proj.name}</span>
+                        {project === proj.slug && (
                           <span className="text-white">
                             <CheckIcon className="h-5 w-5" aria-hidden="true" />
                           </span>
                         )}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
                 <div className="pt-4 pb-3 border-t border-indigo-800">
                   <div className="px-2">
-                    <Link to="/settings">
-                      <a className="mt-1 block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600">
-                        Settings
-                      </a>
+                    <Link
+                      to="/settings"
+                      className="mt-1 block px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-indigo-100 hover:bg-indigo-600"
+                    >
+                      Settings
                     </Link>
                     <a
                       href="#"
@@ -312,15 +286,7 @@ export const Layout: React.FC = ({ children }) => {
           )}
         </Disclosure>
 
-        {selectedProject ? (
-          <ProjectContext.Provider value={selectedProject}>
-            {children}
-          </ProjectContext.Provider>
-        ) : (
-          <div className="font-bold text-2xl text-gray-500 w-full text-center py-8">
-            You don't have any projects
-          </div>
-        )}
+        {children}
       </div>
     </>
   );
