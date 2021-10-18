@@ -20,7 +20,7 @@ private class Json<out T : Any>(private val klass: Class<T>, private val jsonMap
     override fun setParameter(stmt: PreparedStatementApi, index: Int, value: Any?) {
         val obj = PGobject()
         obj.type = "jsonb"
-        obj.value = value as String
+        obj.value = if (value != null) value as String else null
         stmt[index] = obj
     }
 

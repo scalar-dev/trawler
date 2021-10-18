@@ -20,10 +20,10 @@ fun ontologyToContext(ontology: Ontology): JsonObject? {
             if (bits.size == 2 && bits[0] in aliasNamespaces) {
                 "${aliasNamespaces[bits[0]]}:${bits[1]}"
             } else {
-               facetType.uri
+                facetType.uri
             }
         } else if (facetType.uri.startsWith(SCHEMA_ORG)) {
-           facetType.uri.substringAfter(SCHEMA_ORG)
+            facetType.uri.substringAfter(SCHEMA_ORG)
         } else {
             facetType.uri
         }

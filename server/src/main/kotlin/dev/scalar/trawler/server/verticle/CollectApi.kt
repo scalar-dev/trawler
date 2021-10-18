@@ -5,10 +5,7 @@ import com.apicatalog.jsonld.document.JsonDocument
 import com.apicatalog.jsonld.loader.DocumentLoader
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
-import dev.scalar.trawler.ontology.FacetMetaType
-import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.ontology.config.OntologyConfig
-import dev.scalar.trawler.server.App
 import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.collect.CollectRequest
@@ -63,8 +60,6 @@ class CollectApi : BaseVerticle() {
         if (WebEnvironment.development()) {
             log.info("Development token: ${mintToken(jwtAuth, Users.DEV, listOf("collect"))}")
         }
-
-
 
         router
             .route(HttpMethod.POST, "/api/ontology/:projectId")
