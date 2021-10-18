@@ -154,7 +154,11 @@ export const Entity = () => {
 
         <Route path={`${path}/schema`} exact>
           {data.data?.entityGraph[0] && (
-            <Schema entityId={entity} entity={data.data?.entityGraph[0]} />
+            <Schema
+              entityId={entity}
+              entity={data.data?.entityGraph[0]}
+              entities={data.data.entityGraph}
+            />
           )}
         </Route>
 
