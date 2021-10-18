@@ -85,7 +85,7 @@ const TimeSeries = ({
                 time: {
                   minUnit: "hour",
                   displayFormats: {
-                    day: "MMM D",
+                    day: "MMM d",
                     week: "MMM YYYY",
                     month: "MMM YYYY",
                     quarter: "MMM YYYY",
@@ -100,15 +100,17 @@ const TimeSeries = ({
   );
 };
 
-const Histogram = ({
+export const Histogram = ({
   facet,
+  compact = false,
 }: {
   facet: any;
+  compact?: boolean;
 }) => {
-  const value = facet.value[0]
+  const value = facet.value[0];
   const binWidth = (value.max - value.min) / value.buckets;
 
-  const data = value.counts.slice(1).map((count: number, idx:number) => {
+  const data = value.counts.slice(1).map((count: number, idx: number) => {
     return {
       x: value.min + (idx - 1) * binWidth,
       y: count,
@@ -127,8 +129,9 @@ const Histogram = ({
         {
           label: facet.name,
           fill: "origin",
+          minBarLength: 1,
           backgroundColor: gradient,
-          borderColor:  "rgba(79, 70, 229, 1.0)",
+          borderColor: "rgba(79, 70, 229, 1.0)",
           borderWidth: 0.25,
           barPercentage: 1,
           categoryPercentage: 1,
@@ -139,34 +142,33 @@ const Histogram = ({
   };
 
   return (
-    <div className="mt-4 shadow overflow-hidden border-b border-gray-200 sm:rounded-lg bg-white p-4">
-      <h3 className="text-lg leading-6 font-medium text-gray-900">
-        {facet.name}
-      </h3>
-
-      <div className="mt-2">
-        <Bar
-          height={60}
-          data={chartData}
-          options={{
-            plugins: {
-              legend: {
-                display: false,
-              },
-            },
-            scales: {
-              x: {
-                type: "linear",
-              },
-            },
-          }}
-        />
-      </div>
-    </div>
+    <Bar
+      data={chartData}
+      options={{
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
+          tooltip: {
+            enabled: !compact,
+          },
+          legend: {
+            display: false,
+          },
+        },
+        scales: {
+          x: {
+            type: "linear",
+            display: !compact,
+          },
+          y: {
+            type: "linear",
+            display: !compact,
+          },
+        },
+      }}
+    />
   );
 };
-
-
 
 export const Metrics = ({
   entity,
@@ -192,7 +194,15 @@ export const Metrics = ({
         <TimeSeries key={uri} entityId={entity} facet={uri} />
       ))}
       {histFacets.map((facet) => (
-        <Histogram key={facet.uri} facet={facet} />
+        <div className="mt-4 shadow overflow-hidden border-b border-gray-200 sm:rounded-lg bg-white p-4">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">
+            {facet.name}
+          </h3>
+
+          <div className="mt-2">
+            <Histogram key={facet.uri} facet={facet} />
+          </div>
+        </div>
       ))}
     </>
   );

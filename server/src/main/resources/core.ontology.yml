@@ -51,6 +51,18 @@ facetTypes:
             type: number
         buckets:
           type: number
+  - name: "Count By Type"
+    uri: "http://trawler.dev/schema/metrics#countByType"
+    metaType: JSON
+    jsonSchema:
+      type: array
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: number
   - name: "Type"
     uri: "http://trawler.dev/schema/core#type"
     metaType: STRING
