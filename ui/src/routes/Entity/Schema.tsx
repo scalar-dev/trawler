@@ -1,5 +1,6 @@
 import { formatDistanceStrict, parseISO } from "date-fns";
 import _ from "lodash";
+import numeral from "numeral";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, gql } from "urql";
@@ -38,6 +39,88 @@ export const FACET_LOG_QUERY = gql`
     }
   }
 `;
+
+const CurrentSchema = ({ fields }: { fields: any[] }) => {
+  const { entityLink } = useContext(ProjectContext);
+  return (
+    <div className="flex flex-col">
+      <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+          <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Type
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Nullable
+                  </th>
+                  <th scope="col" className="relative px-6 py-3">
+                    <span className="sr-only">View</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {fields.map((field: any) => (
+                  <tr key={field.name}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {field.Name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {field.Description}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 font-mono">
+                        {field.Type}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        {field["Is Nullable"] ? "true" : "false"}
+                      </span>
+                      {field["Is Nullable"] && field["Null Ratio"] != null && (
+                        <span className="text-xs text-gray-600 ml-2">
+                          ({numeral(field["Null Ratio"]).format("0.0%")})
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link
+                        to={entityLink(field.id)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export const FacetHistory = ({
   entityId,
@@ -177,9 +260,11 @@ export const FacetHistory = ({
 export const Schema = ({
   entityId,
   entity,
+  entities,
 }: {
   entityId: string;
   entity: any;
+  entities: any[];
 }) => {
   const hasFacet = entity.facets?.find(
     (facet: any) => facet.uri === "http://trawler.dev/schema/core#has"
@@ -189,12 +274,30 @@ export const Schema = ({
     return null;
   }
 
+  console.log(hasFacet);
+  const fields = hasFacet.value.map((value: any) => {
+    const entity = entities.find((entity: any) => entity.entityId === value);
+
+    return {
+      ..._.chain(entity.facets)
+        .keyBy("name")
+        .mapValues((facet: any) => facet.value[0])
+        .value(),
+      id: entity.entityId,
+    };
+  });
+
   return (
-    <div className="mt-4">
-      <FacetHistory
-        entityId={entityId}
-        facets={["http://trawler.dev/schema/core#has"]}
-      />
-    </div>
+    <>
+      <div className="mt-2">
+        <CurrentSchema fields={fields} />
+      </div>
+      <div className="mt-4">
+        <FacetHistory
+          entityId={entityId}
+          facets={["http://trawler.dev/schema/core#has"]}
+        />
+      </div>
+    </>
   );
 };
