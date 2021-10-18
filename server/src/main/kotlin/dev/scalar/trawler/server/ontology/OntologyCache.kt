@@ -23,12 +23,12 @@ inline fun <reified T : Enum<T>, V> ((T) -> V).find(value: V): T? {
     return enumValues<T>().firstOrNull { this(it) == value }
 }
 
-fun loadJsonSchema(jsonSchema: Any?): Schema? {
+fun loadJsonSchema(vertx: Vertx, jsonSchema: Any?): Schema? {
     if (jsonSchema == null) {
         return null
     }
 
-    val schemaRouter: SchemaRouter = SchemaRouter.create(Vertx.vertx(), SchemaRouterOptions())
+    val schemaRouter: SchemaRouter = SchemaRouter.create(vertx, SchemaRouterOptions())
     val schemaParser: SchemaParser = SchemaParser.createDraft201909SchemaParser(schemaRouter)
     return schemaParser.parse(JsonObject.mapFrom(jsonSchema))
 }
@@ -63,7 +63,7 @@ fun loadOntology(vertx: Vertx, projectId: UUID?) = transaction {
                     FacetMetaType::value.find(facetTypeDb[FacetType.metaType])!!,
                     facetTypeDb[FacetType.projectId]?.value,
                     facetTypeDb[FacetType.indexTimeSeries],
-                    loadJsonSchema(facetTypeDb[FacetType.jsonSchema])
+                    loadJsonSchema(vertx, facetTypeDb[FacetType.jsonSchema])
                 )
             }
             .toSet(),
