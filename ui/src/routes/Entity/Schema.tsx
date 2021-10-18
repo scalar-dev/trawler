@@ -2,9 +2,10 @@ import { formatDistanceStrict, parseISO } from "date-fns";
 import _ from "lodash";
 import numeral from "numeral";
 import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useQuery, gql } from "urql";
 import { ProjectContext } from "../../ProjectContext";
+import { Histogram } from "./Metrics";
 
 type FacetLog = {
   entities: {
@@ -40,7 +41,8 @@ export const FACET_LOG_QUERY = gql`
   }
 `;
 
-const CurrentSchema = ({ fields }: { fields: any[] }) => {
+const CurrentSchema = ({ entities }: { entities: any[] }) => {
+  const history = useHistory();
   const { entityLink } = useContext(ProjectContext);
   return (
     <div className="flex flex-col">
@@ -66,53 +68,103 @@ const CurrentSchema = ({ fields }: { fields: any[] }) => {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Nullable
+                    % Null
                   </th>
-                  <th scope="col" className="relative px-6 py-3">
-                    <span className="sr-only">View</span>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    % Unique
+                  </th>
+
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Range
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {fields.map((field: any) => (
-                  <tr key={field.name}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {field.Name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {field.Description}
+                {entities.map((entity: any) => {
+                  const fields = _.chain(entity.facets)
+                    .keyBy("name")
+                    .mapValues((facet: any) => facet.value[0])
+                    .value();
+
+                  const histogram = entity.facets.find(
+                    (facet: any) =>
+                      facet.uri ===
+                      "http://trawler.dev/schema/metrics#histogram"
+                  );
+
+                  return (
+                    <tr
+                      key={entity.entityId}
+                      className="cursor-pointer hover:bg-gray-100"
+                      onClick={() => history.push(entityLink(entity.entityId))}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {fields.Name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {fields.Description}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 font-mono">
-                        {field.Type}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {field["Is Nullable"] ? "true" : "false"}
-                      </span>
-                      {field["Is Nullable"] && field["Null Ratio"] != null && (
-                        <span className="text-xs text-gray-600 ml-2">
-                          ({numeral(field["Null Ratio"]).format("0.0%")})
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-900 font-mono">
+                          {fields.Type}
                         </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        to={entityLink(field.id)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        View
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                        {fields["Is Nullable"] && (
+                          <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Nullable
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {fields["Is Nullable"] &&
+                          fields["Null Ratio"] != null && (
+                            <span className="text-xs text-gray-600 ml-2">
+                              {numeral(fields["Null Ratio"]).format("0.0%")}
+                            </span>
+                          )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {fields["Unique Ratio"] != null && (
+                          <span className="text-xs text-gray-600 ml-2">
+                            {numeral(fields["Unique Ratio"]).format("0.0%")}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-0 text-center text-xs text-gray-500 font-medium">
+                        <div className="flex items-center">
+                          <div className="flex-1 text-left">
+                            {fields["Min"] != null && (
+                              <div>
+                                Min: {numeral(fields["Min"]).format("0.[0][a]")}
+                              </div>
+                            )}
+                            {fields["Max"] != null && (
+                              <div>
+                                Max: {numeral(fields["Max"]).format("0.[0][a]")}
+                              </div>
+                            )}
+                          </div>
+                          {histogram && (
+                            <div className="h-10 max-w-md flex-1">
+                              <Histogram facet={histogram} compact />
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -120,7 +172,7 @@ const CurrentSchema = ({ fields }: { fields: any[] }) => {
       </div>
     </div>
   );
-}
+};
 
 export const FacetHistory = ({
   entityId,
@@ -274,23 +326,14 @@ export const Schema = ({
     return null;
   }
 
-  console.log(hasFacet);
   const fields = hasFacet.value.map((value: any) => {
-    const entity = entities.find((entity: any) => entity.entityId === value);
-
-    return {
-      ..._.chain(entity.facets)
-        .keyBy("name")
-        .mapValues((facet: any) => facet.value[0])
-        .value(),
-      id: entity.entityId,
-    };
+    return entities.find((entity: any) => entity.entityId === value);
   });
 
   return (
     <>
       <div className="mt-2">
-        <CurrentSchema fields={fields} />
+        <CurrentSchema entities={fields} />
       </div>
       <div className="mt-4">
         <FacetHistory

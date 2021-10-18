@@ -1,4 +1,5 @@
 from sqlalchemy.sql.sqltypes import TypeEngine
+from sqlalchemy.dialects.postgresql import JSON, JSONB
 from datetime import datetime, date
 from decimal import Decimal
 import logging
@@ -56,6 +57,12 @@ def histogram_value(conn, table_name, field_name, buckets=20):
         ]
     }
 
+def sql_query_pairs(conn, sql):
+    return [
+        {"key": row[0], "value": row[1]}
+        for row in conn.execute(sql)
+    ]
+
 def is_primitive_type(field_type: TypeEngine):
     try:
         return field_type.python_type in {int, str, bool, float}
@@ -73,7 +80,6 @@ def is_date(field_type: TypeEngine):
         return field_type.python_type in {datetime, date}
     except NotImplementedError:
         pass
-
 
 def get_column_metrics(engine, field_type, table_name, column_name):
     with engine.connect() as conn:
@@ -126,6 +132,23 @@ def get_column_metrics(engine, field_type, table_name, column_name):
 
             if hist:
                 out["metrics__histogram"] = hist
+
+        if field_type == JSON:
+            out["metrics__countByType"] = sql_query_pairs(
+                f"""
+                SELECT json_typeof({column_name}), COUNT(*)
+                FROM {table_name}
+                GROUP BY jsonb_typeof({column_name})
+                """
+            )
+        elif field_type == JSONB:
+            out["metrics__countByType"] = sql_query_pairs(
+                f"""
+                SELECT jsonb_typeof({column_name}), COUNT(*)
+                FROM {table_name}
+                GROUP BY jsonb_typeof({column_name})
+                """
+            )
 
         return out
 
