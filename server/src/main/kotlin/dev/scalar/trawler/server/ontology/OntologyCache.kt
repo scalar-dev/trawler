@@ -7,6 +7,12 @@ import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.ontology.OntologyImpl
 import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
+import io.vertx.core.Vertx
+import io.vertx.core.json.JsonObject
+import io.vertx.json.schema.Schema
+import io.vertx.json.schema.SchemaParser
+import io.vertx.json.schema.SchemaRouter
+import io.vertx.json.schema.SchemaRouterOptions
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
@@ -17,7 +23,17 @@ inline fun <reified T : Enum<T>, V> ((T) -> V).find(value: V): T? {
     return enumValues<T>().firstOrNull { this(it) == value }
 }
 
-fun loadOntology(projectId: UUID?) = transaction {
+fun loadJsonSchema(vertx: Vertx, jsonSchema: Any?): Schema? {
+    if (jsonSchema == null) {
+        return null
+    }
+
+    val schemaRouter: SchemaRouter = SchemaRouter.create(vertx, SchemaRouterOptions())
+    val schemaParser: SchemaParser = SchemaParser.createDraft201909SchemaParser(schemaRouter)
+    return schemaParser.parse(JsonObject.mapFrom(jsonSchema))
+}
+
+fun loadOntology(vertx: Vertx, projectId: UUID?) = transaction {
     OntologyImpl(
         EntityType
             .select {
@@ -46,7 +62,8 @@ fun loadOntology(projectId: UUID?) = transaction {
                     facetTypeDb[FacetType.name],
                     FacetMetaType::value.find(facetTypeDb[FacetType.metaType])!!,
                     facetTypeDb[FacetType.projectId]?.value,
-                    facetTypeDb[FacetType.indexTimeSeries]
+                    facetTypeDb[FacetType.indexTimeSeries],
+                    loadJsonSchema(vertx, facetTypeDb[FacetType.jsonSchema])
                 )
             }
             .toSet(),
@@ -54,16 +71,18 @@ fun loadOntology(projectId: UUID?) = transaction {
     )
 }
 
-object OntologyCache {
+class OntologyCache(val vertx: Vertx) {
     val log = LogManager.getLogger()
-    val CACHE = CacheBuilder.newBuilder()
+    private val cache = CacheBuilder.newBuilder()
         .maximumSize(100)
         .build(
             object : CacheLoader<UUID, Ontology>() {
                 override fun load(key: UUID): Ontology {
                     log.info("loading ontology for project $key")
-                    return loadOntology(key)
+                    return loadOntology(vertx, key)
                 }
             }
         )
+
+    fun get(projectId: UUID): Ontology = cache.get(projectId)
 }

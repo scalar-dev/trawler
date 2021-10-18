@@ -5,7 +5,6 @@ import dev.scalar.trawler.server.db.Entity
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.FacetTimeSeries
 import dev.scalar.trawler.server.db.FacetType
-import dev.scalar.trawler.server.ontology.OntologyCache
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
@@ -43,7 +42,7 @@ data class Entity(
             .associateBy { it.urn }
 
         rows.map { row ->
-            val facetType = OntologyCache.CACHE[projectId].facetTypeById(row[FacetLog.typeId].value)!!
+            val facetType = context.ontologyCache.get(projectId).facetTypeById(row[FacetLog.typeId].value)!!
 
             dev.scalar.trawler.server.graphql.FacetLog(
                 row[FacetLog.id].value,
@@ -57,7 +56,7 @@ data class Entity(
     }
 
     suspend fun timeSeries(context: QueryContext, facet: String): dev.scalar.trawler.server.graphql.FacetTimeSeries? = newSuspendedTransaction {
-        val facetType = OntologyCache.CACHE[projectId].facetTypeByUri(facet)!!
+        val facetType = context.ontologyCache.get(projectId).facetTypeByUri(facet)!!
 
         val rows = FacetTimeSeries
             .join(FacetType, JoinType.INNER, FacetTimeSeries.typeId, FacetType.id)

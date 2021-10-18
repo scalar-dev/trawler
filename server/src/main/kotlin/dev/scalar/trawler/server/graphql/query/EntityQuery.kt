@@ -9,7 +9,6 @@ import dev.scalar.trawler.server.db.util.ilike
 import dev.scalar.trawler.server.graphql.Entity
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.fetchEntities
-import dev.scalar.trawler.server.ontology.OntologyCache
 import org.jetbrains.exposed.sql.Alias
 import org.jetbrains.exposed.sql.ColumnSet
 import org.jetbrains.exposed.sql.JoinType
@@ -62,7 +61,7 @@ class EntityQuery {
                 .firstOrNull()?.get(Project.id)?.value
         } ?: throw Exception("Project not found: $project")
 
-        val ontology = OntologyCache.CACHE[projectId]
+        val ontology = context.ontologyCache.get(projectId)
 
         val ids = transaction {
 

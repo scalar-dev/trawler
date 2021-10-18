@@ -7,5 +7,8 @@ data class CollectFacet(
     val id: String?,
 
     @JsonProperty("@value")
-    val value: Any?
+    val value: Any?,
+
+    @JsonProperty("@type")
+    val type: String?,
 )

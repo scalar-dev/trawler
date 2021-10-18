@@ -6,7 +6,6 @@ import com.apicatalog.jsonld.loader.DocumentLoader
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
-import dev.scalar.trawler.server.App
 import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.collect.CollectRequest
@@ -28,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ontologyToContext
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
@@ -44,6 +44,7 @@ class CollectApi : BaseVerticle() {
         dbDefaults()
 
         val router = Router.router(vertx)
+        val ontologyCache = OntologyCache(vertx)
 
         router
             .errorHandler(400) { rc ->
@@ -60,14 +61,6 @@ class CollectApi : BaseVerticle() {
             log.info("Development token: ${mintToken(jwtAuth, Users.DEV, listOf("collect"))}")
         }
 
-        val loader = DocumentLoader { url, _ ->
-            if (url.toString() == "http://trawler.dev/schema/core") {
-                JsonDocument.of(App::class.java.getResourceAsStream("/core.jsonld"))
-            } else {
-                throw Exception()
-            }
-        }
-
         router
             .route(HttpMethod.POST, "/api/ontology/:projectId")
             .handler { rc ->
@@ -75,7 +68,7 @@ class CollectApi : BaseVerticle() {
                     val projectId = UUID.fromString(rc.pathParam("projectId"))
                     val ontology = DatabindCodec.mapper().readValue<OntologyConfig>(rc.bodyAsString)
 
-                    OntologyUpload().upload(projectId, ontology)
+                    OntologyUpload(vertx).upload(projectId, ontology)
 
                     rc.response().send()
                 }
@@ -106,13 +99,16 @@ class CollectApi : BaseVerticle() {
                             try {
                                 val json = DatabindCodec.mapper().readValue<JsonStructure>(rc.bodyAsString)
                                 val doc = JsonDocument.of(json)
+                                val loader = DocumentLoader { url, _ ->
+                                    JsonDocument.of(ontologyToContext(ontologyCache.get(projectId)))
+                                }
                                 val flat = JsonLd.flatten(doc).loader(loader).get()
 
                                 val request = DatabindCodec.mapper().convertValue<CollectRequest>(flat)
 
                                 val time = measureTimeMillis {
                                     val storeResult = withContext(Dispatchers.IO) {
-                                        val facetStore = FacetStore(OntologyCache.CACHE[projectId])
+                                        val facetStore = FacetStore(ontologyCache.get(projectId))
                                         val result = facetStore.ingest(projectId, request)
                                         result.ids.forEach { vertx.eventBus().send("indexer.queue", it.toString()) }
                                         result

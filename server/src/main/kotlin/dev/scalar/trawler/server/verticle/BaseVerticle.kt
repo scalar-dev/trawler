@@ -69,7 +69,7 @@ abstract class BaseVerticle : CoroutineVerticle() {
         }
 
         log.info("Updating root ontology")
-        updateOntology()
+        updateOntology(vertx)
     }
 
     fun jdbcClient(vertx: Vertx) = JDBCClient.create(vertx, dataSource)

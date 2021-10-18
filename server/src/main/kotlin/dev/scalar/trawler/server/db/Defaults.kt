@@ -9,17 +9,18 @@ import dev.scalar.trawler.server.App
 import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import dev.scalar.trawler.server.verticle.Config
+import io.vertx.core.Vertx
 import io.vertx.ext.web.common.WebEnvironment
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
 
-suspend fun updateOntology() {
+suspend fun updateOntology(vertx: Vertx) {
     // Update the core ontology
     val coreOntology = ObjectMapper(YAMLFactory())
         .registerModule(KotlinModule())
         .readValue<OntologyConfig>(App::class.java.getResourceAsStream("/core.ontology.yml"))
-    OntologyUpload().upload(null, coreOntology)
+    OntologyUpload(vertx).upload(null, coreOntology)
 }
 
 suspend fun devProject() = newSuspendedTransaction {
