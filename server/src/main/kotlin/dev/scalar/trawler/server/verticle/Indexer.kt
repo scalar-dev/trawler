@@ -34,13 +34,13 @@ class Indexer : BaseVerticle() {
             .associate { it[Entity.urn] to it[Entity.id].value }
     }
 
-    suspend fun indexFacetLog(id: UUID) = newSuspendedTransaction {
+    suspend fun indexFacetLog(ontologyCache: OntologyCache, id: UUID) = newSuspendedTransaction {
         // Grab the log
         val facetLog = FacetLog
             .selectForUpdate { FacetLog.id.eq(id) }
             .first()
 
-        val facetType = OntologyCache.CACHE[facetLog[FacetLog.projectId].value]
+        val facetType = ontologyCache.get(facetLog[FacetLog.projectId].value)
             .facetTypeById(facetLog[FacetLog.typeId].value)!!
 
         // Create any entities
@@ -120,6 +120,7 @@ class Indexer : BaseVerticle() {
     override suspend fun start() {
         super.start()
         configureDatabase()
+        val ontologyCache = OntologyCache(vertx)
 
         val adapter = vertx.receiveChannelHandler<Message<String>>()
         var counter = 0
@@ -134,7 +135,7 @@ class Indexer : BaseVerticle() {
             }
 
             try {
-                indexFacetLog(id)
+                indexFacetLog(ontologyCache, id)
             } catch (e: Throwable) {
                 log.error("Exception while trying to index facet log $id", e)
             }

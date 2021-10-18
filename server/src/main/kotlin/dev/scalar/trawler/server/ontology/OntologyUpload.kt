@@ -4,17 +4,18 @@ import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.util.set
+import io.vertx.core.Vertx
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.update
 import java.util.UUID
 
-class OntologyUpload {
+class OntologyUpload(val vertx: Vertx) {
     val log = LogManager.getLogger()
 
     suspend fun upload(projectId: UUID?, config: OntologyConfig) = newSuspendedTransaction {
-        val existingOntology = loadOntology(projectId)
+        val existingOntology = loadOntology(vertx, projectId)
 
         log.info("Uploading ontology $projectId")
 
@@ -74,6 +75,9 @@ class OntologyUpload {
                     it[dev.scalar.trawler.server.db.FacetType.metaType] = facetType.metaType.value
                     it[dev.scalar.trawler.server.db.FacetType.projectId] = projectId
                     it[dev.scalar.trawler.server.db.FacetType.indexTimeSeries] = facetType.indexTimeSeries
+                    if (facetType.jsonSchema != null) {
+                        it[dev.scalar.trawler.server.db.FacetType.jsonSchema] = facetType.jsonSchema
+                    }
                 }
             } else if (existing.projectId == projectId) {
                 log.info("Updating facet type: ${facetType.uri}")
@@ -81,6 +85,10 @@ class OntologyUpload {
                     it[dev.scalar.trawler.server.db.FacetType.name] = facetType.name
                     it[dev.scalar.trawler.server.db.FacetType.isDeprecated] = false
                     it[dev.scalar.trawler.server.db.FacetType.indexTimeSeries] = facetType.indexTimeSeries
+
+                    if (facetType.jsonSchema != null) {
+                        it[dev.scalar.trawler.server.db.FacetType.jsonSchema] = facetType.jsonSchema
+                    }
                 }
             } else {
                 log.info("Skipping ${facetType.uri}")

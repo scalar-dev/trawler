@@ -18,7 +18,8 @@ class FacetStore(val ontology: Ontology) {
         val txId: UUID,
         val ids: List<UUID>,
         val unrecognisedFacetTypes: Set<String>,
-        val unrecognisedEntityTypes: Set<String>
+        val unrecognisedEntityTypes: Set<String>,
+        val invalidFacetTypes: Set<String>
     )
 
     suspend fun ingestFacet(snapshot: FacetSnapshot): UUID = newSuspendedTransaction {
@@ -59,6 +60,7 @@ class FacetStore(val ontology: Ontology) {
     suspend fun ingest(projectId: UUID, request: CollectRequest): StoreReult {
         val unrecognisedFacetTypes = mutableSetOf<String>()
         val unrecognisedEntityTypes = mutableSetOf<String>()
+        val failedValidation = mutableSetOf<String>()
 
         val txId = UUID.randomUUID()
 
@@ -111,14 +113,31 @@ class FacetStore(val ontology: Ontology) {
             }
             .filterNotNull()
 
+        val validatedIngestOps = ingestOps.filter { ingestOp ->
+            if (!ingestOp.values.all {
+                when (it) {
+                    is FacetSnapshotValue.Value -> ingestOp.facetType.validate(it.value)
+                    else -> true
+                }
+            }
+            ) {
+                log.warn("Facet ${ingestOp.facetType.uri} violates JSON schema. Skipping")
+                failedValidation.add(ingestOp.facetType.uri)
+                false
+            } else {
+                true
+            }
+        }
+
         log.info("ingesting ${ingestOps.size} things")
         return StoreReult(
             txId,
-            ingestOps.map { ingestOp ->
+            validatedIngestOps.map { ingestOp ->
                 ingestFacet(ingestOp)
             },
             unrecognisedFacetTypes,
-            unrecognisedEntityTypes
+            unrecognisedEntityTypes,
+            failedValidation
         )
     }
 }

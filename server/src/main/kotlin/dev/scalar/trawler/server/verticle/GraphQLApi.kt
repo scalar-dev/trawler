@@ -5,6 +5,7 @@ import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
+import dev.scalar.trawler.server.ontology.OntologyCache
 import graphql.GraphQL
 import io.vertx.ext.auth.jdbc.JDBCAuthentication
 import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
@@ -24,6 +25,7 @@ class GraphQLApi : BaseVerticle() {
     override suspend fun start() {
         super.start()
         configureDatabase()
+        val ontologyCache = OntologyCache(vertx)
 
         val router = Router.router(vertx)
         val jdbcAuth = JDBCAuthentication.create(
@@ -65,7 +67,8 @@ class GraphQLApi : BaseVerticle() {
                             rc.user(),
                             if (accountId != null) UUID.fromString(accountId) else UUID(0, 0),
                             jdbcAuth,
-                            jwtAuth
+                            jwtAuth,
+                            ontologyCache
                         )
                     }
             )

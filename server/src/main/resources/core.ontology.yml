@@ -38,6 +38,19 @@ facetTypes:
   - name: "Histogram"
     uri: "http://trawler.dev/schema/metrics#histogram"
     metaType: JSON
+    jsonSchema:
+      type: object
+      properties:
+        min:
+          type: number
+        max:
+          type: number
+        counts:
+          type: array
+          items:
+            type: number
+        buckets:
+          type: number
   - name: "Type"
     uri: "http://trawler.dev/schema/core#type"
     metaType: STRING

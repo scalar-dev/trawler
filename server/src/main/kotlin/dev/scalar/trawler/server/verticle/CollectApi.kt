@@ -44,6 +44,7 @@ class CollectApi : BaseVerticle() {
         dbDefaults()
 
         val router = Router.router(vertx)
+        val ontologyCache = OntologyCache(vertx)
 
         router
             .errorHandler(400) { rc ->
@@ -75,7 +76,7 @@ class CollectApi : BaseVerticle() {
                     val projectId = UUID.fromString(rc.pathParam("projectId"))
                     val ontology = DatabindCodec.mapper().readValue<OntologyConfig>(rc.bodyAsString)
 
-                    OntologyUpload().upload(projectId, ontology)
+                    OntologyUpload(vertx).upload(projectId, ontology)
 
                     rc.response().send()
                 }
@@ -112,7 +113,7 @@ class CollectApi : BaseVerticle() {
 
                                 val time = measureTimeMillis {
                                     val storeResult = withContext(Dispatchers.IO) {
-                                        val facetStore = FacetStore(OntologyCache.CACHE[projectId])
+                                        val facetStore = FacetStore(ontologyCache.get(projectId))
                                         val result = facetStore.ingest(projectId, request)
                                         result.ids.forEach { vertx.eventBus().send("indexer.queue", it.toString()) }
                                         result

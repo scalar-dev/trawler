@@ -6,5 +6,6 @@ data class FacetTypeConfig(
     val uri: String,
     val name: String,
     val metaType: FacetMetaType,
-    val indexTimeSeries: Boolean = false
+    val indexTimeSeries: Boolean = false,
+    val jsonSchema: Any? = null
 )
