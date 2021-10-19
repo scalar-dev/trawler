@@ -58,7 +58,7 @@ class OntologyUpload(val vertx: Vertx) {
 
                 if (match == null && facetType.projectId == projectId) {
                     log.warn("Facet type ${facetType.uri} is not present in ontology. Deprecating")
-                    FacetType.update({ EntityType.id.eq(facetType.id) }) {
+                    FacetType.update({ FacetType.id.eq(facetType.id) }) {
                         it[FacetType.isDeprecated] = true
                     }
                 }

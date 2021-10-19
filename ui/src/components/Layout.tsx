@@ -49,6 +49,10 @@ export const Main: React.FC = ({ children }) => (
   </main>
 );
 
+export const MainFull: React.FC = ({ children }) => (
+  <main className="flex-1 flex">{children}</main>
+);
+
 export const ME_QUERY = gql`
   query Me {
     me {

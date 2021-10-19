@@ -18,7 +18,6 @@ def main(debug: bool):
 
 @main.command()
 @click.argument("uri")
-@click.option("--override-host")
 @click.option("--override-dbname")
 def sql(uri: str, override_dbname: Optional[str]):
     pprint(extract_sql(uri, override_dbname))

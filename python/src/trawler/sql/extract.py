@@ -86,7 +86,7 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None, project=None):
             sql_table = g.SqlTable(
                 table_urn(scheme, db_name, schema, table_name),
                 name=table_name,
-                tr__has=[
+                tr__hasField=[
                     g.SqlColumn(
                         column_urn(
                             scheme,
@@ -96,10 +96,10 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None, project=None):
                             field.name,
                         ),
                         name=field.name,
-                        tr__type=field.field_type.__visit_name__,
+                        tr__dataType=field.field_type.__visit_name__,
                         tr__isNullable=field.nullable,
                         tr__comment=field.comment,
-                        tr__foreignKeyConstraints=[
+                        tr__hasConstraint=[
                             constraint_urn(
                                 scheme,
                                 db_name,
@@ -126,7 +126,8 @@ def extract_sql(uri: str, override_dbname: Optional[str] = None, project=None):
                         constraint_urn(
                             scheme, db_name, schema, table_name, relation.name
                         ),
-                        tr__has=[
+                        name=relation.name,
+                        tr__constrains=[
                             {
                                 "@id": column_urn(
                                     scheme,

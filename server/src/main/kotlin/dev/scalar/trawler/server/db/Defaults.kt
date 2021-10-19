@@ -28,6 +28,7 @@ suspend fun devProject() = newSuspendedTransaction {
         Project.insertIgnore {
             it[Project.id] = DEMO_PROJECT_ID
             it[Project.name] = "Demo project"
+            it[Project.slug] = "test"
         }
     }
 }

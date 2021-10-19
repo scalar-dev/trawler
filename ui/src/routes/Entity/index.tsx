@@ -14,7 +14,7 @@ import {
   useRouteMatch,
 } from "react-router-dom";
 import { useQuery, gql } from "urql";
-import { Header, Main } from "../../components/Layout";
+import { Header, Main, MainFull } from "../../components/Layout";
 import { Tab, Tabs } from "../../components/Tabs";
 import { EntityDocument } from "../../types";
 import { Graph } from "../Graph";
@@ -24,7 +24,7 @@ import { Schema } from "./Schema";
 
 export const ENTITY_QUERY = gql`
   query Entity($id: UUID!) {
-    entityGraph(id: $id, d: 1) {
+    entityGraph(id: $id, d: 3) {
       entityId
       urn
       facets {
@@ -58,7 +58,7 @@ export const Entity = () => {
   )?.value;
 
   const hasFacet = facets?.find(
-    (facet: any) => facet.uri === "http://trawler.dev/schema/core#has"
+    (facet: any) => facet.uri === "http://trawler.dev/schema/core#hasField"
   );
 
   const TABS: Tab[] = [
@@ -145,35 +145,39 @@ export const Entity = () => {
         </div>
         <Tabs tabs={TABS} />
       </Header>
-      <Main>
-        <Route path={`${path}`} exact>
+      <Route path={`${path}`} exact>
+        <Main>
           {data.data?.entityGraph[0] && (
             <Overview entity={data.data?.entityGraph[0]} />
           )}
-        </Route>
+        </Main>
+      </Route>
 
-        <Route path={`${path}/schema`} exact>
-          {data.data?.entityGraph[0] && (
+      <Route path={`${path}/schema`} exact>
+        {data.data?.entityGraph[0] && (
+          <Main>
             <Schema
               entityId={entity}
               entity={data.data?.entityGraph[0]}
               entities={data.data.entityGraph}
             />
-          )}
-        </Route>
+          </Main>
+        )}
+      </Route>
 
-        <Route path={`${path}/graph`} exact>
-          {data.data?.entityGraph && (
+      <Route path={`${path}/graph`} exact>
+        {data.data?.entityGraph && (
+          <MainFull>
             <Graph entityGraph={data.data?.entityGraph} />
-          )}
-        </Route>
+          </MainFull>
+        )}
+      </Route>
 
-        <Route path={`${path}/metrics`} exact>
-          {data.data?.entityGraph[0] && (
-            <Metrics entity={entity} facets={data.data.entityGraph[0].facets} />
-          )}
-        </Route>
-      </Main>
+      <Route path={`${path}/metrics`} exact>
+        {data.data?.entityGraph[0] && (
+          <Metrics entity={entity} facets={data.data.entityGraph[0].facets} />
+        )}
+      </Route>
     </>
   );
 };
