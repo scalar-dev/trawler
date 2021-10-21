@@ -1,25 +1,17 @@
-import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import createEngine, {
-  DagreEngine,
-  PathFindingLinkFactory,
-  DiagramModel,
-} from "@projectstorm/react-diagrams";
-
-import { NodeModel, DefaultPortModel } from "@projectstorm/react-diagrams";
-import { BaseModelOptions } from "@projectstorm/react-canvas-core";
-
-import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
-
-import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import React, { useEffect, useState } from "react";
+import ReactFlow, {
+  ArrowHeadType,
+  Handle,
+  Position,
+  MiniMap,
+  Controls,
+  ConnectionMode,
+  isNode,
+  useUpdateNodeInternals,
+} from "react-flow-renderer";
 import _ from "lodash";
+import { useEffect, useMemo } from "react";
 import { dataTypeFacet, fields, nameFacet } from "../../ontology";
-import { setTimeout } from "timers";
-
-interface TableWidgetProps {
-  node: TableNodeModel;
-  engine: DiagramEngine;
-}
+import dagre from "dagre";
 
 type Field = {
   id: string;
@@ -27,204 +19,92 @@ type Field = {
   type: string;
 };
 
-class TableWidget extends React.Component<TableWidgetProps, {}> {
-  constructor(props: TableWidgetProps) {
-    super(props);
-    this.state = {};
-  }
-
-  render() {
-    return (
-      <div className="border rounded-md shadow-md">
-        <PortWidget
-          engine={this.props.engine}
-          port={this.props.node.getPort(`${this.props.node.entityId}_in`)!}
-        >
-          <div className="px-4 py-2 font-bold w-full h-8 border-b">
-            {this.props.node.name}
-          </div>
-        </PortWidget>
-
-        {this.props.node.fields.map((field) => (
-          <div className="w-full flex">
-            <PortWidget
-              engine={this.props.engine}
-              port={this.props.node.getPort(`${field.id}_in`)!}
-            >
-              <div className="w-8 h-8"></div>
-            </PortWidget>
-            <div className="flex-1">{field.name}</div>
-            <PortWidget
-              engine={this.props.engine}
-              port={this.props.node.getPort(`${field.id}_out`)!}
-            >
-              <div className="w-8 h-8"></div>
-            </PortWidget>
-          </div>
-        ))}
-      </div>
-    );
-  }
-}
-
-export class TableNodeFactory extends AbstractReactFactory<
-  TableNodeModel,
-  DiagramEngine
-> {
-  constructor() {
-    super("table-node");
-  }
-
-  generateModel(initialConfig: any) {
-    return new TableNodeModel();
-  }
-
-  generateReactWidget(event: any): JSX.Element {
-    return (
-      <TableWidget engine={this.engine as DiagramEngine} node={event.model} />
-    );
-  }
-}
-
-export interface TableNodeModelOptions extends BaseModelOptions {
-  entityId: string;
-  name: string;
-  fields: Field[];
-}
-
-export class TableNodeModel extends NodeModel {
-  entityId: string;
-  name: string;
-  fields: Field[];
-
-  constructor(
-    options: TableNodeModelOptions = { entityId: "", name: "", fields: [] }
-  ) {
-    super({
-      ...options,
-      type: "table-node",
-    });
-    this.entityId = options.entityId;
-    this.name = options.name;
-    this.fields = options.fields;
-
-    this.addPort(
-      new DefaultPortModel({
-        in: true,
-        name: `${this.entityId}_in`,
-        locked: true,
-      })
-    );
-
-    this.addPort(
-      new DefaultPortModel({
-        in: true,
-        name: `${this.entityId}_out`,
-        locked: true,
-      })
-    );
-
-    this.fields.forEach((field) => {
-      this.addPort(
-        new DefaultPortModel({
-          in: true,
-          name: `${field.id}_in`,
-          locked: true,
-        })
-      );
-
-      this.addPort(
-        new DefaultPortModel({
-          in: false,
-          name: `${field.id}_out`,
-          locked: true,
-        })
-      );
-    });
-  }
-
-  serialize() {
-    return {
-      ...super.serialize(),
-      name: this.name,
-      fields: this.fields,
-    };
-  }
-
-  deserialize(event: any): void {
-    super.deserialize(event);
-    this.name = event.data.name;
-    this.fields = event.data.fields;
-  }
-}
-
-const engine = createEngine();
-engine
-  .getLinkFactories()
-  .getFactory<PathFindingLinkFactory>(
-    PathFindingLinkFactory.NAME
-  ).ROUTING_SCALING_FACTOR = 1000;
-
-const Canvas = ({ engine }: { engine: DiagramEngine }) => (
-  <CanvasWidget className="flex-1" engine={engine} />
-);
-
-class DiagramWidget extends React.Component<
-  { model: DiagramModel; engine: DiagramEngine },
-  any
-> {
-  engine: DagreEngine;
-
-  constructor(props: any) {
-    super(props);
-    this.engine = new DagreEngine({
-      graph: {
-        rankdir: "RL",
-        ranker: "longest-path",
-        marginx: 25,
-        marginy: 25,
-      },
-      includeLinks: true,
-    });
-  }
-
-  autoDistribute = () => {
-    // this.props.
-    this.engine.redistribute(this.props.model);
-    // only happens if pathfing is enabled (check line 25)
-    this.reroute();
-    this.props.engine.repaintCanvas();
-    // this.props.engine.zoomToFit();
-  };
-
-  componentDidMount(): void {
-    setTimeout(() => this.autoDistribute(), 500);
-  }
-
-  reroute() {
-    this.props.engine
-      .getLinkFactories()
-      .getFactory<PathFindingLinkFactory>(PathFindingLinkFactory.NAME)
-      .calculateRoutingMatrix();
-  }
-
-  render() {
-    return <Canvas engine={this.props.engine} />;
-  }
-}
-
 type Entity = {
+  typeName: string;
   entityId: string;
   facets: any[];
 };
 
+const TableNode = ({ id, data }: { id: string; data: any }) => {
+  return (
+    <div className="border rounded-md border-indigo-600 bg-white">
+      <div className="flex">
+        <Handle
+          id={id}
+          type="target"
+          position={Position.Top}
+          isConnectable
+          // style={{ background: "#000" }}
+        />
+        <div className="px-3 py-2">{data.name}</div>
+      </div>
+
+      {data.fields.map((field: Field) => (
+        <div className="flex w-full">
+          <Handle
+            id={`${field.id}_in`}
+            type="target"
+            position={Position.Left}
+            isConnectable
+            style={{ position: "relative", top: 15 }}
+          />
+          <div className="px-3 py-1 flex-1">{field.name}</div>
+          <Handle
+            id={`${field.id}_out`}
+            type="source"
+            position={Position.Right}
+            isConnectable
+            style={{ position: "relative", top: 15 }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const nodeWidth = 172;
+const nodeHeight = 36;
+
+const getLayoutedElements = (elements: any[], direction = "TB") => {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  const isHorizontal = direction === "LR";
+  dagreGraph.setGraph({ rankdir: direction });
+
+  elements.forEach((el) => {
+    if (isNode(el)) {
+      dagreGraph.setNode(el.id, {
+        width: nodeWidth,
+        height: el.data.fields.length * 10,
+      });
+    } else {
+      dagreGraph.setEdge(el.source, el.target);
+    }
+  });
+
+  dagre.layout(dagreGraph);
+
+  return elements.map((el) => {
+    if (isNode(el)) {
+      const nodeWithPosition = dagreGraph.node(el.id);
+      el.targetPosition = isHorizontal ? Position.Left : Position.Top;
+      el.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+
+      // unfortunately we need this little hack to pass a slightly different position
+      // to notify react flow about the change. Moreover we are shifting the dagre node position
+      // (anchor=center center) to the top left so it matches the react flow node anchor point (top left).
+      el.position = {
+        x: nodeWithPosition.x - nodeWidth / 2 + Math.random() / 1000,
+        y: nodeWithPosition.y - (el.data.fields.length * 30) / 2,
+      };
+    }
+
+    return el;
+  });
+};
+
 export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
-  const [isInit, setIsInit] = useState(false);
-
-  useEffect(() => {
-    engine.getNodeFactories().registerFactory(new TableNodeFactory());
-    const model = new DiagramModel();
-
+  const elements2 = useMemo(() => {
     const entityById = _.keyBy(entityGraph, (entity) => entity.entityId);
 
     const parentEntity: Record<string, string> = _.chain(entityGraph)
@@ -240,18 +120,23 @@ export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
       .groupBy((entity: any) => parentEntity[entity.entityId])
       .value();
 
-    let nodeByEntityId = new Map<string, TableNodeModel>();
-
     const nodeForEntity = (entityId: string) => {
-      if (nodeByEntityId.has(entityId)) {
-        return nodeByEntityId.get(entityId);
-      } else {
-        const parentId = parentEntity[entityId];
-        return nodeByEntityId.get(parentId);
+      const entity = entityById[entityId];
+
+      if (!entity) {
+        return null;
       }
+
+      if (entity.typeName === "SqlTable") {
+        return entityId;
+      } else if (entity.typeName === "SqlColumn") {
+        return parentEntity[entityId];
+      }
+
+      return null;
     };
 
-    const nodeForConstraint = (entityId: string) => {
+    const targetForConstraint = (entityId: string) => {
       const entity = entityById[entityId];
 
       const constrains = entity.facets.find(
@@ -260,33 +145,38 @@ export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
       );
 
       if (constrains) {
-        return nodeForEntity(constrains.value[0]);
+        return constrains.value[0];
       }
 
       return null;
     };
 
+    const nodes: any[] = [];
+
     entityGraph.forEach((entity: any, idx: number) => {
       if (entity.typeName === "SqlTable") {
         const fields = entityByParent[entity.entityId] || [];
 
-        const node = new TableNodeModel({
-          entityId: entity.entityId,
-          name: nameFacet(entity),
-          fields: fields.map((field: any) => ({
-            id: field.entityId,
-            name: nameFacet(field),
-            type: dataTypeFacet(field),
-          })),
-        });
+        const node = {
+          id: entity.entityId,
+          type: "table",
+          data: {
+            name: nameFacet(entity),
+            fields: fields.map((field: any) => ({
+              id: field.entityId,
+              name: nameFacet(field),
+              type: dataTypeFacet(field),
+            })),
+          },
 
-        nodeByEntityId.set(entity.entityId, node);
+          position: { x: idx * 200, y: 0 },
+        };
 
-        node.setPosition(idx * 200, 0);
-
-        model.addNode(node);
+        nodes.push(node);
       }
     });
+
+    const links: any[] = [];
 
     entityGraph.forEach((entity: any) => {
       const sourceNode = nodeForEntity(entity.entityId);
@@ -298,39 +188,57 @@ export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
 
         relationshipFacets.forEach((facet: any) => {
           facet.value.forEach((targetId: string) => {
-            const targetNode =
+            const resolvedTargetId =
               facet.uri === "http://trawler.dev/schema/core#hasConstraint"
-                ? nodeForConstraint(targetId)
-                : nodeForEntity(targetId);
+                ? targetForConstraint(targetId)
+                : targetId;
+
+            const targetNode = nodeForEntity(resolvedTargetId);
 
             if (targetNode && targetNode !== sourceNode) {
-              const sourcePort = sourceNode.getPort(`${entity.entityId}_out`);
-              const targetPort = targetNode.getPort(
-                `${targetNode.entityId}_in`
-              );
-
-              if (sourcePort && targetPort) {
-                const link = engine
-                  .getLinkFactories()
-                  .getFactory(PathFindingLinkFactory.NAME)
-                  .generateModel({});
-                // const link = new DefaultLinkModel();
-                link.setSourcePort(sourcePort);
-                link.setTargetPort(targetPort);
-                model.addLink(link);
-              }
+              links.push({
+                id: `${entity.entityId}_${targetId}`,
+                source: sourceNode,
+                sourceHandle: `${entity.entityId}_out`,
+                target: targetNode,
+                targetHandle: `${resolvedTargetId}_in`,
+              });
             }
           });
         });
       }
     });
 
-    engine.setModel(model);
-    setIsInit(true);
+    return getLayoutedElements([...nodes, ...links]);
   }, [entityGraph]);
 
-  return isInit ? (
-    <DiagramWidget model={engine.getModel()} engine={engine} />
-  ) : // <Canvas engine={engine} />
-  null;
+  console.log(elements2);
+
+  return (
+    <div className="flex-1">
+      <ReactFlow
+        connectionMode={ConnectionMode.Loose}
+        minZoom={0.1}
+        nodeTypes={{ table: TableNode }}
+        elements={elements2}
+      >
+        <Controls />
+        <MiniMap
+          nodeColor={(node) => {
+            switch (node.type) {
+              case "input":
+                return "red";
+              case "default":
+                return "#00ff00";
+              case "output":
+                return "rgb(0,0,255)";
+              default:
+                return "#eee";
+            }
+          }}
+          nodeStrokeWidth={3}
+        />
+      </ReactFlow>
+    </div>
+  );
 };

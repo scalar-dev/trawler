@@ -80,6 +80,7 @@
     "@graphql-codegen/typescript": "^2.2.2",
     "@graphql-codegen/typescript-operations": "^2.1.5",
     "@types/cytoscape-dagre": "^2.3.0",
+    "@types/dagre": "^0.7.46",
     "@types/numeral": "^2.0.2",
     "@types/react-cytoscapejs": "^1.2.2",
     "@types/react-router-dom": "^5.3.0",
