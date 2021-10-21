@@ -4,6 +4,7 @@ import {
   CubeTransparentIcon,
   InformationCircleIcon,
   TableIcon,
+  TemplateIcon,
 } from "@heroicons/react/solid";
 import {
   Link,
@@ -18,6 +19,7 @@ import { Header, Main, MainFull } from "../../components/Layout";
 import { Tab, Tabs } from "../../components/Tabs";
 import { EntityDocument } from "../../types";
 import { Graph } from "../Graph";
+import { Diagram } from "./Diagram";
 import { Metrics } from "./Metrics";
 import { Overview } from "./Overview";
 import { Schema } from "./Schema";
@@ -72,6 +74,11 @@ export const Entity = () => {
       href: `${url}/schema`,
       icon: TableIcon,
       enabled: !!hasFacet,
+    },
+    {
+      name: "Diagram",
+      href: `${url}/diagram`,
+      icon: TemplateIcon,
     },
     {
       name: "Graph",
@@ -169,6 +176,14 @@ export const Entity = () => {
         {data.data?.entityGraph && (
           <MainFull>
             <Graph entityGraph={data.data?.entityGraph} />
+          </MainFull>
+        )}
+      </Route>
+
+      <Route path={`${path}/diagram`} exact>
+        {data.data?.entityGraph && (
+          <MainFull>
+            <Diagram entityGraph={data.data.entityGraph} />
           </MainFull>
         )}
       </Route>

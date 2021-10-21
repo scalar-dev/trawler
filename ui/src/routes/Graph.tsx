@@ -15,42 +15,10 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
   const history = useHistory();
   const { entityLink } = useContext(ProjectContext);
 
-  const parents = _.chain(entityGraph)
-    .flatMap((entity: any) => {
-      const relationshipFacets = entity.facets
-        .filter((facet: any) => facet.metaType === "relationship")
-        .filter(
-          (facet: any) =>
-            facet.uri === "http://trawler.dev/schema/core#hasField"
-        );
-
-      return relationshipFacets.flatMap((facet: any) =>
-        facet.value.map((value: any) => [entity.entityId, value])
-      );
-    })
-    .keyBy((pair: any[]) => pair[1])
-    .mapValues((pair: any[]) => pair[0])
-    .value();
-
-  const groups = _.chain(entityGraph)
-    .map((entity: any) => entity.entityId)
-    .filter((id: any) => id in parents)
-    .groupBy((id: any) => parents[id])
-    .values()
-    .value();
-
-
   const edges = _.flatMap(entityGraph, (entity: any) => {
-    const relationshipFacets = entity.facets
-      .filter((facet: any) => facet.metaType === "relationship")
-      .filter(
-        (facet: any) =>
-          !(
-            facet.uri === "http://trawler.dev/schema/core#hasField" ||
-            (entity.typeName === "SqlDatabase" &&
-              facet.uri === "http://trawler.dev/schema/core#has")
-          )
-      );
+    const relationshipFacets = entity.facets.filter(
+      (facet: any) => facet.metaType === "relationship"
+    );
 
     return _.flatMap(relationshipFacets, (facet: any) =>
       facet.value.map((target: string) => ({
@@ -62,7 +30,6 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
   const nodes = entityGraph.map((entity: any) => ({
     data: {
       id: entity.entityId,
-      parent: parents[entity.entityId],
       label:
         entity.facets.find(
           (facet: any) => facet.uri === "http://schema.org/name"
@@ -79,17 +46,6 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
         nodeIds.has(edge.data.source) && nodeIds.has(edge.data.target)
     ),
   ];
-  console.log(elements);
-
-  const constrains = groups.flatMap((group: any[]) => {
-    return _.zip(group, group.slice(1))
-      .filter((pair: any[]) => pair[0] && pair[1])
-      .map((pair: any[]) => ({
-        top: pair[0],
-        bottom: pair[1],
-        gap: 20,
-      }));
-  });
 
   return (
     <>
@@ -103,10 +59,7 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
         layout={
           {
             name: "fcose",
-            // rankDir: "LR",
-            alignmentConstraint: { vertical: groups },
-            relativePlacementConstraint: constrains,
-            // fit: true,
+            fit: true,
             quality: "proof",
             randomize: false,
           } as any
