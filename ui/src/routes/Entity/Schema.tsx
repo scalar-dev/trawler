@@ -118,7 +118,7 @@ const CurrentSchema = ({ entities }: { entities: any[] }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm text-gray-900 font-mono">
-                          {fields.Type}
+                          {fields["Data Type"]}
                         </span>
                         {fields["Is Nullable"] && (
                           <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -319,7 +319,7 @@ export const Schema = ({
   entities: any[];
 }) => {
   const hasFacet = entity.facets?.find(
-    (facet: any) => facet.uri === "http://trawler.dev/schema/core#has"
+    (facet: any) => facet.uri === "http://trawler.dev/schema/core#hasField"
   );
 
   if (!hasFacet) {
@@ -338,7 +338,7 @@ export const Schema = ({
       <div className="mt-4">
         <FacetHistory
           entityId={entityId}
-          facets={["http://trawler.dev/schema/core#has"]}
+          facets={["http://trawler.dev/schema/core#hasField"]}
         />
       </div>
     </>

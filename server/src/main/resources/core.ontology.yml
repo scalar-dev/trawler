@@ -1,40 +1,66 @@
 entityTypes:
   - name: "SqlDatabase"
     uri: "http://trawler.dev/schema/core#SqlDatabase"
+
   - name: "SqlTable"
     uri: "http://trawler.dev/schema/core#SqlTable"
+
   - name: "SqlColumn"
     uri: "http://trawler.dev/schema/core#SqlColumn"
+
+  - name: "SqlConstraint"
+    uri: "http://trawler.dev/schema/core#SqlConstraint"
+
 facetTypes:
   - name: "Type"
     uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
     metaType: TYPE_REFERENCE
+
   - name: "Name"
     uri: "http://schema.org/name"
     metaType: STRING
+
   - name: "Has"
     uri: "http://trawler.dev/schema/core#has"
     metaType: RELATIONSHIP
+
+  - name: "Has Field"
+    uri: "http://trawler.dev/schema/core#hasField"
+    metaType: RELATIONSHIP
+
+  - name: "Has Constraint"
+    uri: "http://trawler.dev/schema/core#hasConstraint"
+    metaType: RELATIONSHIP
+
+  - name: "Constrains"
+    uri: "http://trawler.dev/schema/core#constrains"
+    metaType: RELATIONSHIP
+
   - name: "Null Ratio"
     uri: "http://trawler.dev/schema/metrics#nullRatio"
     metaType: DOUBLE
     indexTimeSeries: true
+
   - name: "Unique Ratio"
     uri: "http://trawler.dev/schema/metrics#uniqueRatio"
     metaType: DOUBLE
     indexTimeSeries: true
+
   - name: "Count"
     uri: "http://trawler.dev/schema/metrics#count"
     indexTimeSeries: true
     metaType: INT
+
   - name: "Max"
     uri: "http://trawler.dev/schema/metrics#max"
     metaType: DOUBLE
     indexTimeSeries: true
+
   - name: "Min"
     uri: "http://trawler.dev/schema/metrics#min"
     metaType: DOUBLE
     indexTimeSeries: true
+
   - name: "Histogram"
     uri: "http://trawler.dev/schema/metrics#histogram"
     metaType: JSON
@@ -51,6 +77,7 @@ facetTypes:
             type: number
         buckets:
           type: number
+
   - name: "Count By Type"
     uri: "http://trawler.dev/schema/metrics#countByType"
     metaType: JSON
@@ -63,9 +90,11 @@ facetTypes:
             type: string
           value:
             type: number
-  - name: "Type"
-    uri: "http://trawler.dev/schema/core#type"
+
+  - name: "Data Type"
+    uri: "http://trawler.dev/schema/core#dataType"
     metaType: STRING
+
   - name: "Is Nullable"
     uri: "http://trawler.dev/schema/core#isNullable"
     metaType: BOOLEAN

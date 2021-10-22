@@ -59,7 +59,7 @@ class Graph:
     def store(self, project=None):
         out = self.json()
 
-        token = os.environ.get("TRAWLER_TOKEN")
+        token = os.environ["TRAWLER_TOKEN"]
         endpoint = os.environ.get("TRAWLER_ENDPOINT", "https://api.trawler.dev")
         project = project or os.environ.get("TRAWLER_PROJECT", "63255f7a-e383-457a-9c30-4c7f95308749")
 
