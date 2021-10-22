@@ -1,15 +1,16 @@
 import ReactFlow, {
-  ArrowHeadType,
   Handle,
   Position,
   MiniMap,
   Controls,
   ConnectionMode,
+  Node,
   isNode,
-  useUpdateNodeInternals,
+  isEdge,
+  ArrowHeadType,
 } from "react-flow-renderer";
 import _ from "lodash";
-import { useEffect, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { dataTypeFacet, fields, nameFacet } from "../../ontology";
 import dagre from "dagre";
 
@@ -25,47 +26,81 @@ type Entity = {
   facets: any[];
 };
 
-const TableNode = ({ id, data }: { id: string; data: any }) => {
+const TableNode = ({
+  id,
+  selected,
+  data,
+}: {
+  id: string;
+  selected: boolean;
+  data: any;
+}) => {
   return (
-    <div className="border rounded-md border-indigo-600 bg-white">
-      <div className="flex">
+    <div
+      className={`border rounded-md ${
+        selected ? "border-indigo-600" : "border-gray-500"
+      } ${data.secondarySelected ? "border-red-600" : "border-gray-500"}
+      `}
+    >
+      <div className="flex bg-white rounded-md">
         <Handle
           id={id}
           type="target"
           position={Position.Top}
           isConnectable
-          // style={{ background: "#000" }}
+          style={{
+            background: data.connectedHandles.has(id)
+              ? "rgba(79. 70, 229, 1.0)"
+              : "#000",
+          }}
         />
-        <div className="px-3 py-2">{data.name}</div>
+        <div className="px-3 py-2 border-b w-full">
+          {data.name}
+          <div className="text-xs font-mono">{data.type}</div>
+        </div>
       </div>
 
-      {data.fields.map((field: Field) => (
-        <div className="flex w-full">
-          <Handle
-            id={`${field.id}_in`}
-            type="target"
-            position={Position.Left}
-            isConnectable
-            style={{ position: "relative", top: 15 }}
-          />
-          <div className="px-3 py-1 flex-1">{field.name}</div>
-          <Handle
-            id={`${field.id}_out`}
-            type="source"
-            position={Position.Right}
-            isConnectable
-            style={{ position: "relative", top: 15 }}
-          />
-        </div>
-      ))}
+      <div className="bg-opacity-60 bg-white">
+        {data.fields.map((field: Field) => (
+          <div className="flex w-full">
+            <Handle
+              id={`${field.id}_in`}
+              type="target"
+              position={Position.Left}
+              isConnectable
+              style={{
+                background: data.connectedHandles.has(`${field.id}_in`)
+                  ? "rgba(79, 70, 229, 1.0)"
+                  : "#000",
+                position: "relative",
+                top: 15,
+              }}
+            />
+            <div className="px-1 py-1 flex-1 text-xs">
+              {field.name}: <span className="font-mono">{field.type}</span>
+            </div>
+            <Handle
+              id={`${field.id}_out`}
+              type="source"
+              position={Position.Right}
+              isConnectable
+              style={{
+                background: data.connectedHandles.has(`${field.id}_out`)
+                  ? "rgba(79, 70, 229, 1.0)"
+                  : "#000",
+                position: "relative",
+                top: 15,
+              }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-const nodeWidth = 172;
-const nodeHeight = 36;
-
 const getLayoutedElements = (elements: any[], direction = "TB") => {
+  const nodeWidth = 150;
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
   const isHorizontal = direction === "LR";
@@ -75,7 +110,7 @@ const getLayoutedElements = (elements: any[], direction = "TB") => {
     if (isNode(el)) {
       dagreGraph.setNode(el.id, {
         width: nodeWidth,
-        height: el.data.fields.length * 10,
+        height: el.data.fields.length * 30,
       });
     } else {
       dagreGraph.setEdge(el.source, el.target);
@@ -104,7 +139,9 @@ const getLayoutedElements = (elements: any[], direction = "TB") => {
 };
 
 export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
-  const elements2 = useMemo(() => {
+  const [selection, setSelection] = useState(new Set<string>());
+
+  const elements = useMemo(() => {
     const entityById = _.keyBy(entityGraph, (entity) => entity.entityId);
 
     const parentEntity: Record<string, string> = _.chain(entityGraph)
@@ -162,6 +199,7 @@ export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
           type: "table",
           data: {
             name: nameFacet(entity),
+            type: entity.typeName,
             fields: fields.map((field: any) => ({
               id: field.entityId,
               name: nameFacet(field),
@@ -177,6 +215,8 @@ export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
     });
 
     const links: any[] = [];
+
+    const connectedHandles = new Map<string, Set<string>>();
 
     entityGraph.forEach((entity: any) => {
       const sourceNode = nodeForEntity(entity.entityId);
@@ -196,23 +236,62 @@ export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
             const targetNode = nodeForEntity(resolvedTargetId);
 
             if (targetNode && targetNode !== sourceNode) {
-              links.push({
+              const link = {
                 id: `${entity.entityId}_${targetId}`,
                 source: sourceNode,
                 sourceHandle: `${entity.entityId}_out`,
                 target: targetNode,
                 targetHandle: `${resolvedTargetId}_in`,
-              });
+                label: facet.name,
+                arrowHeadType: ArrowHeadType.Arrow,
+              };
+
+              connectedHandles.set(
+                sourceNode,
+                (connectedHandles.get(sourceNode) || new Set<string>()).add(
+                  link.sourceHandle
+                )
+              );
+
+              connectedHandles.set(
+                targetNode,
+                (connectedHandles.get(targetNode) || new Set<string>()).add(
+                  link.targetHandle
+                )
+              );
+
+              links.push(link);
             }
           });
         });
       }
     });
 
+    nodes.forEach(
+      (node) =>
+        (node.data = {
+          ...node.data,
+          connectedHandles: connectedHandles.get(node.id) || new Set(),
+        })
+    );
+
     return getLayoutedElements([...nodes, ...links]);
   }, [entityGraph]);
 
-  console.log(elements2);
+  const connectedNodes = new Set(
+    elements
+      .map((element) => {
+        if (isEdge(element)) {
+          if (selection.has(element.source)) {
+            return element.target;
+          } else if (selection.has(element.target)) {
+            return element.source;
+          }
+        }
+        return null;
+      })
+      .filter((element) => element)
+  );
 
   return (
     <div className="flex-1">
@@ -220,7 +299,34 @@ export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
         connectionMode={ConnectionMode.Loose}
         minZoom={0.1}
         nodeTypes={{ table: TableNode }}
-        elements={elements2}
+        elements={elements.map((element) => {
+          if (isEdge(element)) {
+            return selection.has(element.source) ||
+              selection.has(element.target)
+              ? { ...element, animated: true }
+              : { ...element, animated: false };
+          } else if (isNode(element)) {
+            return connectedNodes.has(element.id)
+              ? {
+                  ...element,
+                  data: { ...element.data, secondarySelected: true },
+                }
+              : {
+                  ...element,
+                  data: { ...element.data, secondarySelected: false },
+                };
+          }
+          return element;
+        })}
+        onSelectionChange={(selectedElements) => {
+          const node = selectedElements?.[0] as unknown as Node;
+
+          if (node) {
+            setSelection(new Set([node.id]));
+          } else {
+            setSelection(new Set());
+          }
+        }}
       >
         <Controls />
         <MiniMap
