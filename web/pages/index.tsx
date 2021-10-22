@@ -2,114 +2,18 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { Fragment } from "react";
 import { Popover, Transition } from "@headlessui/react";
-import {
-  MenuIcon,
-  XIcon,
-  AnnotationIcon,
-  GlobeAltIcon,
-  LightningBoltIcon,
-  ScaleIcon,
-} from "@heroicons/react/outline";
+import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { Footer } from "../components/Footer";
+import { Screenshot } from "../components/Screenshot";
+import { Features } from "../components/Features";
+import { Hero } from "../components/Hero";
 
 const navigation = [
   { name: "Product", href: "#product" },
   { name: "Documentation", href: "https://docs.trawler.dev" },
 ];
 
-const Screenshot = () => (
-  <div className="relative bg-gray-50 pt-16 sm:pt-24 lg:pt-32" id="product">
-    <div className="mx-auto max-w-md px-4 text-center sm:px-6 sm:max-w-3xl lg:px-8 lg:max-w-7xl">
-      <div>
-        <h2 className="text-base font-semibold tracking-wider text-cyan-600 uppercase">
-          Graph based data catalogue.
-        </h2>
-        <p className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
-          Connect metadata across datasets and systems.
-        </p>
-        <p className="mt-5 max-w-prose mx-auto text-xl text-gray-500">
-          Trawler's graph data model supports column-level data lineage so you
-          can trace data flow throughout your datasets and systems.
-        </p>
-      </div>
-      <div className="mt-12 -mb-10 sm:-mb-24 lg:-mb-80">
-        <img
-          className="rounded-lg shadow-xl ring-1 ring-black ring-opacity-5"
-          src="/screenshot.png"
-          alt=""
-        />
-      </div>
-    </div>
-  </div>
-);
-
-const Features = () => {
-  const features = [
-    {
-      name: "All-inclusive",
-      description:
-        "Trawler's agent can ingest data from a variety of data sources including SQL, flat-files and Spark. Use the Python API to write your own integrations.",
-      icon: GlobeAltIcon,
-    },
-    {
-      name: "Flexible",
-      description:
-        "Trawler builds on semantic web technologies like JSON-LD to accurately model your metadata. Extend the ontology to add your own metadata types.",
-      icon: ScaleIcon,
-    },
-    {
-      name: "Simple",
-      description:
-        "Trawler can be deployed simply and easily on top of a postgres database.",
-      icon: LightningBoltIcon,
-    },
-    {
-      name: "Open",
-      description:
-        "As well as supporting open APIs and standard data formats, Trawler itself is open source.",
-      icon: AnnotationIcon,
-    },
-  ];
-
-  return (
-    <div className="relative bg-white py-16 sm:py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:text-center">
-          <h2 className="text-base text-indigo-600 font-semibold tracking-wide uppercase">
-            Flexible data model
-          </h2>
-          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl"></p>
-          <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-            Trawler&apos;s flexible data model allows you to ingest metadata
-            from across your organisation.
-          </p>
-        </div>
-
-        <div className="mt-10">
-          <dl className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-            {features.map((feature) => (
-              <div key={feature.name} className="relative">
-                <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
-                    <feature.icon className="h-6 w-6" aria-hidden="true" />
-                  </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
-                    {feature.name}
-                  </p>
-                </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-500">
-                  {feature.description}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Example = () => {
+const Main = () => {
   return (
     <>
       <div className="bg-white">
@@ -239,70 +143,10 @@ const Example = () => {
               </Popover.Panel>
             </Transition>
           </Popover>
-
-          <main>
-            <div className="pt-10 bg-gray-900 sm:pt-16 lg:pt-8 lg:pb-14 lg:overflow-hidden">
-              <div className="mx-auto max-w-7xl lg:px-8">
-                <div className="lg:grid lg:grid-cols-2 lg:gap-8">
-                  <div className="mx-auto max-w-md px-4 sm:max-w-2xl sm:px-6 sm:text-center lg:px-0 lg:text-left lg:flex lg:items-center">
-                    <div className="lg:py-24">
-                      <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-6xl lg:mt-6 xl:text-6xl">
-                        <span className="block">Untangle your</span>
-                        <span className="block text-indigo-400">data.</span>
-                      </h1>
-                      <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                        Trawler is an open source graph-based data catalogue and
-                        metadata platform based on semantic web technologies.
-                      </p>
-                      <div className="mt-5 max-w-md sm:flex justify-start sm:justify-start md:mt-8">
-                        <div className="rounded-md shadow">
-                          <a
-                            href="https://github.com/scalar-dev/trawler"
-                            className="w-full inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
-                          >
-                            <svg
-                              fill="currentColor"
-                              viewBox="0 0 24 24"
-                              className="-ml-2 mr-2 h-6 w-6"
-                              aria-hidden="true"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            GitHub
-                          </a>
-                        </div>
-                        <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-                          <a
-                            href="https://app.trawler.dev/wat-beer"
-                            className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
-                          >
-                            Live demo
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-12 -mb-16 sm:-mb-48 lg:m-0 lg:relative">
-                    <div className="mx-auto max-w-md px-4 sm:max-w-2xl sm:px-6 lg:max-w-none lg:px-0">
-                      {/* Illustration taken from Lucid Illustrations: https://lucid.pixsellz.io/ */}
-                      <img
-                        className="w-full lg:absolute lg:inset-y-0 lg:left-0 lg:h-full lg:w-auto lg:max-w-none"
-                        src="/Illustration.svg"
-                        alt=""
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </main>
         </div>
       </div>
 
+      <Hero />
       <Screenshot />
       <Features />
     </>
@@ -318,7 +162,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Example />
+      <Main />
       <Footer />
     </>
   );
