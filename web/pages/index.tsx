@@ -319,7 +319,6 @@ const Home: NextPage = () => {
       </Head>
 
       <Example />
-
       <Footer />
     </>
   );
