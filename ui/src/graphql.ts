@@ -52,11 +52,19 @@ const getAuth = async ({ authState }: { authState: AuthState | null }) => {
   return null;
 };
 
+const graphqlEndpoint = () =>
+  window.location.hostname === "app.trawler.dev"
+    ? "https://api.trawler.dev/graphql"
+    : `http://${window.location.hostname}:8080/graphql`;
+
+console.log(graphqlEndpoint());
+
 export const client = createClient({
   url:
     process.env.NODE_ENV === "development"
-      ? "http://localhost:3000/graphql"
-      : "https://api.trawler.dev/graphql",
+      ? process.env.REACT_APP_GRAPHQL_ENDPOINT!
+      : graphqlEndpoint(),
+
   exchanges: [
     dedupExchange,
     cacheExchange,
