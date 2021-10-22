@@ -183,7 +183,7 @@ export const Entity = () => {
       <Route path={`${path}/diagram`} exact>
         {data.data?.entityGraph && (
           <MainFull>
-            <Diagram entityGraph={data.data.entityGraph} />
+            <Diagram entity={entity} entityGraph={data.data.entityGraph} />
           </MainFull>
         )}
       </Route>
