@@ -10,8 +10,8 @@ export const Screenshot = () => (
           Connect metadata across datasets and systems.
         </p>
         <p className="mt-5 max-w-prose mx-auto text-xl text-gray-500">
-          Trawler's graph data model supports column-level data lineage so you
-          can trace data flow throughout your datasets and systems.
+          Trawler&apos;s graph data model supports column-level data lineage so
+          you can trace data flow throughout your datasets and systems.
         </p>
       </div>
       <div className="mt-12 -mb-10 sm:-mb-24 lg:-mb-80">
