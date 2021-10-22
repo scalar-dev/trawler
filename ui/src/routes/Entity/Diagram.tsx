@@ -14,9 +14,11 @@ import ReactFlow, {
   Elements,
 } from "react-flow-renderer";
 import _ from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { dataTypeFacet, fields, nameFacet } from "../../ontology";
 import dagre from "dagre";
+import { Link } from "react-router-dom";
+import { ProjectContext } from "../../ProjectContext";
 
 type Field = {
   id: string;
@@ -39,6 +41,7 @@ const TableNode = ({
   selected: boolean;
   data: any;
 }) => {
+  const {entityLink} = useContext(ProjectContext);
   return (
     <div
       className={`border rounded-md ${
@@ -60,7 +63,7 @@ const TableNode = ({
           }}
         />
         <div className="px-3 py-2 border-b w-full">
-          {data.name}
+          <Link to={entityLink(id)}>{data.name}</Link>
           <div className="text-xs font-mono">{data.type}</div>
         </div>
       </div>
