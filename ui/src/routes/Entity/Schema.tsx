@@ -4,6 +4,7 @@ import numeral from "numeral";
 import { useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useQuery, gql } from "urql";
+import { nameFacet } from "../../ontology";
 import { ProjectContext } from "../../ProjectContext";
 import { Histogram } from "./Metrics";
 
@@ -272,27 +273,23 @@ export const FacetHistory = ({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap flex flex-wrap">
                         {diff.added.map((added) => (
-                          <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          <span
+                            key={added.entityId}
+                            className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                          >
                             <Link to={entityLink(added.entityId)}>
-                              {
-                                added.facets.find(
-                                  (facet: any) =>
-                                    facet.uri === "http://schema.org/name"
-                                )?.value
-                              }
+                              {nameFacet(added)}
                             </Link>
                           </span>
                         ))}
 
                         {diff.deleted.map((deleted) => (
-                          <span className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                          <span
+                            key={deleted.entityId}
+                            className="ml-1 mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                          >
                             <Link to={entityLink(deleted.entityId)}>
-                              {
-                                deleted.facets.find(
-                                  (facet: any) =>
-                                    facet.uri === "http://schema.org/name"
-                                )?.value
-                              }
+                              {nameFacet(deleted)}
                             </Link>
                           </span>
                         ))}

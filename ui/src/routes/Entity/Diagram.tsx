@@ -8,11 +8,17 @@ import ReactFlow, {
   isNode,
   isEdge,
   ArrowHeadType,
+  useStore,
+  useZoomPanHelper,
+  ReactFlowProvider,
+  Elements,
 } from "react-flow-renderer";
 import _ from "lodash";
-import { useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { dataTypeFacet, fields, nameFacet } from "../../ontology";
 import dagre from "dagre";
+import { Link } from "react-router-dom";
+import { ProjectContext } from "../../ProjectContext";
 
 type Field = {
   id: string;
@@ -35,6 +41,7 @@ const TableNode = ({
   selected: boolean;
   data: any;
 }) => {
+  const {entityLink} = useContext(ProjectContext);
   return (
     <div
       className={`border rounded-md ${
@@ -52,17 +59,18 @@ const TableNode = ({
             background: data.connectedHandles.has(id)
               ? "rgba(79. 70, 229, 1.0)"
               : "#000",
+            cursor: "default",
           }}
         />
         <div className="px-3 py-2 border-b w-full">
-          {data.name}
+          <Link to={entityLink(id)}>{data.name}</Link>
           <div className="text-xs font-mono">{data.type}</div>
         </div>
       </div>
 
       <div className="bg-opacity-60 bg-white">
         {data.fields.map((field: Field) => (
-          <div className="flex w-full">
+          <div key={field.id} className="flex w-full">
             <Handle
               id={`${field.id}_in`}
               type="target"
@@ -73,6 +81,7 @@ const TableNode = ({
                   ? "rgba(79, 70, 229, 1.0)"
                   : "#000",
                 position: "relative",
+                cursor: "default",
                 top: 15,
               }}
             />
@@ -89,6 +98,7 @@ const TableNode = ({
                   ? "rgba(79, 70, 229, 1.0)"
                   : "#000",
                 position: "relative",
+                cursor: "default",
                 top: 15,
               }}
             />
@@ -138,9 +148,79 @@ const getLayoutedElements = (elements: any[], direction = "TB") => {
   });
 };
 
-export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
-  const [selection, setSelection] = useState(new Set<string>());
+const DiagramInner = ({
+  entity,
+  elements,
+  setSelection,
+}: {
+  entity: string;
+  elements: Elements;
+  setSelection: (selection: Set<string>) => void;
+}) => {
+  const store = useStore();
+  const [hasZoomed, setHasZoomed] = useState(false);
+  const { setCenter } = useZoomPanHelper();
 
+  useEffect(() => {
+    window.setTimeout(() => {
+      const { nodes } = store.getState();
+      const node = nodes.find((node) => node.id === entity);
+
+      if (node && !hasZoomed) {
+        const x = node.__rf.position.x + node.__rf.width / 2;
+        const y = node.__rf.position.y + node.__rf.height / 2;
+        const zoom = 1.0;
+        setCenter(x, y, zoom);
+        setHasZoomed(true);
+      }
+    });
+  }, [store, setCenter, entity, hasZoomed]);
+
+  return (
+    <ReactFlow
+      connectionMode={ConnectionMode.Loose}
+      minZoom={0.1}
+      nodeTypes={{ table: TableNode }}
+      nodesConnectable={false}
+      elements={elements}
+      onSelectionChange={(selectedElements) => {
+        const node = selectedElements?.[0] as unknown as Node;
+
+        if (node) {
+          setSelection(new Set([node.id]));
+        } else {
+          setSelection(new Set());
+        }
+      }}
+    >
+      <Controls />
+      <MiniMap
+        nodeColor={(node) => {
+          switch (node.type) {
+            case "input":
+              return "red";
+            case "default":
+              return "#00ff00";
+            case "output":
+              return "rgb(0,0,255)";
+            default:
+              return "#eee";
+          }
+        }}
+        nodeStrokeWidth={3}
+      />
+    </ReactFlow>
+  );
+};
+
+export const Diagram = ({
+  entity,
+  entityGraph,
+}: {
+  entity: string;
+  entityGraph: Entity[];
+}) => {
+  const [selection, setSelection] = useState(new Set<string>());
   const elements = useMemo(() => {
     const entityById = _.keyBy(entityGraph, (entity) => entity.entityId);
 
@@ -295,56 +375,35 @@ export const Diagram = ({ entityGraph }: { entityGraph: Entity[] }) => {
 
   return (
     <div className="flex-1">
-      <ReactFlow
-        connectionMode={ConnectionMode.Loose}
-        minZoom={0.1}
-        nodeTypes={{ table: TableNode }}
-        elements={elements.map((element) => {
-          if (isEdge(element)) {
-            return selection.has(element.source) ||
-              selection.has(element.target)
-              ? { ...element, animated: true }
-              : { ...element, animated: false };
-          } else if (isNode(element)) {
-            return connectedNodes.has(element.id)
-              ? {
-                  ...element,
-                  data: { ...element.data, secondarySelected: true },
+      <div className="zoompanflow w-full h-full">
+        <ReactFlowProvider>
+          <div className="reactflow-wrapper w-full h-full">
+            <DiagramInner
+              entity={entity}
+              elements={elements.map((element) => {
+                if (isEdge(element)) {
+                  return selection.has(element.source) ||
+                    selection.has(element.target)
+                    ? { ...element, animated: true }
+                    : { ...element, animated: false };
+                } else if (isNode(element)) {
+                  return connectedNodes.has(element.id)
+                    ? {
+                        ...element,
+                        data: { ...element.data, secondarySelected: true },
+                      }
+                    : {
+                        ...element,
+                        data: { ...element.data, secondarySelected: false },
+                      };
                 }
-              : {
-                  ...element,
-                  data: { ...element.data, secondarySelected: false },
-                };
-          }
-          return element;
-        })}
-        onSelectionChange={(selectedElements) => {
-          const node = selectedElements?.[0] as unknown as Node;
-
-          if (node) {
-            setSelection(new Set([node.id]));
-          } else {
-            setSelection(new Set());
-          }
-        }}
-      >
-        <Controls />
-        <MiniMap
-          nodeColor={(node) => {
-            switch (node.type) {
-              case "input":
-                return "red";
-              case "default":
-                return "#00ff00";
-              case "output":
-                return "rgb(0,0,255)";
-              default:
-                return "#eee";
-            }
-          }}
-          nodeStrokeWidth={3}
-        />
-      </ReactFlow>
+                return element;
+              })}
+              setSelection={setSelection}
+            />
+          </div>
+        </ReactFlowProvider>
+      </div>
     </div>
   );
 };
