@@ -1,0 +1,44 @@
+version: "3.3"
+services:
+  postgres:
+    container_name: postgres
+    restart: always
+    image: timescale/timescaledb:latest-pg12
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "54321:5432"
+  trawler:
+    container_name: trawler
+    restart: always
+    image: scalardev/trawler:54bf319fb00f0ff4674d7e7bcf74b9a1061b0510
+    environment:
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGHOST: postgres
+      PGPORT: 5432
+      TRAWLER_SECRET: changeme!!
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+  trawler-ui:
+    container_name: trawler-ui
+    restart: always
+    image: scalardev/trawler-ui:54bf319fb00f0ff4674d7e7bcf74b9a1061b0510
+    environment:
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGHOST: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "8000:80"
+
+volumes:
+    pgdata:
+        driver: local
