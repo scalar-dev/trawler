@@ -17,6 +17,32 @@ const navigation = [
   { name: "Documentation", href: "https://docs.trawler.dev" },
 ];
 
+const Screenshot = () => (
+  <div className="relative bg-gray-50 pt-16 sm:pt-24 lg:pt-32">
+    <div className="mx-auto max-w-md px-4 text-center sm:px-6 sm:max-w-3xl lg:px-8 lg:max-w-7xl">
+      <div>
+        <h2 className="text-base font-semibold tracking-wider text-cyan-600 uppercase">
+          Graph based data catalogue.
+        </h2>
+        <p className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
+          Connect metadata across datasets and systems.
+        </p>
+        <p className="mt-5 max-w-prose mx-auto text-xl text-gray-500">
+          Trawler's graph data model supports column-level data lineage so you
+          can trace data flow throughout your datasets and systems.
+        </p>
+      </div>
+      <div className="mt-12 -mb-10 sm:-mb-24 lg:-mb-80">
+        <img
+          className="rounded-lg shadow-xl ring-1 ring-black ring-opacity-5"
+          src="/screenshot.png"
+          alt=""
+        />
+      </div>
+    </div>
+  </div>
+);
+
 const Features = () => {
   const features = [
     {
@@ -46,18 +72,16 @@ const Features = () => {
   ];
 
   return (
-    <div className="py-12 bg-white">
+    <div className="relative bg-white py-16 sm:py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:text-center">
           <h2 className="text-base text-indigo-600 font-semibold tracking-wide uppercase">
-            Untangle your data
+            Flexible data model
           </h2>
-          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Open source metadata catalogue
-          </p>
+          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl"></p>
           <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-            Trawler&apos;s flexible data model allows you to ingest metadata from
-            across your organisation.
+            Trawler&apos;s flexible data model allows you to ingest metadata
+            from across your organisation.
           </p>
         </div>
 
@@ -88,7 +112,7 @@ const Features = () => {
 const Example = () => {
   return (
     <>
-      <div className="min-h-screen bg-gray-900">
+      <div className="bg-white">
         <div className="relative overflow-hidden">
           <Popover as="header" className="relative">
             <div className="bg-gray-900 pt-6">
@@ -129,19 +153,6 @@ const Example = () => {
                   </div>
                 </div>
                 <div className="hidden md:flex md:items-center md:space-x-6">
-                  {/* <a
-                  href="#"
-                  className="text-base font-medium text-white hover:text-gray-300"
-                >
-                  Log in
-                </a>
-                <a
-                  href="#"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
-                >
-                  Start free trial
-                </a> */}
-
                   <a
                     href="https://github.com/scalar-dev/trawler"
                     className="text-gray-400 hover:text-gray-300"
@@ -223,22 +234,6 @@ const Example = () => {
                         </a>
                       </div>
                     </div>
-                    {/* <div className="mt-6 px-5">
-                    <a
-                      href="#"
-                      className="block text-center w-full py-3 px-4 rounded-md shadow bg-indigo-600 text-white font-medium hover:bg-indigo-700"
-                    >
-                      Start free trial
-                    </a>
-                  </div>
-                  <div className="mt-6 px-5">
-                    <p className="text-center text-base font-medium text-gray-500">
-                      Existing customer?{" "}
-                      <a href="#" className="text-gray-900 hover:underline">
-                        Login
-                      </a>
-                    </p>
-                  </div> */}
                   </div>
                 </div>
               </Popover.Panel>
@@ -256,44 +251,38 @@ const Example = () => {
                         <span className="block text-indigo-400">data.</span>
                       </h1>
                       <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                        Trawler is an open source data catalogue and metadata
-                        platform based on semantic web technologies.
+                        Trawler is an open source graph-based data catalogue and
+                        metadata platform based on semantic web technologies.
                       </p>
-                      <div className="mt-10 sm:mt-12">
-                        <form
-                          action="#"
-                          className="sm:max-w-xl sm:mx-auto lg:mx-0"
-                        >
-                          <div className="sm:flex">
-                            <div className="min-w-0 flex-1">
-                              <label htmlFor="email" className="sr-only">
-                                Email address
-                              </label>
-                              <input
-                                id="email"
-                                type="email"
-                                placeholder="Enter your email"
-                                className="block w-full px-4 py-3 rounded-md border-0 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300 focus:ring-offset-gray-900"
+                      <div className="mt-5 max-w-md sm:flex justify-start sm:justify-start md:mt-8">
+                        <div className="rounded-md shadow">
+                          <a
+                            href="https://github.com/scalar-dev/trawler"
+                            className="w-full inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
+                          >
+                            <svg
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                              className="-ml-2 mr-2 h-6 w-6"
+                              aria-hidden="true"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                clipRule="evenodd"
                               />
-                            </div>
-                            <div className="mt-3 sm:mt-0 sm:ml-3">
-                              <button
-                                type="submit"
-                                className="block w-full py-3 px-4 rounded-md shadow bg-indigo-500 text-white font-medium hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300 focus:ring-offset-gray-900"
-                              >
-                                Join our substack
-                              </button>
-                            </div>
-                          </div>
-                          {/* <p className="mt-3 text-sm text-gray-300 sm:mt-4">
-                          Start your free 14-day trial, no credit card
-                          necessary. By providing your email, you agree to our{" "}
-                          <a href="#" className="font-medium text-white">
-                            terms or service
+                            </svg>
+                            GitHub
                           </a>
-                          .
-                        </p> */}
-                        </form>
+                        </div>
+                        <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+                          <a
+                            href="https://app.trawler.dev/wat-beer"
+                            className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
+                          >
+                            Live demo
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -313,6 +302,8 @@ const Example = () => {
           </main>
         </div>
       </div>
+
+      <Screenshot />
       <Features />
     </>
   );
