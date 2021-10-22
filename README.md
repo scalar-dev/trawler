@@ -21,7 +21,8 @@ The trawler agent connects to your databases and other systems in order to
 extract metadata and upload it to the trawler platform. This is also most easily
 run with `docker`.
 
-First, you'll need to create a user to upload data:
+First, you'll need to create a user to upload data. This is currently a bit of a
+faff will be easier in the near future. Firstly create a user:
 
 ```bash
 curl -g \
@@ -31,16 +32,16 @@ curl -g \
 http://localhost:8080
 ```
 
-This should give you a user id.
+This should give you a `<userid>`.
 
-You'll then need to create yourself a project and a role in the postgres:
+You'll then need to create yourself a project and a role in the postgres (e.g. using `psql`):
 
 ```sql
 insert into project values('63255f7a-e383-457a-9c30-4c7f95308749', 'test')
 insert into account_role(account_id, project_id, role) values('<userid>', '63255f7a-e383-457a-9c30-4c7f95308749', 'admin');
 ```
 
-Then login to get a user JWT:
+Then login with this user's credentials get a graphql JWT:
 
 ```bash
 curl -g \
@@ -61,9 +62,9 @@ curl -g \
 http://localhost:8080
 ```
 
-The JWT from this step needs to be used as `TRAWLER_TOKEN` below.
+The JWT from this step will be used as `TRAWLER_TOKEN` below.
 
-Firstly, create a configuration file, `example.yml`:
+Create an agent configuration file, `example.yml`:
 
 ```yaml
 jobs:
@@ -83,6 +84,9 @@ Then run:
 docker run --net=host \
     -v $(pwd)/example.yml:/app/config/example.yml \
     -e TRAWLER_TOKEN=<token> \
+    -e TRAWLER_ENDPOINT=http://localhost:9090 \
     scalardev/trawler-agent:54bf319fb00f0ff4674d7e7bcf74b9a1061b0510 \
     run --now /app/config/example.yml 
 ```
+
+This should scan the database and upload it to your local trawler instance.
