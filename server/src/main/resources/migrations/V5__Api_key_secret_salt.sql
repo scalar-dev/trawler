@@ -1,0 +1,3 @@
+
+ALTER TABLE api_key
+ADD COLUMN secret TEXT UNIQUE NOT NULL;

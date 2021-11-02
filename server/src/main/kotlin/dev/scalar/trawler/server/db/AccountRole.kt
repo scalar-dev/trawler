@@ -6,4 +6,7 @@ object AccountRole : Table("account_role") {
     val accountId = uuid("account_id").references(Account.id)
     val projectId = uuid("project_id").references(Project.id)
     val role = text("role")
+
+    val ADMIN = "admin"
+    val VIEWER = "viewer"
 }

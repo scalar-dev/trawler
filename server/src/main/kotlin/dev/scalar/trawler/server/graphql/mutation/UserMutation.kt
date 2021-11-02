@@ -1,7 +1,9 @@
 package dev.scalar.trawler.server.graphql
 
+import dev.scalar.trawler.server.collect.ApiKeyAuthProvider
 import dev.scalar.trawler.server.db.Account
 import dev.scalar.trawler.server.db.AccountInfo
+import dev.scalar.trawler.server.db.AccountRole
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.authentication.UsernamePasswordCredentials
 import io.vertx.kotlin.coroutines.await
@@ -65,14 +67,34 @@ class UserMutation() {
         )
     }
 
-    suspend fun collectToken(context: QueryContext): AuthenticatedUser {
-        val claims = mapOf(
-            "sub" to context.accountId.toString(),
-            "scope" to listOf("collect").joinToString(" "),
+    suspend fun createApiKey(context: QueryContext, project: String): ApiKey = newSuspendedTransaction {
+        val projectId = context.projectId(project, AccountRole.ADMIN)
+        val key = UUID.randomUUID().toString()
+
+        val salt = ByteArray(32)
+        SecureRandom().nextBytes(salt)
+
+        val hash = context.jdbcAuthentication.hash(
+            "pbkdf2", // hashing algorithm
+            ApiKeyAuthProvider.SALT,
+            key
         )
 
-        return AuthenticatedUser(
-            context.jwtAuth.generateToken(JsonObject(claims))
-        )
+        val keyId = dev.scalar.trawler.server.db.ApiKey.insertAndGetId {
+            it[dev.scalar.trawler.server.db.ApiKey.projectId] = projectId
+            it[dev.scalar.trawler.server.db.ApiKey.secret] = hash
+        }.value
+
+        dev.scalar.trawler.server.db.ApiKey.select { dev.scalar.trawler.server.db.ApiKey.id.eq(keyId) }
+            .map {
+                ApiKey(
+                    id = keyId,
+                    projectId = projectId,
+                    description = null,
+                    secret = key,
+                    createdAt = it[dev.scalar.trawler.server.db.ApiKey.createdAt]
+                )
+            }
+            .first()
     }
 }

@@ -25,13 +25,14 @@ class GraphQLApi : BaseVerticle() {
     override suspend fun start() {
         super.start()
         configureDatabase()
+        dbDefaults()
         val ontologyCache = OntologyCache(vertx)
 
         val router = Router.router(vertx)
         val jdbcAuth = JDBCAuthentication.create(
             jdbcClient(vertx),
             JDBCAuthenticationOptions().setAuthenticationQuery(
-                "SELECT PASSWORD FROM account WHERE id = ?::UUID"
+                "SELECT password FROM account WHERE id = ?::UUID"
             )
         )
 

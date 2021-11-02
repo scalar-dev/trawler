@@ -2,9 +2,7 @@ package dev.scalar.trawler.server.graphql.query
 
 import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.ontology.Ontology
-import dev.scalar.trawler.server.db.AccountRole
 import dev.scalar.trawler.server.db.FacetValue
-import dev.scalar.trawler.server.db.Project
 import dev.scalar.trawler.server.db.util.ilike
 import dev.scalar.trawler.server.graphql.Entity
 import dev.scalar.trawler.server.graphql.QueryContext
@@ -21,7 +19,6 @@ import org.jetbrains.exposed.sql.castTo
 import org.jetbrains.exposed.sql.compoundOr
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
@@ -53,14 +50,7 @@ class EntityQuery {
     }
 
     suspend fun search(context: QueryContext, project: String, filters: List<Filter>): List<Entity> {
-        val projectId = newSuspendedTransaction {
-            Project
-                .innerJoin(AccountRole)
-                .slice(Project.id)
-                .select { Project.slug.eq(project) and AccountRole.accountId.eq(context.accountId) }
-                .firstOrNull()?.get(Project.id)?.value
-        } ?: throw Exception("Project not found: $project")
-
+        val projectId = context.projectId(project)
         val ontology = context.ontologyCache.get(projectId)
 
         val ids = transaction {
