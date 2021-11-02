@@ -10,6 +10,7 @@ import io.vertx.ext.auth.authentication.UsernamePasswordCredentials
 import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
 import io.vertx.ext.auth.jdbc.impl.JDBCAuthenticationImpl
 import io.vertx.ext.jdbc.JDBCClient
+import java.util.UUID
 
 class ApiKeyAuthProvider(jdbcClient: JDBCClient) : JDBCAuthenticationImpl(
     jdbcClient,
@@ -18,6 +19,21 @@ class ApiKeyAuthProvider(jdbcClient: JDBCClient) : JDBCAuthenticationImpl(
     companion object {
         val SALT = "NOSALT"
     }
+
+    data class KeyWithHash(val key: String, val hash: String)
+
+    fun makeKey(): KeyWithHash {
+        val key = UUID.randomUUID().toString()
+
+        val hash = hash(
+            "pbkdf2", // hashing algorithm
+            SALT,
+            key
+        )
+
+        return KeyWithHash(key, hash)
+    }
+
 
     override fun authenticate(credentials: JsonObject, resultHandler: Handler<AsyncResult<User>>) {
         authenticate(TokenCredentials(credentials), resultHandler)

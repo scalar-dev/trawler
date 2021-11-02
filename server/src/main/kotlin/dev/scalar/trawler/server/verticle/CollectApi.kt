@@ -13,13 +13,11 @@ import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
 import dev.scalar.trawler.server.db.ApiKey
-import dev.scalar.trawler.server.db.Project
 import dev.scalar.trawler.server.ontology.OntologyCache
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.json.jackson.DatabindCodec
 import io.vertx.ext.auth.User
-import io.vertx.ext.auth.impl.UserImpl
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.APIKeyHandler
@@ -32,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ontologyToContext
 import org.apache.logging.log4j.LogManager
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
@@ -40,20 +39,14 @@ import kotlin.system.measureTimeMillis
 class CollectApi : BaseVerticle() {
     val log = LogManager.getLogger()
 
-    private suspend fun checkProjectAccess(user: User, projectId: UUID): Boolean {
-        val apiProjectId = newSuspendedTransaction {
-            ApiKey
-                .innerJoin(Project)
-                .select {
-                    ApiKey.secret.eq(user.principal().getString("username"))
-                }
-                .map { it[Project.id].value }
-                .firstOrNull()
-        }
-
-       return apiProjectId == projectId
+    private suspend fun checkProjectAccess(user: User, projectId: UUID): Boolean = newSuspendedTransaction {
+        ApiKey
+            .select {
+                ApiKey.secret.eq(user.principal().getString("username")) and
+                    ApiKey.projectId.eq(projectId)
+            }
+            .count() == 1L
     }
-
 
     override suspend fun start() {
         super.start()
@@ -100,7 +93,7 @@ class CollectApi : BaseVerticle() {
             .handler { rc ->
                 GlobalScope.launch(rc.vertx().dispatcher()) {
                     val projectId = UUID.fromString(rc.pathParam("projectId"))
-                    
+
                     if (!checkProjectAccess(rc.user(), projectId)) {
                         rc.fail(401)
                     } else {

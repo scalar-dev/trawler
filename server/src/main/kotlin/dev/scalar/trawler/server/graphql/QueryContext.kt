@@ -1,6 +1,7 @@
 package dev.scalar.trawler.server.graphql
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
+import dev.scalar.trawler.server.collect.ApiKeyAuthProvider
 import dev.scalar.trawler.server.db.AccountRole
 import dev.scalar.trawler.server.db.Project
 import dev.scalar.trawler.server.ontology.OntologyCache
@@ -18,6 +19,7 @@ data class QueryContext(
     val accountId: UUID,
     val jdbcAuthentication: JDBCAuthentication,
     val jwtAuth: JWTAuth,
+    val apiAuth: ApiKeyAuthProvider,
     val ontologyCache: OntologyCache
 ) : GraphQLContext {
     suspend fun projectId(project: String, role: String? = null) = newSuspendedTransaction {

@@ -3,6 +3,7 @@ package dev.scalar.trawler.server.verticle
 import dev.scalar.trawler.server.auth.PermissiveJWTAuthHandler
 import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.auth.mintToken
+import dev.scalar.trawler.server.collect.ApiKeyAuthProvider
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
 import dev.scalar.trawler.server.ontology.OntologyCache
@@ -35,6 +36,7 @@ class GraphQLApi : BaseVerticle() {
                 "SELECT password FROM account WHERE id = ?::UUID"
             )
         )
+        val apiAuth = ApiKeyAuthProvider(jdbcClient(vertx))
 
         router
             .errorHandler(500) { rc ->
@@ -69,6 +71,7 @@ class GraphQLApi : BaseVerticle() {
                             if (accountId != null) UUID.fromString(accountId) else UUID(0, 0),
                             jdbcAuth,
                             jwtAuth,
+                            apiAuth,
                             ontologyCache
                         )
                     }

@@ -69,20 +69,11 @@ class UserMutation() {
 
     suspend fun createApiKey(context: QueryContext, project: String): ApiKey = newSuspendedTransaction {
         val projectId = context.projectId(project, AccountRole.ADMIN)
-        val key = UUID.randomUUID().toString()
-
-        val salt = ByteArray(32)
-        SecureRandom().nextBytes(salt)
-
-        val hash = context.jdbcAuthentication.hash(
-            "pbkdf2", // hashing algorithm
-            ApiKeyAuthProvider.SALT,
-            key
-        )
+        val key = context.apiAuth.makeKey()
 
         val keyId = dev.scalar.trawler.server.db.ApiKey.insertAndGetId {
             it[dev.scalar.trawler.server.db.ApiKey.projectId] = projectId
-            it[dev.scalar.trawler.server.db.ApiKey.secret] = hash
+            it[secret] = key.hash
         }.value
 
         dev.scalar.trawler.server.db.ApiKey.select { dev.scalar.trawler.server.db.ApiKey.id.eq(keyId) }
@@ -91,7 +82,7 @@ class UserMutation() {
                     id = keyId,
                     projectId = projectId,
                     description = null,
-                    secret = key,
+                    secret = key.key,
                     createdAt = it[dev.scalar.trawler.server.db.ApiKey.createdAt]
                 )
             }
