@@ -48,7 +48,7 @@ class CollectApi(val apiKeyAuthProvider: ApiKeyAuthProvider) : BaseVerticle() {
             .select {
                 ApiKey.secret.eq(user.principal().getString("username")) and
                     AccountRole.projectId.eq(projectId) and
-                        AccountRole.role.eq(AccountRole.ADMIN)
+                    AccountRole.role.eq(AccountRole.ADMIN)
             }
             .count() == 1L
     }
@@ -80,7 +80,7 @@ class CollectApi(val apiKeyAuthProvider: ApiKeyAuthProvider) : BaseVerticle() {
                     val projectId = UUID.fromString(rc.pathParam("projectId"))
 
                     if (!checkProjectAccess(rc.user(), projectId)) {
-                        rc.fail(401)
+                        rc.fail(404)
                     } else {
                         val ontology = DatabindCodec.mapper().readValue<OntologyConfig>(rc.bodyAsString)
                         OntologyUpload(vertx).upload(projectId, ontology)
@@ -96,7 +96,7 @@ class CollectApi(val apiKeyAuthProvider: ApiKeyAuthProvider) : BaseVerticle() {
                     val projectId = UUID.fromString(rc.pathParam("projectId"))
 
                     if (!checkProjectAccess(rc.user(), projectId)) {
-                        rc.fail(401)
+                        rc.fail(404)
                     } else {
                         try {
                             val json = DatabindCodec.mapper().readValue<JsonStructure>(rc.bodyAsString)

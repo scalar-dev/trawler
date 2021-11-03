@@ -1,7 +1,6 @@
 package dev.scalar.trawler.server.graphql.query
 
 import dev.scalar.trawler.server.db.AccountInfo
-import dev.scalar.trawler.server.db.AccountRole
 import dev.scalar.trawler.server.graphql.ApiKey
 import dev.scalar.trawler.server.graphql.QueryContext
 import org.jetbrains.exposed.sql.select
@@ -33,7 +32,7 @@ class UserQuery {
 
     suspend fun listApiKeys(context: QueryContext): List<ApiKey> {
         if (context.user == null) {
-           throw Exception("Must be logged in")
+            throw Exception("Must be logged in")
         }
 
         return newSuspendedTransaction {

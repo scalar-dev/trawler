@@ -2,11 +2,18 @@ package dev.scalar.trawler.server.util
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import dev.scalar.trawler.server.App
 import dev.scalar.trawler.server.KPostgreSQLContainer
 import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.auth.mintToken
+import dev.scalar.trawler.server.collect.ApiKeyAuthProvider
+import dev.scalar.trawler.server.db.devApiKey
+import dev.scalar.trawler.server.db.devProject
 import dev.scalar.trawler.server.db.devSecret
+import dev.scalar.trawler.server.db.devUser
+import dev.scalar.trawler.server.db.updateOntology
+import dev.scalar.trawler.server.verticle.CollectApi
 import dev.scalar.trawler.server.verticle.Config
 import dev.scalar.trawler.server.verticle.GraphQLApi
 import io.vertx.core.DeploymentOptions
@@ -14,13 +21,16 @@ import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientResponse
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.json.JsonObject
+import io.vertx.ext.jdbc.JDBCClient
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.await
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import javax.sql.DataSource
 
 @Testcontainers
 @ExtendWith(VertxExtension::class)
@@ -31,11 +41,44 @@ abstract class BaseVerticleTest {
         private val postgresContainer = KPostgreSQLContainer()
     }
 
+    lateinit var dataSource: DataSource
+    lateinit var apiKeyAuthProvider: ApiKeyAuthProvider
+    lateinit var key: String
+
+    fun deployCollectApi(vertx: Vertx, testContext: VertxTestContext) {
+        System.setProperty(WebEnvironment.SYSTEM_PROPERTY_NAME, "dev")
+        dataSource = App.configureDatabase(
+            JsonObject(
+                mapOf(
+                    Config.PGPORT to postgresContainer.firstMappedPort,
+                    Config.PGUSER to postgresContainer.username,
+                    Config.PGPASSWORD to postgresContainer.password,
+                    Config.PGDATABASE to postgresContainer.databaseName
+                )
+            )
+        )
+        apiKeyAuthProvider = ApiKeyAuthProvider(jdbcClient = JDBCClient.create(vertx, dataSource))
+        val collectApi = CollectApi(apiKeyAuthProvider)
+
+        runBlocking {
+            devProject()
+            devUser()
+            updateOntology(vertx)
+            key = devApiKey(apiKeyAuthProvider)
+        }
+
+        vertx.deployVerticle(
+            collectApi,
+            DeploymentOptions().setWorker(true),
+            testContext.succeedingThenComplete()
+        )
+    }
+
     fun deployGraphQL(vertx: Vertx, testContext: VertxTestContext) {
         System.setProperty(WebEnvironment.SYSTEM_PROPERTY_NAME, "dev")
 
         vertx.deployVerticle(
-            GraphQLApi(),
+            GraphQLApi(dataSource),
             DeploymentOptions().setConfig(
                 JsonObject(
                     mapOf(

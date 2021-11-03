@@ -8,7 +8,6 @@ import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
 import dev.scalar.trawler.server.ontology.OntologyCache
 import graphql.GraphQL
-import io.vertx.core.Vertx
 import io.vertx.ext.auth.jdbc.JDBCAuthentication
 import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
 import io.vertx.ext.jdbc.JDBCClient
