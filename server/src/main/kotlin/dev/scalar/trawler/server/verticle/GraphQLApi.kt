@@ -8,8 +8,10 @@ import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.makeSchema
 import dev.scalar.trawler.server.ontology.OntologyCache
 import graphql.GraphQL
+import io.vertx.core.Vertx
 import io.vertx.ext.auth.jdbc.JDBCAuthentication
 import io.vertx.ext.auth.jdbc.JDBCAuthenticationOptions
+import io.vertx.ext.jdbc.JDBCClient
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
@@ -19,24 +21,25 @@ import io.vertx.ext.web.handler.graphql.GraphiQLHandler
 import io.vertx.ext.web.handler.graphql.GraphiQLHandlerOptions
 import org.apache.logging.log4j.LogManager
 import java.util.UUID
+import javax.sql.DataSource
 
-class GraphQLApi : BaseVerticle() {
+class GraphQLApi(val dataSource: DataSource) : BaseVerticle() {
     private val log = LogManager.getLogger()
 
     override suspend fun start() {
         super.start()
-        configureDatabase()
-        dbDefaults()
         val ontologyCache = OntologyCache(vertx)
+        val jdbcClient = JDBCClient.create(vertx, dataSource)
 
         val router = Router.router(vertx)
         val jdbcAuth = JDBCAuthentication.create(
-            jdbcClient(vertx),
+            jdbcClient,
             JDBCAuthenticationOptions().setAuthenticationQuery(
                 "SELECT password FROM account WHERE id = ?::UUID"
             )
         )
-        val apiAuth = ApiKeyAuthProvider(jdbcClient(vertx))
+
+        val apiAuth = ApiKeyAuthProvider(jdbcClient)
 
         router
             .errorHandler(500) { rc ->

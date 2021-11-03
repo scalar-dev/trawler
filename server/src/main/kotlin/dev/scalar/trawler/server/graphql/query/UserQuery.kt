@@ -31,17 +31,19 @@ class UserQuery {
         }
     }
 
-    suspend fun listApiKeys(context: QueryContext, project: String): List<ApiKey> {
-        val projectId = context.projectId(project, AccountRole.ADMIN)
+    suspend fun listApiKeys(context: QueryContext): List<ApiKey> {
+        if (context.user == null) {
+           throw Exception("Must be logged in")
+        }
 
         return newSuspendedTransaction {
             dev.scalar.trawler.server.db.ApiKey.select {
-                dev.scalar.trawler.server.db.ApiKey.projectId.eq(projectId)
+                dev.scalar.trawler.server.db.ApiKey.accountId.eq(context.accountId)
             }
                 .map {
                     ApiKey(
                         it[dev.scalar.trawler.server.db.ApiKey.id].value,
-                        it[dev.scalar.trawler.server.db.ApiKey.projectId],
+                        it[dev.scalar.trawler.server.db.ApiKey.accountId],
                         it[dev.scalar.trawler.server.db.ApiKey.description],
                         null,
                         it[dev.scalar.trawler.server.db.ApiKey.createdAt]

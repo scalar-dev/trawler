@@ -4,10 +4,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.scalar.trawler.server.auth.Users
 import dev.scalar.trawler.server.auth.jwtAuth
 import dev.scalar.trawler.server.auth.mintToken
+import dev.scalar.trawler.server.collect.ApiKeyAuthProvider
 import dev.scalar.trawler.server.db.Account
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.Project
+import dev.scalar.trawler.server.db.devApiKey
+import dev.scalar.trawler.server.db.devProject
 import dev.scalar.trawler.server.db.devSecret
+import dev.scalar.trawler.server.db.devUser
 import dev.scalar.trawler.server.verticle.CollectApi
 import dev.scalar.trawler.server.verticle.Config
 import io.vertx.core.DeploymentOptions
@@ -15,6 +19,7 @@ import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientResponse
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.json.JsonObject
+import io.vertx.ext.jdbc.JDBCClient
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
@@ -33,6 +38,7 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.Random
 import java.util.UUID
+import javax.sql.DataSource
 
 @Testcontainers
 @ExtendWith(VertxExtension::class)
@@ -41,50 +47,63 @@ class CollectEndpointShould {
         @Container
         @JvmStatic
         private val postgresContainer = KPostgreSQLContainer()
+
     }
+
+    lateinit var dataSource: DataSource
+    lateinit var apiKeyAuthProvider: ApiKeyAuthProvider
+    lateinit var key: String
 
     @BeforeEach
     fun deployVerticle(vertx: Vertx, testContext: VertxTestContext) {
         System.setProperty(WebEnvironment.SYSTEM_PROPERTY_NAME, "dev")
-        vertx.deployVerticle(
-            CollectApi(),
-            DeploymentOptions().setConfig(
-                JsonObject(
-                    mapOf(
-                        Config.PGPORT to postgresContainer.firstMappedPort,
-                        Config.PGUSER to postgresContainer.username,
-                        Config.PGPASSWORD to postgresContainer.password,
-                        Config.PGDATABASE to postgresContainer.databaseName
-                    )
+        dataSource = App.configureDatabase(
+            JsonObject(
+                mapOf(
+                    Config.PGPORT to postgresContainer.firstMappedPort,
+                    Config.PGUSER to postgresContainer.username,
+                    Config.PGPASSWORD to postgresContainer.password,
+                    Config.PGDATABASE to postgresContainer.databaseName
                 )
-            ).setWorker(true),
+            )
+        )
+        apiKeyAuthProvider = ApiKeyAuthProvider(jdbcClient = JDBCClient.create(vertx, dataSource))
+        val collectApi = CollectApi(apiKeyAuthProvider)
+
+        runBlocking {
+            devProject()
+            devUser()
+            key = devApiKey(apiKeyAuthProvider)
+        }
+
+        vertx.deployVerticle(
+            collectApi,
+            DeploymentOptions().setWorker(true),
             testContext.succeedingThenComplete()
         )
     }
 
     private suspend fun sendRequest(vertx: Vertx, body: String): HttpClientResponse {
-        val jwt = jwtAuth(vertx, devSecret(), 30)
         val client = vertx.createHttpClient()
         val request = client
             .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
             .await()
 
         return request
-            .putHeader("Authorization", "Bearer ${mintToken(jwt, Users.DEV, listOf("collect"))}")
+            .putHeader("X-API-Key", key)
             .send(body)
             .await()
     }
 
     @Test
-    fun reject_bad_jwt(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
-        val jwt = jwtAuth(vertx, "the wrong secret", 30)
+    fun reject_bad_key(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
         val client = vertx.createHttpClient()
         val request = client
             .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
             .await()
 
         val response = request
-            .putHeader("Authorization", "Bearer ${mintToken(jwt, Users.DEV, listOf("collect"))}")
+            .putHeader("X-API-Key", "foo")
             .send("{}")
             .await()
 

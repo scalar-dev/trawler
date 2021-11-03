@@ -12,6 +12,8 @@ import dev.scalar.trawler.server.collect.ApiKeyAuthProvider
 import dev.scalar.trawler.server.collect.CollectRequest
 import dev.scalar.trawler.server.collect.CollectResponse
 import dev.scalar.trawler.server.collect.FacetStore
+import dev.scalar.trawler.server.db.Account
+import dev.scalar.trawler.server.db.AccountRole
 import dev.scalar.trawler.server.db.ApiKey
 import dev.scalar.trawler.server.ontology.OntologyCache
 import dev.scalar.trawler.server.ontology.OntologyUpload
@@ -36,26 +38,25 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import java.util.UUID
 import kotlin.system.measureTimeMillis
 
-class CollectApi : BaseVerticle() {
+class CollectApi(val apiKeyAuthProvider: ApiKeyAuthProvider) : BaseVerticle() {
     val log = LogManager.getLogger()
 
     private suspend fun checkProjectAccess(user: User, projectId: UUID): Boolean = newSuspendedTransaction {
         ApiKey
+            .innerJoin(Account)
+            .innerJoin(AccountRole)
             .select {
                 ApiKey.secret.eq(user.principal().getString("username")) and
-                    ApiKey.projectId.eq(projectId)
+                    AccountRole.projectId.eq(projectId) and
+                        AccountRole.role.eq(AccountRole.ADMIN)
             }
             .count() == 1L
     }
 
     override suspend fun start() {
         super.start()
-        configureDatabase()
-        dbDefaults()
-
         val router = Router.router(vertx)
         val ontologyCache = OntologyCache(vertx)
-        val apiAuth = ApiKeyAuthProvider(jdbcClient(vertx))
 
         router
             .errorHandler(400) { rc ->
@@ -66,7 +67,7 @@ class CollectApi : BaseVerticle() {
             }
             .route()
             .handler(BodyHandler.create())
-            .handler(APIKeyHandler.create(apiAuth))
+            .handler(APIKeyHandler.create(apiKeyAuthProvider))
 
         if (WebEnvironment.development()) {
             log.info("Development token: ${mintToken(jwtAuth, Users.DEV, listOf("collect"))}")

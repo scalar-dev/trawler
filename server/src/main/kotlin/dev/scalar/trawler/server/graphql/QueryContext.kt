@@ -22,6 +22,8 @@ data class QueryContext(
     val apiAuth: ApiKeyAuthProvider,
     val ontologyCache: OntologyCache
 ) : GraphQLContext {
+    fun isAuthenticated() = accountId != UUID(0, 0)
+
     suspend fun projectId(project: String, role: String? = null) = newSuspendedTransaction {
         Project
             .innerJoin(AccountRole)

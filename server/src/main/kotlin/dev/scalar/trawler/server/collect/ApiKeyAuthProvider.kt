@@ -22,18 +22,17 @@ class ApiKeyAuthProvider(jdbcClient: JDBCClient) : JDBCAuthenticationImpl(
 
     data class KeyWithHash(val key: String, val hash: String)
 
-    fun makeKey(): KeyWithHash {
+    fun makeRandomKey(): KeyWithHash {
         val key = UUID.randomUUID().toString()
 
-        val hash = hash(
-            "pbkdf2", // hashing algorithm
-            SALT,
-            key
-        )
-
-        return KeyWithHash(key, hash)
+        return KeyWithHash(key, hashKey(key))
     }
 
+    fun hashKey(key: String) = hash(
+        "pbkdf2", // hashing algorithm
+        SALT,
+        key
+    )
 
     override fun authenticate(credentials: JsonObject, resultHandler: Handler<AsyncResult<User>>) {
         authenticate(TokenCredentials(credentials), resultHandler)

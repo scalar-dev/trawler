@@ -60,16 +60,16 @@ suspend fun devUser() = newSuspendedTransaction {
     }
 }
 
-suspend fun apiKey(apiKeyAuthProvider: ApiKeyAuthProvider): String = newSuspendedTransaction {
-    val key = apiKeyAuthProvider.makeKey()
+suspend fun devApiKey(apiKeyAuthProvider: ApiKeyAuthProvider): String = newSuspendedTransaction {
+    val secret = UUID(0, 0).toString()
 
     ApiKey.insertIgnore {
         it[ApiKey.id] = UUID(0, 0)
-        it[ApiKey.projectId] = Project.DEMO_PROJECT_ID
-        it[ApiKey.secret] = key.hash
+        it[ApiKey.accountId] = Users.DEV
+        it[ApiKey.secret] = apiKeyAuthProvider.hashKey(secret)
     }
 
-    key.key
+    secret
 }
 
 fun devSecret() = if (WebEnvironment.development()) {

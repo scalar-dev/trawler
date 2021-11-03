@@ -119,7 +119,6 @@ class Indexer : BaseVerticle() {
 
     override suspend fun start() {
         super.start()
-        configureDatabase()
         val ontologyCache = OntologyCache(vertx)
 
         val adapter = vertx.receiveChannelHandler<Message<String>>()

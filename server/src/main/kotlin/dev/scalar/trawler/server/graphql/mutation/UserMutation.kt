@@ -1,6 +1,5 @@
 package dev.scalar.trawler.server.graphql
 
-import dev.scalar.trawler.server.collect.ApiKeyAuthProvider
 import dev.scalar.trawler.server.db.Account
 import dev.scalar.trawler.server.db.AccountInfo
 import dev.scalar.trawler.server.db.AccountRole
@@ -69,10 +68,10 @@ class UserMutation() {
 
     suspend fun createApiKey(context: QueryContext, project: String): ApiKey = newSuspendedTransaction {
         val projectId = context.projectId(project, AccountRole.ADMIN)
-        val key = context.apiAuth.makeKey()
+        val key = context.apiAuth.makeRandomKey()
 
         val keyId = dev.scalar.trawler.server.db.ApiKey.insertAndGetId {
-            it[dev.scalar.trawler.server.db.ApiKey.projectId] = projectId
+            it[accountId] = context.accountId
             it[secret] = key.hash
         }.value
 
@@ -80,7 +79,7 @@ class UserMutation() {
             .map {
                 ApiKey(
                     id = keyId,
-                    projectId = projectId,
+                    accountId = context.accountId,
                     description = null,
                     secret = key.key,
                     createdAt = it[dev.scalar.trawler.server.db.ApiKey.createdAt]
