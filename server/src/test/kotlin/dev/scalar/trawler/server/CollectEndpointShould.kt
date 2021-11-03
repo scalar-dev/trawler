@@ -31,6 +31,7 @@ import java.util.UUID
 class CollectEndpointShould : BaseVerticleTest() {
     @BeforeEach
     fun setUp(vertx: Vertx, testContext: VertxTestContext) {
+        initialSetup(vertx)
         deployCollectApi(vertx, testContext)
     }
 

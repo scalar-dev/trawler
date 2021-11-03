@@ -135,6 +135,9 @@ class CollectApi(val apiKeyAuthProvider: ApiKeyAuthProvider) : BaseVerticle() {
                 }
             }
 
-        vertx.createHttpServer().requestHandler(router).listen(9090)
+        log.info("Listening on port 9090")
+        vertx.createHttpServer().requestHandler(router).listen(9090) {
+            readyLatch.countDown()
+        }
     }
 }

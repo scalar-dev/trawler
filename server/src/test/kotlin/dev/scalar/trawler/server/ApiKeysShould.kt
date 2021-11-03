@@ -16,6 +16,7 @@ import java.util.UUID
 class ApiKeysShould : BaseVerticleTest() {
     @BeforeEach
     fun setUp(vertx: Vertx, testContext: VertxTestContext) {
+        initialSetup(vertx)
         deployGraphQL(vertx, testContext)
     }
 

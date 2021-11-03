@@ -26,6 +26,7 @@ import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
@@ -45,7 +46,7 @@ abstract class BaseVerticleTest {
     lateinit var apiKeyAuthProvider: ApiKeyAuthProvider
     lateinit var key: String
 
-    fun deployCollectApi(vertx: Vertx, testContext: VertxTestContext) {
+    fun initialSetup(vertx: Vertx) {
         System.setProperty(WebEnvironment.SYSTEM_PROPERTY_NAME, "dev")
         dataSource = App.configureDatabase(
             JsonObject(
@@ -57,40 +58,41 @@ abstract class BaseVerticleTest {
                 )
             )
         )
-        apiKeyAuthProvider = ApiKeyAuthProvider(jdbcClient = JDBCClient.create(vertx, dataSource))
-        val collectApi = CollectApi(apiKeyAuthProvider)
 
-        runBlocking {
+        apiKeyAuthProvider = ApiKeyAuthProvider(jdbcClient = JDBCClient.create(vertx, dataSource))
+
+        runBlocking(vertx.dispatcher()) {
             devProject()
             devUser()
             updateOntology(vertx)
             key = devApiKey(apiKeyAuthProvider)
         }
+    }
+
+    fun deployCollectApi(vertx: Vertx, testContext: VertxTestContext) {
+        val collectApi = CollectApi(apiKeyAuthProvider)
 
         vertx.deployVerticle(
             collectApi,
-            DeploymentOptions().setWorker(true),
+            DeploymentOptions(),
             testContext.succeedingThenComplete()
         )
+
+        collectApi.awaitReady()
     }
 
     fun deployGraphQL(vertx: Vertx, testContext: VertxTestContext) {
         System.setProperty(WebEnvironment.SYSTEM_PROPERTY_NAME, "dev")
 
+        val graphQL = GraphQLApi(dataSource)
+
         vertx.deployVerticle(
-            GraphQLApi(dataSource),
-            DeploymentOptions().setConfig(
-                JsonObject(
-                    mapOf(
-                        Config.PGPORT to postgresContainer.firstMappedPort,
-                        Config.PGUSER to postgresContainer.username,
-                        Config.PGPASSWORD to postgresContainer.password,
-                        Config.PGDATABASE to postgresContainer.databaseName
-                    )
-                )
-            ).setWorker(true),
+            graphQL,
+            DeploymentOptions(),
             testContext.succeedingThenComplete()
         )
+
+        graphQL.awaitReady()
     }
 
     protected suspend fun sendRequest(vertx: Vertx, port: Int, path: String, body: String): HttpClientResponse {
