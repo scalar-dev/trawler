@@ -15,11 +15,7 @@ data class User(
 
 class UserQuery {
     suspend fun me(context: QueryContext): User? {
-        if (context.user == null) {
-            return null
-        }
-
-        val userId = UUID.fromString(context.user.principal().getString("sub"))
+        val userId = UUID.fromString(context.user!!.principal().getString("sub"))
 
         return newSuspendedTransaction {
             AccountInfo.select {
@@ -30,11 +26,7 @@ class UserQuery {
         }
     }
 
-    suspend fun listApiKeys(context: QueryContext): List<ApiKey> {
-        if (context.user == null) {
-            throw Exception("Must be logged in")
-        }
-
+    suspend fun apiKeys(context: QueryContext): List<ApiKey> {
         return newSuspendedTransaction {
             dev.scalar.trawler.server.db.ApiKey.select {
                 dev.scalar.trawler.server.db.ApiKey.accountId.eq(context.accountId)

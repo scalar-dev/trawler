@@ -6,6 +6,7 @@ import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.ilike
 import dev.scalar.trawler.server.graphql.Entity
 import dev.scalar.trawler.server.graphql.QueryContext
+import dev.scalar.trawler.server.graphql.Unauthenticated
 import dev.scalar.trawler.server.graphql.fetchEntities
 import org.jetbrains.exposed.sql.Alias
 import org.jetbrains.exposed.sql.ColumnSet
@@ -49,6 +50,7 @@ class EntityQuery {
         }
     }
 
+    @Unauthenticated
     suspend fun search(context: QueryContext, project: String, filters: List<Filter>): List<Entity> {
         val projectId = context.projectId(project)
         val ontology = context.ontologyCache.get(projectId)
@@ -90,8 +92,10 @@ class EntityQuery {
             .filter { it.projectId == projectId }
     }
 
+    @Unauthenticated
     suspend fun entity(context: QueryContext, id: UUID) = fetchEntities(context.accountId, listOf(id)).firstOrNull()
 
+    @Unauthenticated
     suspend fun entityGraph(context: QueryContext, id: UUID, d: Int): List<Entity> {
         var currentEntities = fetchEntities(context.accountId, listOf(id))
         val output = currentEntities.toMutableList()

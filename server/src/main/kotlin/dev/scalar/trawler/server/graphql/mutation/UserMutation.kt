@@ -2,7 +2,6 @@ package dev.scalar.trawler.server.graphql
 
 import dev.scalar.trawler.server.db.Account
 import dev.scalar.trawler.server.db.AccountInfo
-import dev.scalar.trawler.server.db.AccountRole
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.authentication.UsernamePasswordCredentials
 import io.vertx.kotlin.coroutines.await
@@ -19,6 +18,7 @@ data class AuthenticatedUser(
 )
 
 class UserMutation() {
+    @Unauthenticated
     suspend fun createUser(context: QueryContext, email: String, password: String): UUID {
         val salt = ByteArray(32)
         SecureRandom().nextBytes(salt)
@@ -43,6 +43,7 @@ class UserMutation() {
         }
     }
 
+    @Unauthenticated
     suspend fun login(context: QueryContext, email: String, password: String): AuthenticatedUser {
         val userId = newSuspendedTransaction {
             AccountInfo.select { AccountInfo.email eq email }
@@ -66,8 +67,7 @@ class UserMutation() {
         )
     }
 
-    suspend fun createApiKey(context: QueryContext, project: String): ApiKey = newSuspendedTransaction {
-        val projectId = context.projectId(project, AccountRole.ADMIN)
+    suspend fun createApiKey(context: QueryContext): ApiKey = newSuspendedTransaction {
         val key = context.apiAuth.makeRandomKey()
 
         val keyId = dev.scalar.trawler.server.db.ApiKey.insertAndGetId {
