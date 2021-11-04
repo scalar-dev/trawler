@@ -25,43 +25,15 @@ class ApiKeysShould : BaseVerticleTest() {
         val response = graphQLRequest(
             vertx,
             """
-                mutation CreateKey(${"$"}project: String!) {
-                    createApiKey(project: ${"$"}project) {
+                mutation CreateKey {
+                    createApiKey {
                         id
                     }
                 }
-            """.trimIndent(),
-            mapOf(
-                "project" to "test"
-            )
+            """.trimIndent()
         )
 
-        val createApiKey = response.data["createApiKey"] as Map<*, *>
-        val id = UUID.fromString(createApiKey["id"] as String)
-
-        val apiKey = newSuspendedTransaction {
-            ApiKey.select { ApiKey.id.eq(id) }.firstOrNull()
-        }
-        Assertions.assertNotNull(apiKey)
-    }
-
-    @Test
-    fun list_api_keys(vertx: Vertx) = runBlocking(vertx.dispatcher()) {
-        val response = graphQLRequest(
-            vertx,
-            """
-                mutation CreateKey(${"$"}project: String!) {
-                    createApiKey(project: ${"$"}project) {
-                        id
-                    }
-                }
-            """.trimIndent(),
-            mapOf(
-                "project" to "test"
-            )
-        )
-
-        val createApiKey = response.data["createApiKey"] as Map<*, *>
+        val createApiKey = response.data!!["createApiKey"] as Map<*, *>
         val id = UUID.fromString(createApiKey["id"] as String)
 
         val apiKey = newSuspendedTransaction {
