@@ -93,7 +93,7 @@ export const Layout: React.FC = ({ children }) => {
                       <Link to="/">
                           <img
                             className="h-8 w-auto"
-                            src="https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg"
+                            src="/trawler.svg"
                             alt="Workflow"
                           />
                       </Link>

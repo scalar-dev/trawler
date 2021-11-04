@@ -26,12 +26,12 @@ const Main = () => {
               >
                 <div className="flex items-center flex-1">
                   <div className="flex items-center justify-between w-full md:w-auto">
-                    <a href="#" className="flex items-center">
-                      {/* <img
-                      className="h-8 w-auto sm:h-10"
-                      src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
-                      alt=""
-                    /> */}
+                    <a href="#" className="flex items-baseline">
+                      <img
+                        className="h-7 mr-1 w-auto"
+                        src="/trawler.svg"
+                        alt="Workflow"
+                      />
 
                       <span className="ml-2 text-white font-black text-3xl">
                         trawler
