@@ -98,12 +98,12 @@ class App : CoroutineVerticle() {
         dbDefaults()
 
         val collectApi = collectApi(dataSource)
-        deployVerticle(collectApi, config, true)
+        deployVerticle(collectApi, verticleConfig, true)
 
         val indexer = indexer()
-        deployVerticle(indexer, config, true)
+        deployVerticle(indexer, verticleConfig, true)
 
         val graphQLApi = graphQLApi(dataSource)
-        deployVerticle(graphQLApi, config, false)
+        deployVerticle(graphQLApi, verticleConfig, false)
     }
 }
