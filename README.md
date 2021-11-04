@@ -51,18 +51,18 @@ curl -g \
 http://localhost:8080
 ```
 
-Finally take this token and grab yourself a JWT for the collect API
+Finally take this token and create an API key for yourself
 
 ```bash
 curl -g \
 -X POST \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <token>" \
--d '{"query":"mutation { collectToken { jwt } }"}' \
+-d '{"query":"mutation { createApiKey { secret } }"}' \
 http://localhost:8080
 ```
 
-The JWT from this step will be used as `TRAWLER_TOKEN` below.
+The key from this step will be used as `TRAWLER_TOKEN` below.
 
 Create an agent configuration file, `example.yml`:
 

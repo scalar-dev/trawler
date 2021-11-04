@@ -10,6 +10,9 @@ directive @skip(
     if: Boolean!
   ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+"This field does not require authentication"
+directive @unauthenticated on FIELD_DEFINITION
+
 "Marks the field or enum value as deprecated"
 directive @deprecated(
     "The reason for the deprecation"
@@ -21,6 +24,14 @@ directive @specifiedBy(
     "The URL that specifies the behaviour of this scalar."
     url: String!
   ) on SCALAR
+
+type ApiKey {
+  accountId: UUID!
+  createdAt: DateTime!
+  description: String
+  id: UUID!
+  secret: String
+}
 
 type AuthenticatedUser {
   jwt: String!
@@ -66,9 +77,9 @@ type FacetTimeSeriesPoint {
 }
 
 type Mutation {
-  collectToken: AuthenticatedUser!
-  createUser(email: String!, password: String!): UUID!
-  login(email: String!, password: String!): AuthenticatedUser!
+  createApiKey: ApiKey!
+  createUser(email: String!, password: String!): UUID! @unauthenticated
+  login(email: String!, password: String!): AuthenticatedUser! @unauthenticated
 }
 
 type Project {
@@ -78,11 +89,12 @@ type Project {
 }
 
 type Query {
-  entity(id: UUID!): Entity
-  entityGraph(d: Int!, id: UUID!): [Entity!]!
+  apiKeys: [ApiKey!]!
+  entity(id: UUID!): Entity @unauthenticated
+  entityGraph(d: Int!, id: UUID!): [Entity!]! @unauthenticated
   me: User
-  projects: [Project!]!
-  search(filters: [FilterInput!]!, project: String!): [Entity!]!
+  projects: [Project!]! @unauthenticated
+  search(filters: [FilterInput!]!, project: String!): [Entity!]! @unauthenticated
 }
 
 type User {

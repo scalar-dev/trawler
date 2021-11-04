@@ -1,21 +1,14 @@
 package dev.scalar.trawler.server
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import dev.scalar.trawler.server.auth.Users
-import dev.scalar.trawler.server.auth.jwtAuth
-import dev.scalar.trawler.server.auth.mintToken
 import dev.scalar.trawler.server.db.Account
+import dev.scalar.trawler.server.db.ApiKey
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.Project
-import dev.scalar.trawler.server.db.devSecret
-import dev.scalar.trawler.server.verticle.CollectApi
-import dev.scalar.trawler.server.verticle.Config
-import io.vertx.core.DeploymentOptions
+import dev.scalar.trawler.server.util.BaseVerticleTest
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientResponse
 import io.vertx.core.http.HttpMethod
-import io.vertx.core.json.JsonObject
-import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.await
@@ -29,62 +22,40 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.Random
 import java.util.UUID
 
 @Testcontainers
 @ExtendWith(VertxExtension::class)
-class CollectEndpointShould {
-    companion object {
-        @Container
-        @JvmStatic
-        private val postgresContainer = KPostgreSQLContainer()
-    }
-
+class CollectEndpointShould : BaseVerticleTest() {
     @BeforeEach
-    fun deployVerticle(vertx: Vertx, testContext: VertxTestContext) {
-        System.setProperty(WebEnvironment.SYSTEM_PROPERTY_NAME, "dev")
-        vertx.deployVerticle(
-            CollectApi(),
-            DeploymentOptions().setConfig(
-                JsonObject(
-                    mapOf(
-                        Config.PGPORT to postgresContainer.firstMappedPort,
-                        Config.PGUSER to postgresContainer.username,
-                        Config.PGPASSWORD to postgresContainer.password,
-                        Config.PGDATABASE to postgresContainer.databaseName
-                    )
-                )
-            ).setWorker(true),
-            testContext.succeedingThenComplete()
-        )
+    fun setUp(vertx: Vertx, testContext: VertxTestContext) {
+        initialSetup(vertx)
+        deployCollectApi(vertx, testContext)
     }
 
     private suspend fun sendRequest(vertx: Vertx, body: String): HttpClientResponse {
-        val jwt = jwtAuth(vertx, devSecret(), 30)
         val client = vertx.createHttpClient()
         val request = client
             .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
             .await()
 
         return request
-            .putHeader("Authorization", "Bearer ${mintToken(jwt, Users.DEV, listOf("collect"))}")
+            .putHeader("X-API-Key", key)
             .send(body)
             .await()
     }
 
     @Test
-    fun reject_bad_jwt(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
-        val jwt = jwtAuth(vertx, "the wrong secret", 30)
+    fun reject_bad_key(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
         val client = vertx.createHttpClient()
         val request = client
             .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
             .await()
 
         val response = request
-            .putHeader("Authorization", "Bearer ${mintToken(jwt, Users.DEV, listOf("collect"))}")
+            .putHeader("X-API-Key", "foo")
             .send("{}")
             .await()
 
@@ -92,33 +63,7 @@ class CollectEndpointShould {
     }
 
     @Test
-    fun reject_expired_jwt(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
-        val jwt = jwtAuth(vertx, devSecret(), 0)
-        val client = vertx.createHttpClient()
-        val request = client
-            .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
-            .await()
-
-        val token = jwt.generateToken(
-            JsonObject(
-                mapOf(
-                    "sub" to Users.DEV.toString(),
-                    "scope" to listOf("collect").joinToString(" "),
-                    "exp" to 0
-                )
-            )
-        )
-
-        val response = request
-            .putHeader("Authorization", "Bearer $token")
-            .send("{}")
-            .await()
-
-        Assert.assertEquals(401, response.statusCode())
-    }
-
-    @Test
-    fun reject_no_jwt(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
+    fun reject_no_key(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
         val client = vertx.createHttpClient()
         val request = client
             .request(HttpMethod.POST, 9090, "localhost", "/api/collect/${Project.DEMO_PROJECT_ID}")
@@ -133,24 +78,17 @@ class CollectEndpointShould {
 
     @Test
     fun reject_no_authz(vertx: Vertx): Unit = runBlocking(vertx.dispatcher()) {
-        val jwt = jwtAuth(vertx, devSecret(), 30)
-
         newSuspendedTransaction {
             Account.insertIgnore {
                 it[Account.id] = UUID(0, 2)
                 it[Account.password] = "NO_LOGIN"
             }
-        }
 
-        val token = jwt.generateToken(
-            JsonObject(
-                mapOf(
-                    "sub" to UUID(0, 2).toString(),
-                    "scope" to listOf("collect").joinToString(" "),
-                    "exp" to 0
-                )
-            )
-        )
+            ApiKey.insertIgnore {
+                it[ApiKey.secret] = apiKeyAuthProvider.hashKey("foo")
+                it[ApiKey.accountId] = UUID(0, 2)
+            }
+        }
 
         val client = vertx.createHttpClient()
         val request = client
@@ -158,7 +96,7 @@ class CollectEndpointShould {
             .await()
 
         val response = request
-            .putHeader("Authorization", "Bearer $token")
+            .putHeader("X-API-Key", "foo")
             .send("{}")
             .await()
 

@@ -18,6 +18,7 @@ data class AuthenticatedUser(
 )
 
 class UserMutation() {
+    @Unauthenticated
     suspend fun createUser(context: QueryContext, email: String, password: String): UUID {
         val salt = ByteArray(32)
         SecureRandom().nextBytes(salt)
@@ -42,6 +43,7 @@ class UserMutation() {
         }
     }
 
+    @Unauthenticated
     suspend fun login(context: QueryContext, email: String, password: String): AuthenticatedUser {
         val userId = newSuspendedTransaction {
             AccountInfo.select { AccountInfo.email eq email }
@@ -65,14 +67,24 @@ class UserMutation() {
         )
     }
 
-    suspend fun collectToken(context: QueryContext): AuthenticatedUser {
-        val claims = mapOf(
-            "sub" to context.accountId.toString(),
-            "scope" to listOf("collect").joinToString(" "),
-        )
+    suspend fun createApiKey(context: QueryContext): ApiKey = newSuspendedTransaction {
+        val key = context.apiAuth.makeRandomKey()
 
-        return AuthenticatedUser(
-            context.jwtAuth.generateToken(JsonObject(claims))
-        )
+        val keyId = dev.scalar.trawler.server.db.ApiKey.insertAndGetId {
+            it[accountId] = context.accountId
+            it[secret] = key.hash
+        }.value
+
+        dev.scalar.trawler.server.db.ApiKey.select { dev.scalar.trawler.server.db.ApiKey.id.eq(keyId) }
+            .map {
+                ApiKey(
+                    id = keyId,
+                    accountId = context.accountId,
+                    description = null,
+                    secret = key.key,
+                    createdAt = it[dev.scalar.trawler.server.db.ApiKey.createdAt]
+                )
+            }
+            .first()
     }
 }

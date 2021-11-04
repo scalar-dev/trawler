@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import dev.scalar.trawler.ontology.config.OntologyConfig
 import dev.scalar.trawler.server.App
 import dev.scalar.trawler.server.auth.Users
+import dev.scalar.trawler.server.collect.ApiKeyAuthProvider
 import dev.scalar.trawler.server.ontology.OntologyUpload
 import dev.scalar.trawler.server.verticle.Config
 import io.vertx.core.Vertx
@@ -57,6 +58,18 @@ suspend fun devUser() = newSuspendedTransaction {
         it[AccountRole.projectId] = Project.DEMO_PROJECT_ID
         it[AccountRole.role] = "admin"
     }
+}
+
+suspend fun devApiKey(apiKeyAuthProvider: ApiKeyAuthProvider): String = newSuspendedTransaction {
+    val secret = UUID(0, 0).toString()
+
+    ApiKey.insertIgnore {
+        it[ApiKey.id] = UUID(0, 0)
+        it[ApiKey.accountId] = Users.DEV
+        it[ApiKey.secret] = apiKeyAuthProvider.hashKey(secret)
+    }
+
+    secret
 }
 
 fun devSecret() = if (WebEnvironment.development()) {

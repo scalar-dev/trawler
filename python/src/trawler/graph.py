@@ -66,7 +66,7 @@ class Graph:
         r = requests.post(
             f"{endpoint}/api/collect/{project}",
             json=out,
-            headers={"Authorization": f"Bearer {token}"},
+            headers={"X-API-Key": token}
         )
         r.raise_for_status()
         return r.json()

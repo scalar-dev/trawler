@@ -1,0 +1,9 @@
+
+ALTER TABLE api_key
+ADD COLUMN secret TEXT UNIQUE NOT NULL;
+
+ALTER TABLE api_key
+ADD COLUMN account_id UUID NOT NULL REFERENCES account;
+
+ALTER TABLE api_key
+DROP COLUMN project_id;
