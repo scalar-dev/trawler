@@ -14,7 +14,7 @@ export const Hero = () => (
                 Trawler is an open source graph-based data catalogue and
                 metadata platform based on semantic web technologies.
               </p>
-              <div className="mt-5 max-w-md sm:flex justify-start sm:justify-start md:mt-8">
+              <div className="mt-5 sm:flex justify-center lg:justify-start md:mt-8">
                 <div className="rounded-md shadow">
                   <a
                     href="https://github.com/scalar-dev/trawler"
