@@ -22,6 +22,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           ./gradlew --no-daemon --console=plain server:jib --image=scalardev/trawler:$GITHUB_SHA
+          ./gradlew --no-daemon --console=plain server:jib --image=scalardev/trawler:latest
 
   ui:
     runs-on: ubuntu-latest
@@ -41,7 +42,8 @@ jobs:
       - name: Push
         if: github.ref == 'refs/heads/master'
         run: |
-          docker push scalardev/trawler-ui:$GITHUB_SHA 
+          docker tag scalardev/trawler-ui:$GITHUB_SHA  scalardev/trawler-ui:latest
+          docker image push --all-tags scalardev/trawler-ui
 
   agent:
     runs-on: ubuntu-latest
@@ -61,7 +63,8 @@ jobs:
       - name: Push
         if: github.ref == 'refs/heads/master'
         run: |
-          docker push scalardev/trawler-agent:$GITHUB_SHA 
+          docker tag scalardev/trawler-agent:$GITHUB_SHA  scalardev/trawler-agent:latest
+          docker image push --all-tags scalardev/trawler-agent
 
   deploy:
     runs-on: ubuntu-latest
