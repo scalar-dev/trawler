@@ -85,7 +85,7 @@ docker run --net=host \
     -v $(pwd)/example.yml:/app/config/example.yml \
     -e TRAWLER_TOKEN=<token> \
     -e TRAWLER_ENDPOINT=http://localhost:9090 \
-    scalardev/trawler-agent:54bf319fb00f0ff4674d7e7bcf74b9a1061b0510 \
+    scalardev/trawler-agent \
     run --now /app/config/example.yml 
 ```
 
