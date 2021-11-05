@@ -27,5 +27,7 @@ run with `docker`.
 Full instructions for configuring the agent are available
 [here](https://docs.trawler.dev/getting-started).
 
+
+## Scalar
 Trawler is proudly developed and sponsored by [Scalar](https://www.scalar.dev) a
 consultancy specialising in novel data engineering solutions.
