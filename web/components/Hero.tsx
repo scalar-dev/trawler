@@ -11,8 +11,15 @@ export const Hero = () => (
                 <span className="block text-indigo-400">data.</span>
               </h1>
               <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                Trawler is an open source graph-based data catalogue and
-                metadata platform based on semantic web technologies.
+                Trawler is an open source data catalogue and metadata platform
+                built on a knowledge graph. It is open source and easy to
+                deploy.{" "}
+                <a
+                  className="text-indigo-300 hover:text-indigo-400"
+                  href="https://docs.trawler.dev"
+                >
+                  Read the docs
+                </a>
               </p>
               <div className="mt-5 sm:flex justify-center lg:justify-start md:mt-8">
                 <div className="rounded-md shadow">
