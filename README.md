@@ -6,6 +6,9 @@ JSON-LD) to build a live knowledge graph all the way down to individual fields
 or columns. It comes with a lightweight agent to collect metadata as well as a
 web-based UI to browse available data and visualise relationships and metrics.
 
+Find out more by perusing our [documentation](https://doc.trawler.dev) or
+checking out the [live demo instance](https://app.trawler.dev).
+
 ## Trawler platform
 The trawler platform can be run as a single docker image. All it needs is a
 running `postgres` database. The simplest way to get started is using
@@ -23,3 +26,6 @@ run with `docker`.
 
 Full instructions for configuring the agent are available
 [here](https://docs.trawler.dev/getting-started).
+
+Trawler is proudly developed and sponsored by [Scalar](https://www.scalar.dev) a
+consultancy specialising in novel data engineering solutions.
