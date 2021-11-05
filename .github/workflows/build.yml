@@ -66,6 +66,18 @@ jobs:
           docker tag scalardev/trawler-agent:$GITHUB_SHA  scalardev/trawler-agent:latest
           docker image push --all-tags scalardev/trawler-agent
 
+      - name: Publish
+        if: github.ref == 'refs/heads/master'
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          virtualenv .venv
+          source .venv/bin/activate
+          pip install poetry
+          poetry config pypi-token.pypi $PYPI_TOKEN
+          poetry publish
+
+
   deploy:
     runs-on: ubuntu-latest
     concurrency: deploy-${{ github.ref }}

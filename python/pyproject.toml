@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "trawler"
-version = "0.1.6"
+version = "0.0.2-alpha.3"
 description = "Trawler is an open source metadata platform for mapping and monitoring your data"
 readme = "README.md"
 authors = ["Alex Sparrow <alex@alexsparrow.dev>"]
@@ -25,4 +25,5 @@ sql = ["SQLAlchemy", "psycopg2-binary"]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-
+[tool.poetry.scripts]
+trawler = 'trawler.agent.main:main'
