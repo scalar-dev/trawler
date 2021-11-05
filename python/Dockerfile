@@ -17,7 +17,7 @@ COPY poetry.lock pyproject.toml /app/
 
 # Project initialization:
 RUN poetry config virtualenvs.create false \
-  && poetry install --no-dev --no-interaction --no-ansi --extras sql
+&& poetry install --no-root --no-dev --no-interaction --no-ansi --extras sql
 
 # Creating folders, and files for a project:
 COPY . /app
