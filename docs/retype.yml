@@ -4,10 +4,15 @@ url: # Add your website address here
 branding:
   title: trawler
   label: Docs
+  logo: trawler_black.svg
+  logoDark: trawler.svg
 links:
-- text: Getting Started
-  link: https://retype.com/guides/getting-started/
+- text: Website
+  link: https://www.trawler.dev
 exclude:
  - "internal/"
 footer:
-  copyright: "&copy; Copyright {{ year }}. All rights reserved."
+  copyright: "&copy; Copyright Scalar {{ year }}. All rights reserved."
+  links:
+    - text: scalar.dev
+      link: https://www.scalar.dev
