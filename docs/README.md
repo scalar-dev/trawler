@@ -40,10 +40,10 @@ Once collected, metadata can be put to a variety of uses, including:
 ## How does trawler compare to other systems?
 In terms of open source products, trawler is most similar to LinkedIn's
 [datahub](https://github.com/linkedin/datahub). datahub is more mature and has
-significantly more features as of writing. trawler has adopted JSON-LD and a
-more flexible ontology model versus datahub. This makes it easier to customise
-for your needs (and you can even have multiple ontologies in a single instance).
-Additionally, whereas datahub depends on kafka, neo4j and elasticsearch, trawler
+significantly more features as of writing. In contrast, trawler is being built on top of established knowledge graph standards allowing it to provide a more
+flexible ontology model. This makes it easier to customise for your needs (and
+you can even have multiple ontologies in a single instance).  Additionally,
+whereas datahub depends on kafka, neo4j and elasticsearch, trawler
 is designed to be simple to deploy. Whilst we plan to add support for kafka and
 secondary indexing in future, trawler can be deployed as a single service with
 only a single postgres instance.
