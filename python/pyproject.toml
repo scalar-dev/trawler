@@ -4,6 +4,9 @@ version = "0.0.2-alpha.3"
 description = "Trawler is an open source metadata platform for mapping and monitoring your data"
 readme = "README.md"
 authors = ["Alex Sparrow <alex@alexsparrow.dev>"]
+packages = [
+    { include = "src/trawler" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
