@@ -1,3 +1,6 @@
+---
+Order: 100
+---
 # Overview
 
 Trawler is a data catalogue and metadata platform based on a [knowledge graph](https://en.wikipedia.org/wiki/Knowledge_graph).

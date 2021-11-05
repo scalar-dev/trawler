@@ -1,7 +1,7 @@
 ---
-Order: 10000
+Order: 99
 ---
-# Quick start
+# Getting started
 The simplest way to get started with trawler is using `docker`.
 
 ## Trawler platform
