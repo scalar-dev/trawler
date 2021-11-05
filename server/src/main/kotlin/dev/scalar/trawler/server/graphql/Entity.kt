@@ -20,6 +20,7 @@ data class Entity(
     val typeName: String,
     val facets: List<Facet>
 ) {
+    @Unauthenticated
     suspend fun facetLog(context: QueryContext, facets: List<String>): List<dev.scalar.trawler.server.graphql.FacetLog> = newSuspendedTransaction {
         val rows = FacetLog
             .join(Entity, JoinType.INNER, FacetLog.entityUrn, Entity.urn)
@@ -55,6 +56,7 @@ data class Entity(
         }
     }
 
+    @Unauthenticated
     suspend fun timeSeries(context: QueryContext, facet: String): dev.scalar.trawler.server.graphql.FacetTimeSeries? = newSuspendedTransaction {
         val facetType = context.ontologyCache.get(projectId).facetTypeByUri(facet)!!
 
