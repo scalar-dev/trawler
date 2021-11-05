@@ -18,7 +18,7 @@ from a supplied YAML file.
 To run a single task from a configuration file, `example.yml`:
 
 ```bash
-    trawler run --now example.yml
+trawler run --now example.yml
 ```
 
 This mode may also be useful if you want to use your own job scheduler.  To make
@@ -27,5 +27,5 @@ life easy, the agent comes with a very simple scheduler which uses the Python
 daemon mode using any supplied job schedules:
 
 ```bash
-    trawler run /app/config/example.yml 
+trawler run /app/config/example.yml 
 ```
