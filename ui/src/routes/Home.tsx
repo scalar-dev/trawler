@@ -9,8 +9,10 @@ export const Home = () => {
   if (me.fetching) {
     return (
       <div className="w-screen h-screen flex bg-indigo-500">
-        <div className="m-auto animate-bounce text-4xl font-black text-white">
-          trawler
+        <div className="m-auto animate-bounce text-4xl font-black text-white flex items-baseline">
+          <img className="h-7 mr-1 w-auto" src="/trawler.svg" alt="Workflow" />
+
+          <span className="ml-2 text-white font-black text-3xl">trawler</span>
         </div>
       </div>
     );
