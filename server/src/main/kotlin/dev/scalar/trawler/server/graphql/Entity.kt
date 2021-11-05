@@ -70,7 +70,7 @@ data class Entity(
         if (rows.toList().isEmpty()) {
             null
         } else {
-            dev.scalar.trawler.server.graphql.FacetTimeSeries(
+            FacetTimeSeries(
                 facetType.name,
                 urn = facet,
                 points = rows.map { row ->

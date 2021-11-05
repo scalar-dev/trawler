@@ -9,26 +9,68 @@ export const Features = () => {
   const features = [
     {
       name: "All-inclusive",
-      description:
-        "Trawler's agent can ingest data from a variety of data sources including SQL, flat-files and Spark. Use the Python API to write your own integrations.",
+      description: (
+        <p>
+          Trawler&apos;s agent can ingest data from a variety of data sources
+          including SQL, flat-files and Spark. Use the Python API to write your
+          own integrations.{" "}
+          <a
+            className="text-indigo-600 hover:text-indigo-500"
+            href="https://docs.trawler.dev/integration/connectors/agent"
+          >
+            Read the docs
+          </a>
+        </p>
+      ),
       icon: GlobeAltIcon,
     },
     {
       name: "Flexible",
-      description:
-        "Trawler builds on semantic web technologies like JSON-LD to accurately model your metadata. Extend the ontology to add your own metadata types.",
+      description: (
+        <p>
+          Trawler builds on semantic web technologies like JSON-LD to accurately
+          model your metadata. Extend the ontology to add your own metadata
+          types.{" "}
+          <a
+            className="text-indigo-600 hover:text-indigo-500"
+            href="https://docs.trawler.dev/concepts/#ontology"
+          >
+            Read the docs
+          </a>
+        </p>
+      ),
       icon: ScaleIcon,
     },
     {
       name: "Simple",
-      description:
-        "Trawler can be deployed simply and easily on top of a postgres database.",
+      description: (
+        <p>
+          Trawler can be deployed simply and easily on top of a postgres
+          database.{" "}
+          <a
+            className="text-indigo-600 hover:text-indigo-500"
+            href="https://docs.trawler.dev/architecture"
+          >
+            Read the docs
+          </a>
+        </p>
+      ),
       icon: LightningBoltIcon,
     },
     {
       name: "Open",
-      description:
-        "As well as supporting open APIs and standard data formats, Trawler itself is open source.",
+      description: (
+        <p>
+          As well as supporting open APIs and standard data formats, Trawler
+          itself is open source.{" "}
+          <a
+            className="text-indigo-600 hover:text-indigo-500"
+            href="https://github.com/scalar-dev/trawler"
+          >
+            Visit our Github
+          </a>
+        </p>
+      ),
       icon: AnnotationIcon,
     },
   ];
