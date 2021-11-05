@@ -58,10 +58,8 @@ export const Graph = ({ entityGraph }: { entityGraph: any }) => {
         elements={elements}
         layout={
           {
-            name: "fcose",
+            name: "dagre",
             fit: true,
-            quality: "proof",
-            randomize: false,
           } as any
         }
         style={{ flex: 1 }}

@@ -25,8 +25,8 @@ import { Overview } from "./Overview";
 import { Schema } from "./Schema";
 
 export const ENTITY_QUERY = gql`
-  query Entity($id: UUID!) {
-    entityGraph(id: $id, d: 3) {
+  query Entity($id: UUID!, $depth: Int!) {
+    entityGraph(id: $id, d: $depth) {
       entityId
       urn
       facets {
@@ -50,6 +50,7 @@ export const Entity = () => {
     query: EntityDocument,
     variables: {
       id: entity,
+      depth: 1,
     },
   });
 
@@ -181,11 +182,9 @@ export const Entity = () => {
       </Route>
 
       <Route path={`${path}/diagram`} exact>
-        {data.data?.entityGraph && (
-          <MainFull>
-            <Diagram entity={entity} entityGraph={data.data.entityGraph} />
-          </MainFull>
-        )}
+        <MainFull>
+          <Diagram entity={entity} />
+        </MainFull>
       </Route>
 
       <Route path={`${path}/metrics`} exact>

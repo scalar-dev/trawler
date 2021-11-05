@@ -19,6 +19,8 @@ import { dataTypeFacet, fields, nameFacet } from "../../ontology";
 import dagre from "dagre";
 import { Link } from "react-router-dom";
 import { ProjectContext } from "../../ProjectContext";
+import { EntityDocument } from "../../types";
+import { useQuery } from "urql";
 
 type Field = {
   id: string;
@@ -41,7 +43,8 @@ const TableNode = ({
   selected: boolean;
   data: any;
 }) => {
-  const {entityLink} = useContext(ProjectContext);
+  const { entityLink } = useContext(ProjectContext);
+
   return (
     <div
       className={`border rounded-md ${
@@ -213,154 +216,162 @@ const DiagramInner = ({
   );
 };
 
-export const Diagram = ({
-  entity,
-  entityGraph,
-}: {
-  entity: string;
-  entityGraph: Entity[];
-}) => {
-  const [selection, setSelection] = useState(new Set<string>());
-  const elements = useMemo(() => {
-    const entityById = _.keyBy(entityGraph, (entity) => entity.entityId);
+const getElements = (entityGraph: Entity[]) => {
+  const entityById = _.keyBy(entityGraph, (entity) => entity.entityId);
 
-    const parentEntity: Record<string, string> = _.chain(entityGraph)
-      .flatMap((entity) => {
-        const fieldIds: string[] = fields(entity);
-        return fieldIds.map((fieldId: string) => [entity.entityId, fieldId]);
-      })
-      .keyBy((kv) => kv[1])
-      .mapValues((kv) => kv[0])
-      .value();
+  const parentEntity: Record<string, string> = _.chain(entityGraph)
+    .flatMap((entity) => {
+      const fieldIds: string[] = fields(entity);
+      return fieldIds.map((fieldId: string) => [entity.entityId, fieldId]);
+    })
+    .keyBy((kv) => kv[1])
+    .mapValues((kv) => kv[0])
+    .value();
 
-    const entityByParent = _.chain(entityGraph)
-      .groupBy((entity: any) => parentEntity[entity.entityId])
-      .value();
+  const entityByParent = _.chain(entityGraph)
+    .groupBy((entity: any) => parentEntity[entity.entityId])
+    .value();
 
-    const nodeForEntity = (entityId: string) => {
-      const entity = entityById[entityId];
+  const nodeForEntity = (entityId: string) => {
+    const entity = entityById[entityId];
 
-      if (!entity) {
-        return null;
-      }
-
-      if (entity.typeName === "SqlTable") {
-        return entityId;
-      } else if (entity.typeName === "SqlColumn") {
-        return parentEntity[entityId];
-      }
-
+    if (!entity) {
       return null;
-    };
+    }
 
-    const targetForConstraint = (entityId: string) => {
-      const entity = entityById[entityId];
+    if (entity.typeName === "SqlTable") {
+      return entityId;
+    } else if (entity.typeName === "SqlColumn") {
+      return parentEntity[entityId];
+    }
 
-      const constrains = entity.facets.find(
-        (facet: any) =>
-          facet.uri === "http://trawler.dev/schema/core#constrains"
-      );
+    return null;
+  };
 
-      if (constrains) {
-        return constrains.value[0];
-      }
+  const targetForConstraint = (entityId: string) => {
+    const entity = entityById[entityId];
 
-      return null;
-    };
-
-    const nodes: any[] = [];
-
-    entityGraph.forEach((entity: any, idx: number) => {
-      if (entity.typeName === "SqlTable") {
-        const fields = entityByParent[entity.entityId] || [];
-
-        const node = {
-          id: entity.entityId,
-          type: "table",
-          data: {
-            name: nameFacet(entity),
-            type: entity.typeName,
-            fields: fields.map((field: any) => ({
-              id: field.entityId,
-              name: nameFacet(field),
-              type: dataTypeFacet(field),
-            })),
-          },
-
-          position: { x: idx * 200, y: 0 },
-        };
-
-        nodes.push(node);
-      }
-    });
-
-    const links: any[] = [];
-
-    const connectedHandles = new Map<string, Set<string>>();
-
-    entityGraph.forEach((entity: any) => {
-      const sourceNode = nodeForEntity(entity.entityId);
-
-      if (sourceNode) {
-        const relationshipFacets = entity.facets.filter(
-          (facet: any) => facet.metaType === "relationship"
-        );
-
-        relationshipFacets.forEach((facet: any) => {
-          facet.value.forEach((targetId: string) => {
-            const resolvedTargetId =
-              facet.uri === "http://trawler.dev/schema/core#hasConstraint"
-                ? targetForConstraint(targetId)
-                : targetId;
-
-            const targetNode = nodeForEntity(resolvedTargetId);
-
-            if (targetNode && targetNode !== sourceNode) {
-              const link = {
-                id: `${entity.entityId}_${targetId}`,
-                source: sourceNode,
-                sourceHandle: `${entity.entityId}_out`,
-                target: targetNode,
-                targetHandle: `${resolvedTargetId}_in`,
-                label: facet.name,
-                arrowHeadType: ArrowHeadType.Arrow,
-              };
-
-              connectedHandles.set(
-                sourceNode,
-                (connectedHandles.get(sourceNode) || new Set<string>()).add(
-                  link.sourceHandle
-                )
-              );
-
-              connectedHandles.set(
-                targetNode,
-                (connectedHandles.get(targetNode) || new Set<string>()).add(
-                  link.targetHandle
-                )
-              );
-
-              links.push(link);
-            }
-          });
-        });
-      }
-    });
-
-    nodes.forEach(
-      (node) =>
-        (node.data = {
-          ...node.data,
-          connectedHandles: connectedHandles.get(node.id) || new Set(),
-        })
+    const constrains = entity.facets.find(
+      (facet: any) => facet.uri === "http://trawler.dev/schema/core#constrains"
     );
 
-    return getLayoutedElements([...nodes, ...links]);
-  }, [entityGraph]);
+    if (constrains) {
+      return constrains.value[0];
+    }
+
+    return null;
+  };
+
+  const nodes: any[] = [];
+
+  entityGraph.forEach((entity: any, idx: number) => {
+    if (entity.typeName === "SqlTable") {
+      const fields = entityByParent[entity.entityId] || [];
+
+      const node = {
+        id: entity.entityId,
+        type: "table",
+        data: {
+          name: nameFacet(entity),
+          type: entity.typeName,
+          fields: fields.map((field: any) => ({
+            id: field.entityId,
+            name: nameFacet(field),
+            type: dataTypeFacet(field),
+          })),
+        },
+
+        position: { x: idx * 200, y: 0 },
+      };
+
+      nodes.push(node);
+    }
+  });
+
+  const links: any[] = [];
+
+  const connectedHandles = new Map<string, Set<string>>();
+
+  entityGraph.forEach((entity: any) => {
+    const sourceNode = nodeForEntity(entity.entityId);
+
+    if (sourceNode) {
+      const relationshipFacets = entity.facets.filter(
+        (facet: any) => facet.metaType === "relationship"
+      );
+
+      relationshipFacets.forEach((facet: any) => {
+        facet.value.forEach((targetId: string) => {
+          const resolvedTargetId =
+            facet.uri === "http://trawler.dev/schema/core#hasConstraint"
+              ? targetForConstraint(targetId)
+              : targetId;
+
+          const targetNode = nodeForEntity(resolvedTargetId);
+
+          if (targetNode && targetNode !== sourceNode) {
+            const link = {
+              id: `${entity.entityId}_${targetId}`,
+              source: sourceNode,
+              sourceHandle: `${entity.entityId}_out`,
+              target: targetNode,
+              targetHandle: `${resolvedTargetId}_in`,
+              label: facet.name,
+              arrowHeadType: ArrowHeadType.Arrow,
+            };
+
+            connectedHandles.set(
+              sourceNode,
+              (connectedHandles.get(sourceNode) || new Set<string>()).add(
+                link.sourceHandle
+              )
+            );
+
+            connectedHandles.set(
+              targetNode,
+              (connectedHandles.get(targetNode) || new Set<string>()).add(
+                link.targetHandle
+              )
+            );
+
+            links.push(link);
+          }
+        });
+      });
+    }
+  });
+
+  nodes.forEach(
+    (node) =>
+      (node.data = {
+        ...node.data,
+        connectedHandles: connectedHandles.get(node.id) || new Set(),
+      })
+  );
+
+  return getLayoutedElements([...nodes, ...links]);
+};
+
+export const Diagram = ({ entity }: { entity: string }) => {
+  const [data] = useQuery({
+    query: EntityDocument,
+    variables: {
+      id: entity,
+      depth: 3,
+    },
+  });
+
+  const entityGraph = data.data?.entityGraph;
+
+  const [selection, setSelection] = useState(new Set<string>());
+  const elements = useMemo(
+    () => (entityGraph ? getElements(entityGraph) : null),
+    [entityGraph]
+  );
 
   const connectedNodes = new Set(
     elements
-      .map((element) => {
+      ?.map((element) => {
         if (isEdge(element)) {
           if (selection.has(element.source)) {
             return element.target;
@@ -378,29 +389,31 @@ export const Diagram = ({
       <div className="zoompanflow w-full h-full">
         <ReactFlowProvider>
           <div className="reactflow-wrapper w-full h-full">
-            <DiagramInner
-              entity={entity}
-              elements={elements.map((element) => {
-                if (isEdge(element)) {
-                  return selection.has(element.source) ||
-                    selection.has(element.target)
-                    ? { ...element, animated: true }
-                    : { ...element, animated: false };
-                } else if (isNode(element)) {
-                  return connectedNodes.has(element.id)
-                    ? {
-                        ...element,
-                        data: { ...element.data, secondarySelected: true },
-                      }
-                    : {
-                        ...element,
-                        data: { ...element.data, secondarySelected: false },
-                      };
-                }
-                return element;
-              })}
-              setSelection={setSelection}
-            />
+            {elements && (
+              <DiagramInner
+                entity={entity}
+                elements={elements.map((element) => {
+                  if (isEdge(element)) {
+                    return selection.has(element.source) ||
+                      selection.has(element.target)
+                      ? { ...element, animated: true }
+                      : { ...element, animated: false };
+                  } else if (isNode(element)) {
+                    return connectedNodes.has(element.id)
+                      ? {
+                          ...element,
+                          data: { ...element.data, secondarySelected: true },
+                        }
+                      : {
+                          ...element,
+                          data: { ...element.data, secondarySelected: false },
+                        };
+                  }
+                  return element;
+                })}
+                setSelection={setSelection}
+              />
+            )}
           </div>
         </ReactFlowProvider>
       </div>
