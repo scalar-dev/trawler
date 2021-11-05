@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "trawler"
+name = "trawler-python"
 version = "0.0.2-alpha.3"
 description = "Trawler is an open source metadata platform for mapping and monitoring your data"
 readme = "README.md"
