@@ -71,6 +71,7 @@ jobs:
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
+          cd python
           python3 -m venv .venv
           source .venv/bin/activate
           pip install poetry
