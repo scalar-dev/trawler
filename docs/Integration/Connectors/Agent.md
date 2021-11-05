@@ -27,5 +27,5 @@ life easy, the agent comes with a very simple scheduler which uses the Python
 daemon mode using any supplied job schedules:
 
 ```bash
-trawler run /app/config/example.yml 
+trawler run example.yml
 ```
