@@ -8,7 +8,7 @@ import {
 export const Features = () => {
   const features = [
     {
-      name: "All-inclusive",
+      name: "Connect your data",
       description: (
         <p>
           Trawler&apos;s agent can ingest data from a variety of data sources
@@ -25,7 +25,7 @@ export const Features = () => {
       icon: GlobeAltIcon,
     },
     {
-      name: "Flexible",
+      name: "Flexible schema",
       description: (
         <p>
           Trawler builds on semantic web technologies like JSON-LD to accurately
@@ -42,7 +42,7 @@ export const Features = () => {
       icon: ScaleIcon,
     },
     {
-      name: "Simple",
+      name: "Simple deployment",
       description: (
         <p>
           Trawler can be deployed simply and easily on top of a postgres
@@ -58,7 +58,7 @@ export const Features = () => {
       icon: LightningBoltIcon,
     },
     {
-      name: "Open",
+      name: "Open source",
       description: (
         <p>
           As well as supporting open APIs and standard data formats, Trawler
@@ -67,7 +67,7 @@ export const Features = () => {
             className="text-indigo-600 hover:text-indigo-500"
             href="https://github.com/scalar-dev/trawler"
           >
-            Visit our Github
+            Check out our Github
           </a>
         </p>
       ),
