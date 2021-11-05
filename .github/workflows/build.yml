@@ -71,9 +71,6 @@ jobs:
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
-          virtualenv .venv
-          source .venv/bin/activate
-          pip install poetry
           poetry config pypi-token.pypi $PYPI_TOKEN
           poetry publish
 
