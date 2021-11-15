@@ -5,7 +5,7 @@ import {
   DotsVerticalIcon,
 } from "@heroicons/react/solid";
 import { useContext, useState } from "react";
-import { useHistory, useParams } from "react-router";
+import { generatePath, useHistory, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
@@ -182,7 +182,14 @@ export const Dashboard = () => {
     <>
       <Header>
         <div className="flex items-center">
-          <div className="flex-1">Dashboard</div>
+          <div className="flex-1">
+            Dashboard{" "}
+            <div className="text-sm font-normal text-gray-500 hover:text-gray-700">
+              <Link to={generatePath("/:project/ontology", { project })}>
+                View ontology
+              </Link>
+            </div>
+          </div>
           <div className="w-32">
             <Selector
               values={types}
