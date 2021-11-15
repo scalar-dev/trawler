@@ -15,7 +15,7 @@ class ProjectQuery {
             .innerJoin(AccountRole)
             .select { AccountRole.accountId.eq(context.accountId) and Project.slug.isNotNull() }
             .map {
-                dev.scalar.trawler.server.graphql.Project(
+                dev.scalar.trawler.server.graphql.type.Project(
                     it[Project.id].value,
                     it[Project.name],
                     it[Project.slug]

@@ -1,4 +1,4 @@
-package dev.scalar.trawler.server.graphql
+package dev.scalar.trawler.server.graphql.type
 
 data class Facet(
     val uri: String,

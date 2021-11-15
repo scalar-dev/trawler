@@ -1,17 +1,12 @@
 package dev.scalar.trawler.server.graphql.query
 
 import dev.scalar.trawler.server.db.AccountInfo
-import dev.scalar.trawler.server.graphql.ApiKey
+import dev.scalar.trawler.server.graphql.type.ApiKey
 import dev.scalar.trawler.server.graphql.QueryContext
+import dev.scalar.trawler.server.graphql.type.User
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
-
-data class User(
-    val email: String,
-    val firstName: String?,
-    val lastName: String?
-)
 
 class UserQuery {
     suspend fun me(context: QueryContext): User? {

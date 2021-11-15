@@ -1,5 +1,6 @@
-package dev.scalar.trawler.server.graphql
+package dev.scalar.trawler.server.graphql.type
 
+import dev.scalar.trawler.server.graphql.type.Entity
 import java.time.Instant
 import java.util.UUID
 

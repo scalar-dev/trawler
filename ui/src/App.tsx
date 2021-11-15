@@ -14,6 +14,7 @@ import { SignIn } from "./routes/SignIn";
 import { Settings } from "./routes/Settings";
 import { ProjectContextURLProvider } from "./ProjectContext";
 import { Home } from "./routes/Home";
+import { Ontology } from "./routes/Ontology";
 
 const App = () => (
   <Provider value={client}>
@@ -53,6 +54,11 @@ const ProjectRoutes = () => {
       <Route path={`${path}/entity/:entity`}>
         <Entity />
       </Route>
+
+      <Route path={`${path}/ontology`}>
+        <Ontology />
+      </Route>
+
       <Route path={path}>
         <Dashboard />
       </Route>

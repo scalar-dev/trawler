@@ -2,6 +2,7 @@ package dev.scalar.trawler.server.graphql
 
 import dev.scalar.trawler.server.db.Account
 import dev.scalar.trawler.server.db.AccountInfo
+import dev.scalar.trawler.server.graphql.type.ApiKey
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.authentication.UsernamePasswordCredentials
 import io.vertx.kotlin.coroutines.await

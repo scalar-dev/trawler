@@ -1,10 +1,14 @@
-package dev.scalar.trawler.server.graphql
+package dev.scalar.trawler.server.graphql.type
 
 import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.server.db.Entity
 import dev.scalar.trawler.server.db.FacetLog
 import dev.scalar.trawler.server.db.FacetTimeSeries
 import dev.scalar.trawler.server.db.FacetType
+import dev.scalar.trawler.server.graphql.FacetTimeSeriesPoint
+import dev.scalar.trawler.server.graphql.QueryContext
+import dev.scalar.trawler.server.graphql.Unauthenticated
+import dev.scalar.trawler.server.graphql.fetchEntities
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
@@ -21,7 +25,7 @@ data class Entity(
     val facets: List<Facet>
 ) {
     @Unauthenticated
-    suspend fun facetLog(context: QueryContext, facets: List<String>): List<dev.scalar.trawler.server.graphql.FacetLog> = newSuspendedTransaction {
+    suspend fun facetLog(context: QueryContext, facets: List<String>): List<dev.scalar.trawler.server.graphql.type.FacetLog> = newSuspendedTransaction {
         val rows = FacetLog
             .join(Entity, JoinType.INNER, FacetLog.entityUrn, Entity.urn)
             .join(FacetType, JoinType.INNER, FacetLog.typeId, FacetType.id)
@@ -45,7 +49,7 @@ data class Entity(
         rows.map { row ->
             val facetType = context.ontologyCache.get(projectId).facetTypeById(row[FacetLog.typeId].value)!!
 
-            dev.scalar.trawler.server.graphql.FacetLog(
+            FacetLog(
                 row[FacetLog.id].value,
                 facetType.name,
                 facetType.uri,
@@ -70,7 +74,7 @@ data class Entity(
         if (rows.toList().isEmpty()) {
             null
         } else {
-            FacetTimeSeries(
+            dev.scalar.trawler.server.graphql.FacetTimeSeries(
                 facetType.name,
                 urn = facet,
                 points = rows.map { row ->

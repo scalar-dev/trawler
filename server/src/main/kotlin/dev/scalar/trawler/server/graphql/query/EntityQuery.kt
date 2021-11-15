@@ -4,7 +4,7 @@ import dev.scalar.trawler.ontology.FacetMetaType
 import dev.scalar.trawler.ontology.Ontology
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.util.ilike
-import dev.scalar.trawler.server.graphql.Entity
+import dev.scalar.trawler.server.graphql.type.Entity
 import dev.scalar.trawler.server.graphql.QueryContext
 import dev.scalar.trawler.server.graphql.Unauthenticated
 import dev.scalar.trawler.server.graphql.fetchEntities

@@ -8,6 +8,7 @@ import com.expediagroup.graphql.generator.execution.PropertyDataFetcher
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.toSchema
 import dev.scalar.trawler.server.graphql.query.EntityQuery
+import dev.scalar.trawler.server.graphql.query.OntologyQuery
 import dev.scalar.trawler.server.graphql.query.ProjectQuery
 import dev.scalar.trawler.server.graphql.query.UserQuery
 import graphql.schema.DataFetcherFactory
@@ -64,6 +65,9 @@ fun makeSchema(): GraphQLSchema? {
             ),
             TopLevelObject(
                 ProjectQuery()
+            ),
+            TopLevelObject(
+                OntologyQuery()
             )
         ),
         mutations = listOf(

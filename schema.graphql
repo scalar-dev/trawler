@@ -48,6 +48,13 @@ type Entity {
   urn: String!
 }
 
+type EntityType {
+  id: UUID!
+  isRootType: Boolean!
+  name: String!
+  uri: String!
+}
+
 type Facet {
   metaType: String!
   name: String!
@@ -76,6 +83,16 @@ type FacetTimeSeriesPoint {
   value: Float!
 }
 
+type FacetType {
+  id: UUID!
+  indexTimeSeries: Boolean!
+  isRootType: Boolean!
+  jsonSchema: Json
+  metaType: String!
+  name: String!
+  uri: String!
+}
+
 type Mutation {
   createApiKey: ApiKey!
   createUser(email: String!, password: String!): UUID! @unauthenticated
@@ -92,6 +109,8 @@ type Query {
   apiKeys: [ApiKey!]!
   entity(id: UUID!): Entity @unauthenticated
   entityGraph(d: Int!, id: UUID!): [Entity!]! @unauthenticated
+  entityTypes(project: String!): [EntityType!]! @unauthenticated
+  facetTypes(project: String!): [FacetType!]! @unauthenticated
   me: User
   projects: [Project!]! @unauthenticated
   search(filters: [FilterInput!]!, project: String!): [Entity!]! @unauthenticated

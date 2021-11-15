@@ -6,6 +6,8 @@ import dev.scalar.trawler.server.db.EntityType
 import dev.scalar.trawler.server.db.FacetType
 import dev.scalar.trawler.server.db.FacetValue
 import dev.scalar.trawler.server.db.Project
+import dev.scalar.trawler.server.graphql.type.Entity
+import dev.scalar.trawler.server.graphql.type.Facet
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
