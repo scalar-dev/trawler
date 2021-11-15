@@ -3,9 +3,7 @@ import { Popover, Transition } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/solid";
 import { gql } from "@urql/core";
 import { useQuery } from "urql";
-import {
-  SearchByNameDocument,
-} from "../types";
+import { SearchByNameDocument } from "../types";
 import { EntityIcon } from "../routes/Dashboard";
 import { useHistory } from "react-router";
 import _ from "lodash";
@@ -28,7 +26,7 @@ export const SEARCH_BY_NAME = gql`
       filters: [{ uri: "http://schema.org/name", value: $search }]
       project: $project
     ) {
-      entityId
+      id
       facets {
         name
         uri
@@ -107,7 +105,7 @@ export const Search = () => {
                           className="flex items-center py-2 px-1 cursor-pointer hover:bg-gray-200"
                           onClick={() => {
                             setSearch("");
-                            history.push(entityLink(result.entityId));
+                            history.push(entityLink(result.id));
                           }}
                         >
                           <EntityIcon type={result.typeName} />

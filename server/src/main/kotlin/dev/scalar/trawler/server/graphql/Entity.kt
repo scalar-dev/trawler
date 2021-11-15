@@ -13,7 +13,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import java.util.UUID
 
 data class Entity(
-    val entityId: UUID,
+    val id: UUID,
     val projectId: UUID,
     val urn: String,
     val type: String,
@@ -26,7 +26,7 @@ data class Entity(
             .join(Entity, JoinType.INNER, FacetLog.entityUrn, Entity.urn)
             .join(FacetType, JoinType.INNER, FacetLog.typeId, FacetType.id)
             .select {
-                FacetLog.entityId.eq(entityId) and FacetType.uri.inList(facets)
+                FacetLog.entityId.eq(this@Entity.id) and FacetType.uri.inList(facets)
             }
             .orderBy(FacetLog.version, SortOrder.DESC)
 
@@ -63,7 +63,7 @@ data class Entity(
         val rows = FacetTimeSeries
             .join(FacetType, JoinType.INNER, FacetTimeSeries.typeId, FacetType.id)
             .select {
-                FacetTimeSeries.entityId.eq(entityId) and FacetType.uri.eq(facet)
+                FacetTimeSeries.entityId.eq(this@Entity.id) and FacetType.uri.eq(facet)
             }
             .orderBy(FacetTimeSeries.timestamp, SortOrder.ASC)
 

@@ -11,7 +11,7 @@ import { useQuery, gql } from "urql";
 import { Header, Main } from "../components/Layout";
 import { Option, Selector } from "../components/Selector";
 import { ProjectContext } from "../ProjectContext";
-import { SearchByTypeDocument } from "../types";
+import { SearchByTypeQuery, SearchByTypeDocument } from "../types";
 
 export const EntityIcon = ({ type }: { type: string }) => {
   if (type === "SqlDatabase") {
@@ -27,7 +27,9 @@ export const EntityIcon = ({ type }: { type: string }) => {
   }
 };
 
-const Table = ({ entities }: { entities: any[] }) => {
+type Entity = SearchByTypeQuery["search"][0];
+
+const Table = ({ entities }: { entities: Entity[] }) => {
   const history = useHistory();
   const { entityLink } = useContext(ProjectContext);
 
@@ -62,8 +64,8 @@ const Table = ({ entities }: { entities: any[] }) => {
               <tbody>
                 {entities?.map((entity, idx) => (
                   <tr
-                    key={entity.entityId}
-                    onClick={() => history.push(entityLink(entity.entityId))}
+                    key={entity.id}
+                    onClick={() => history.push(entityLink(entity.id))}
                     className={`hover:bg-gray-100 cursor-pointer ${
                       idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`}
@@ -128,7 +130,7 @@ export const SEARCH_BY_TYPE = gql`
       ]
       project: $project
     ) {
-      entityId
+      id
       urn
       facets {
         name

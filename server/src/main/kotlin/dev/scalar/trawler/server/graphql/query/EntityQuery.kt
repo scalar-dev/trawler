@@ -20,6 +20,7 @@ import org.jetbrains.exposed.sql.castTo
 import org.jetbrains.exposed.sql.compoundOr
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
@@ -55,8 +56,7 @@ class EntityQuery {
         val projectId = context.projectId(project)
         val ontology = context.ontologyCache.get(projectId)
 
-        val ids = transaction {
-
+        val ids = newSuspendedTransaction {
             val aliases = filters.mapIndexed { index, filter ->
                 filter.uri to FacetValue.alias("filter_$index")
             }.associate { it.first to it.second }
@@ -64,7 +64,7 @@ class EntityQuery {
             val firstAlias = aliases[filters[0].uri]!!
             var query: ColumnSet = firstAlias
 
-            filters.drop(1).forEachIndexed { index, filter ->
+            filters.drop(1).forEach { filter ->
                 val alias = aliases[filter.uri]!!
                 query = query.innerJoin(alias, { firstAlias[FacetValue.entityId] }, { alias[FacetValue.entityId] })
             }
@@ -112,11 +112,11 @@ class EntityQuery {
                 FacetValue
                     .join(dev.scalar.trawler.server.db.Entity, JoinType.INNER, dev.scalar.trawler.server.db.Entity.id, FacetValue.entityId)
                     .slice(dev.scalar.trawler.server.db.Entity.id)
-                    .select { FacetValue.targetEntityId.inList(currentEntities.map { it.entityId }) }
+                    .select { FacetValue.targetEntityId.inList(currentEntities.map { it.id }) }
                     .map { it[dev.scalar.trawler.server.db.Entity.id].value }
             }
 
-            val existingIds = output.map { it.entityId }.toSet()
+            val existingIds = output.map { it.id }.toSet()
 
             val idsToFetch = (targetIds + fromIds).filter { !existingIds.contains(it) }
 

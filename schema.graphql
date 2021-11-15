@@ -38,11 +38,11 @@ type AuthenticatedUser {
 }
 
 type Entity {
-  entityId: UUID!
-  facetLog(facets: [String!]!): [FacetLog!]!
+  facetLog(facets: [String!]!): [FacetLog!]! @unauthenticated
   facets: [Facet!]!
+  id: UUID!
   projectId: UUID!
-  timeSeries(facet: String!): FacetTimeSeries
+  timeSeries(facet: String!): FacetTimeSeries @unauthenticated
   type: String!
   typeName: String!
   urn: String!

@@ -27,7 +27,7 @@ import { Schema } from "./Schema";
 export const ENTITY_QUERY = gql`
   query Entity($id: UUID!, $depth: Int!) {
     entityGraph(id: $id, d: $depth) {
-      entityId
+      id
       urn
       facets {
         name

@@ -30,7 +30,7 @@ export const FACET_LOG_QUERY = gql`
         urn
         version
         entities {
-          entityId
+          id
           facets {
             name
             uri

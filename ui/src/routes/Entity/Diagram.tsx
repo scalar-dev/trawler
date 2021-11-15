@@ -30,7 +30,7 @@ type Field = {
 
 type Entity = {
   typeName: string;
-  entityId: string;
+  id: string;
   facets: any[];
 };
 
@@ -217,12 +217,12 @@ const DiagramInner = ({
 };
 
 const getElements = (entityGraph: Entity[]) => {
-  const entityById = _.keyBy(entityGraph, (entity) => entity.entityId);
+  const entityById = _.keyBy(entityGraph, (entity) => entity.id);
 
   const parentEntity: Record<string, string> = _.chain(entityGraph)
     .flatMap((entity) => {
       const fieldIds: string[] = fields(entity);
-      return fieldIds.map((fieldId: string) => [entity.entityId, fieldId]);
+      return fieldIds.map((fieldId: string) => [entity.id, fieldId]);
     })
     .keyBy((kv) => kv[1])
     .mapValues((kv) => kv[0])
